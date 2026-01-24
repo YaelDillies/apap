@@ -12,7 +12,7 @@ import LeanAPAP.Prereqs.Rudin
 open Finset Fintype Function MeasureTheory RCLike Real
 open scoped ComplexConjugate ComplexOrder NNReal
 
-variable {G : Type*} [AddCommGroup G] [Fintype G] {f : G → ℂ} {x η : ℝ} {ψ : AddChar G ℂ}
+variable {G : Type*} [AddCommGroup G] {f : G → ℂ} {x η : ℝ} {ψ : AddChar G ℂ}
   {Δ : Finset (AddChar G ℂ)} {m : ℕ}
 
 local notation "𝓛" x:arg => 1 + log x⁻¹
@@ -55,8 +55,9 @@ example : 0 < changConst := by positivity
 end Mathlib.Meta.Positivity
 
 lemma AddDissociated.boringEnergy_le [MeasurableSpace G] [DiscreteMeasurableSpace G] [DecidableEq G]
-    {s : Finset G} (hs : AddDissociated (s : Set G)) (n : ℕ) :
+    [Finite G] {s : Finset G} (hs : AddDissociated (s : Set G)) (n : ℕ) :
     boringEnergy n s ≤ changConst ^ n * n ^ n * #s ^ n := by
+  cases nonempty_fintype G
   obtain rfl | hn := eq_or_ne n 0
   · simp
   calc
@@ -76,7 +77,7 @@ lemma AddDissociated.boringEnergy_le [MeasurableSpace G] [DiscreteMeasurableSpac
 
 local notation:70 s:70 " ^^ " n:71 => Fintype.piFinset fun _ : Fin n ↦ s
 
-variable [MeasurableSpace G] [DiscreteMeasurableSpace G]
+variable [Fintype G] [MeasurableSpace G] [DiscreteMeasurableSpace G]
 
 private lemma α_le_one (f : G → ℂ) : ‖f‖_[1] ^ 2 / ‖f‖_[2] ^ 2 / card G ≤ 1 := by
   refine div_le_one_of_le₀ (div_le_of_le_mul₀ ?_ ?_ ?_) ?_

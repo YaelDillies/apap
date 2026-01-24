@@ -365,10 +365,14 @@ lemma big_quadruple_bound {K : ℝ}
         ring_nf
       · simp [Set.MapsTo]
 
+omit [Fintype G]
+variable [Finite G]
+
 theorem BSG_aux {K : ℝ} (hK : 0 < K) (hA : (0 : ℝ) < #A) (hB : (0 : ℝ) < #B)
     (hAB : K⁻¹ * (#A ^ 2 * #B) ≤ E[A, B]) :
     ∃ s : G, ∃ A' ⊆ A ∩ (s +ᵥ B), (2 ^ 4)⁻¹ * K⁻¹ * #A ≤ #A' ∧
     #(A' - A') ≤ 2 ^ 10 * K ^ 5 * #B ^ 4 / #A ^ 3 := by
+  cases nonempty_fintype G
   obtain ⟨s, X, hX₁, hX₂, hX₃⟩ := lemma_one' (c := 1 / 8) (by norm_num) hK hAB hA hB
   set H : Finset (G × G) := (X ×ˢ X).filter
     fun ⟨a, b⟩ ↦ (1 / 8 : ℝ) / 2 * (K ^ 2)⁻¹ * #A ≤ (𝟭 B ○ 𝟭 B) (a - b)

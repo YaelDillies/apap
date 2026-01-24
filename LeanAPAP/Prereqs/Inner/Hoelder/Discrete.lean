@@ -66,9 +66,13 @@ lemma nnnorm_wInner_one_le_dLpNorm_mul_dLpNorm (p q : ℝ≥0∞) [p.HolderConju
     _ ≤ ‖fun a ↦ ‖f a‖‖_[p] * ‖fun a ↦ ‖g a‖‖_[q] := wInner_one_le_dLpNorm_mul_dLpNorm _ _
     _ = ‖f‖_[p] * ‖g‖_[q] := by simp_rw [dLpNorm_norm]
 
+omit [Fintype α]
+variable [Finite α]
+
 /-- **Hölder's inequality**, binary case. -/
 lemma dLpNorm_mul_le (p q : ℝ≥0∞) (hr₀ : r ≠ 0) [hpqr : ENNReal.HolderTriple p q r] :
     ‖f * g‖_[r] ≤ ‖f‖_[p] * ‖g‖_[q] := by
+  cases nonempty_fintype α
   obtain rfl | p := p
   · sorry
   obtain rfl | q := q

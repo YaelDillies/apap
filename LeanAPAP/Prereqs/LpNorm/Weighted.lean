@@ -51,17 +51,19 @@ variable {K : Type*} [RCLike K]
 
 end RCLike
 
-variable [Fintype α]
+variable [Finite α]
 
 @[simp] lemma wLpNorm_const_right (hp : p ≠ ∞) (w : ℝ≥0) (f : α → E) :
     ‖f‖_[p, const _ w] = w ^ p.toReal⁻¹ * ‖f‖_[p] := by
+  cases nonempty_fintype α
   simp [wLpNorm, dLpNorm, ← Finset.smul_sum, nnLpNorm_smul_measure_of_ne_top hp, Measure.count]
 
 @[simp] lemma wLpNorm_smul_right (hp : p ≠ ⊤) (c : ℝ≥0) (f : α → E) :
     ‖f‖_[p, c • w] = c ^ p.toReal⁻¹ * ‖f‖_[p, w] := by
+  cases nonempty_fintype α
   simp [wLpNorm, mul_smul, ← Finset.smul_sum, nnLpNorm_smul_measure_of_ne_top hp]
 
-variable [DiscreteMeasurableSpace α]
+variable [Fintype α] [DiscreteMeasurableSpace α]
 
 lemma wLpNorm_eq_sum_norm (hp₀ : p ≠ 0) (hp : p ≠ ∞) (w : α → ℝ≥0) (f : α → E) :
     ‖f‖_[p, w] = (∑ i, w i • ‖f i‖ ^ p.toReal) ^ p.toReal⁻¹ := by
@@ -101,6 +103,8 @@ lemma wL1Norm_eq_sum_nnnorm (w : α → ℝ≥0) (f : α → E) : ‖f‖_[1, w]
 lemma wL1Norm_eq_sum_norm (w : α → ℝ≥0) (f : α → E) : ‖f‖_[1, w] = ∑ i, w i • ‖f i‖ := by
   simp [wLpNorm_eq_sum_norm]
 
+omit [Fintype α]
+
 @[gcongr]
 lemma wLpNorm_mono_right (hpq : p ≤ q) (w : α → ℝ≥0) (f : α → E) : ‖f‖_[p, w] ≤ ‖f‖_[q, w] :=
   sorry
@@ -133,24 +137,25 @@ end one_le
 end NormedAddCommGroup
 
 section Real
-variable [Fintype α] [DiscreteMeasurableSpace α] {p : ℝ≥0∞} {w : α → ℝ≥0} {f g : α → ℝ}
+variable [DiscreteMeasurableSpace α] {p : ℝ≥0∞} {w : α → ℝ≥0} {f g : α → ℝ}
 
 @[simp]
-lemma wLpNorm_one (hp₀ : p ≠ 0) (hp : p ≠ ∞) (w : α → ℝ≥0) :
+lemma wLpNorm_one [Fintype α] (hp₀ : p ≠ 0) (hp : p ≠ ∞) (w : α → ℝ≥0) :
     ‖(1 : α → ℝ)‖_[p, w] = (∑ i, w i) ^ p.toReal⁻¹ := by simp [wLpNorm_eq_sum_nnnorm hp₀ hp]
 
-lemma wLpNorm_mono (hf : 0 ≤ f) (hfg : f ≤ g) : ‖f‖_[p, w] ≤ ‖g‖_[p, w] :=
+lemma wLpNorm_mono [Finite α] (hf : 0 ≤ f) (hfg : f ≤ g) : ‖f‖_[p, w] ≤ ‖g‖_[p, w] :=
   nnLpNorm_mono_real .of_discrete (by simpa [abs_of_nonneg (hf _)])
 
 end Real
 
 section wLpNorm
-variable [Fintype α] [DiscreteMeasurableSpace α] {p : ℝ≥0} {w : α → ℝ≥0}
+variable [Finite α] [DiscreteMeasurableSpace α] {p : ℝ≥0} {w : α → ℝ≥0}
 
 variable [AddCommGroup α]
 
 @[simp] lemma wLpNorm_translate [NormedAddCommGroup E] (a : α) (f : α → E) :
     ‖τ a f‖_[p, τ a w] = ‖f‖_[p, w] := by
+  cases nonempty_fintype α
   obtain rfl | hp := eq_or_ne p 0 <;>
     simp [wLpNorm_eq_sum_nnnorm, *, ← sum_translate a fun x ↦ w x * ‖f x‖₊ ^ (_ : ℝ)]
 

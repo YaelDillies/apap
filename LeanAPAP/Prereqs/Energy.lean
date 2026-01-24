@@ -16,7 +16,7 @@ def energy (n : ℕ) (s : Finset G) (ν : G → ℂ) : ℝ :=
 lemma energy_nonneg (n : ℕ) (s : Finset G) (ν : G → ℂ) : 0 ≤ energy n s ν := by
   unfold energy; positivity
 
-lemma energy_nsmul (m n : ℕ) (s : Finset G) (ν : G → ℂ) : 
+lemma energy_nsmul (m n : ℕ) (s : Finset G) (ν : G → ℂ) :
     energy n s (m • ν) = m • energy n s ν := by
   simp only [energy, nsmul_eq_mul, mul_sum, Pi.natCast_def, Pi.mul_apply, norm_mul,
     Complex.norm_natCast]
@@ -29,9 +29,8 @@ def boringEnergy (n : ℕ) (s : Finset G) : ℝ := energy n s trivChar
 
 @[simp] lemma boringEnergy_zero (s : Finset G) : boringEnergy 0 s = 1 := by simp [boringEnergy]
 
-variable [Fintype G]
-
-lemma boringEnergy_eq (n : ℕ) (s : Finset G) : boringEnergy n s = ∑ x, (𝟭 s ∗^ n) x ^ 2 := by
+lemma boringEnergy_eq [Fintype G] (n : ℕ) (s : Finset G) :
+    boringEnergy n s = ∑ x, (𝟭 s ∗^ n) x ^ 2 := by
   classical
   simp only [boringEnergy, energy, apply_ite norm, trivChar_apply, norm_one, norm_zero, sum_boole,
     sub_eq_zero]
@@ -41,8 +40,10 @@ lemma boringEnergy_eq (n : ℕ) (s : Finset G) : boringEnergy n s = ∑ x, (𝟭
   refine sum_congr rfl fun f hf ↦ ?_
   simp_rw [(mem_filter.1 hf).2, eq_comm]
 
-@[simp] lemma boringEnergy_one (s : Finset G) : boringEnergy 1 s = #s := by
-  simp [boringEnergy_eq, indicate_apply]
+@[simp] lemma boringEnergy_one [Finite G] (s : Finset G) : boringEnergy 1 s = #s := by
+  cases nonempty_fintype G; simp [boringEnergy_eq, indicate_apply]
+
+variable [Fintype G]
 
 lemma cLpNorm_dft_indicate_pow [MeasurableSpace G] [DiscreteMeasurableSpace G] (n : ℕ)
     (s : Finset G) : ‖dft (𝟭 s)‖ₙ_[↑(2 * n)] ^ (2 * n) = boringEnergy n s := by

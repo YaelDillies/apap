@@ -11,7 +11,7 @@ open Finset Function Real
 open scoped BigOperators ComplexConjugate ENNReal NNReal translate mu
 
 namespace MeasureTheory
-variable {ι G 𝕜 E R : Type*} [Fintype ι] {mι : MeasurableSpace ι} [DiscreteMeasurableSpace ι]
+variable {ι G 𝕜 E R : Type*} [Finite ι] {mι : MeasurableSpace ι} [DiscreteMeasurableSpace ι]
 
 /-! ### Indicator -/
 
@@ -19,6 +19,7 @@ section Indicator
 variable [RCLike R] [DecidableEq ι] {s : Finset ι} {p : ℝ≥0}
 
 lemma dLpNorm_rpow_indicate (hp : p ≠ 0) (s : Finset ι) : ‖𝟭_[R] s‖_[p] ^ (p : ℝ) = #s := by
+  cases nonempty_fintype ι
   have : ∀ x, (ite (x ∈ s) 1 0 : ℝ) ^ (p : ℝ) =
     ite (x ∈ s) (1 ^ (p : ℝ)) (0 ^ (p : ℝ)) := fun x ↦ by split_ifs <;> simp
   simp [dLpNorm_rpow_eq_sum_nnnorm, hp, indicate_apply, apply_ite nnnorm, -sum_const,
@@ -63,11 +64,12 @@ end Indicator
 /-! ### Translation -/
 
 section dLpNorm
-variable {mG : MeasurableSpace G} [DiscreteMeasurableSpace G] [AddCommGroup G] [Fintype G]
+variable {mG : MeasurableSpace G} [DiscreteMeasurableSpace G] [AddCommGroup G] [Finite G]
   {p : ℝ≥0∞}
 
 @[simp]
 lemma dLpNorm_translate [NormedAddCommGroup E] (a : G) (f : G → E) : ‖τ a f‖_[p] = ‖f‖_[p] := by
+  cases nonempty_fintype G
   obtain p | p := p
   · simp only [dLinftyNorm_eq_iSup_nnnorm, ENNReal.none_eq_top, translate_apply]
     exact (Equiv.subRight _).iSup_congr fun _ ↦ rfl
@@ -78,6 +80,7 @@ lemma dLpNorm_translate [NormedAddCommGroup E] (a : G) (f : G → E) : ‖τ a f
     exact Fintype.sum_equiv (Equiv.subRight _) _ _ fun _ ↦ rfl
 
 @[simp] lemma dLpNorm_conjneg [RCLike E] (f : G → E) : ‖conjneg f‖_[p] = ‖f‖_[p] := by
+  cases nonempty_fintype G
   simp only [conjneg, dLpNorm_conj]
   obtain p | p := p
   · simp only [dLinftyNorm_eq_iSup_nnnorm, ENNReal.none_eq_top]

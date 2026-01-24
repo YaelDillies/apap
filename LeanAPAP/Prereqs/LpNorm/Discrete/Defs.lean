@@ -188,6 +188,9 @@ lemma dL2Norm_eq_sum_nnnorm (f : α → E) : ‖f‖_[2] = (∑ i, ‖f i‖₊ 
 lemma dL1Norm_eq_sum_norm (f : α → E) : ‖f‖_[1] = ∑ i, ‖f i‖ := by simp [dLpNorm_eq_sum_norm']
 lemma dL1Norm_eq_sum_nnnorm (f : α → E) : ‖f‖_[1] = ∑ i, ‖f i‖₊ := by simp [dLpNorm_eq_sum_nnnorm']
 
+omit [Fintype α]
+variable [Finite α]
+
 lemma dLinftyNorm_eq_iSup_nnnorm (f : α → E) : ‖f‖_[∞] = ⨆ i, ‖f i‖₊ := by
   cases isEmpty_or_nonempty α
   · simp
@@ -213,6 +216,9 @@ lemma norm_le_dLinftyNorm {i : α} : ‖f i‖ ≤ ‖f‖_[∞] := by
 lemma dLpNorm_mono_real {g : α → ℝ} (h : ∀ x, ‖f x‖ ≤ g x) : ‖f‖_[p] ≤ ‖g‖_[p] :=
   nnLpNorm_mono_real .of_discrete h
 
+omit [Finite α]
+variable [Fintype α]
+
 lemma dLpNorm_two_mul_sum_pow {ι : Type*} {n : ℕ} (hn : n ≠ 0) (s : Finset ι) (f : ι → α → ℂ) :
     ‖∑ i ∈ s, f i‖_[2 * n] ^ (2 * n) =
       ∑ x ∈ s ^^ n, ∑ y ∈ s ^^ n, ∑ a, (∏ i, conj (f (x i) a)) * ∏ i, f (y i) a :=
@@ -234,7 +240,7 @@ open Lean Meta Qq Function MeasureTheory
 private alias ⟨_, dLpNorm_pos_of_ne_zero⟩ := dLpNorm_pos
 
 private lemma dLpNorm_pos_of_pos {α E : Type*} {_ : MeasurableSpace α} [DiscreteMeasurableSpace α]
-    [Fintype α] [NormedAddCommGroup E] [Preorder E] {p : ℝ≥0∞} {f : α → E}
+    [Finite α] [NormedAddCommGroup E] [Preorder E] {p : ℝ≥0∞} {f : α → E}
     (hp : p ≠ 0) (hf : 0 < f) : 0 < ‖f‖_[p] := dLpNorm_pos_of_ne_zero hp hf.ne'
 
 /-- The `positivity` extension which identifies expressions of the form `‖f‖_[p]`. -/
@@ -281,11 +287,12 @@ end Mathlib.Meta.Positivity
 
 namespace MeasureTheory
 section Real
-variable {α : Type*} {mα : MeasurableSpace α} [DiscreteMeasurableSpace α] [Fintype α] {p q : ℝ≥0}
+variable {α : Type*} {mα : MeasurableSpace α} [DiscreteMeasurableSpace α] [Finite α] {p q : ℝ≥0}
   {f g : α → ℝ}
 
 lemma dLpNorm_rpow (hp : p ≠ 0) (hq : q ≠ 0) (hf : 0 ≤ f) :
     ‖f ^ (q : ℝ)‖_[p] = ‖f‖_[p * q] ^ (q : ℝ) := by
+  cases nonempty_fintype α
   refine NNReal.rpow_left_injective (NNReal.coe_ne_zero.2 hp) ?_
   dsimp
   rw [← NNReal.rpow_mul, ← mul_comm, ← ENNReal.coe_mul, ← NNReal.coe_mul,
@@ -296,6 +303,7 @@ lemma dLpNorm_rpow (hp : p ≠ 0) (hq : q ≠ 0) (hf : 0 ≤ f) :
 
 lemma dLpNorm_pow (hp : p ≠ 0) {q : ℕ} (hq : q ≠ 0) (f : α → ℂ) :
     ‖f ^ q‖_[p] = ‖f‖_[p * q] ^ q := by
+  cases nonempty_fintype α
   refine NNReal.rpow_left_injective (NNReal.coe_ne_zero.2 hp) ?_
   dsimp
   rw [← NNReal.rpow_natCast_mul, ← mul_comm, ← ENNReal.coe_natCast, ← ENNReal.coe_mul,
@@ -312,12 +320,14 @@ lemma dL1Norm_pow {q : ℕ} (hq : q ≠ 0) (f : α → ℂ) : ‖f ^ q‖_[1] = 
 end Real
 
 section Hoelder
-variable {α : Type*} {mα : MeasurableSpace α} [DiscreteMeasurableSpace α] [Fintype α] [RCLike 𝕜]
+variable {α : Type*} {mα : MeasurableSpace α} [DiscreteMeasurableSpace α] [Finite α] [RCLike 𝕜]
   {p q : ℝ≥0} {f g : α → 𝕜}
 
 lemma dLpNorm_eq_dL1Norm_rpow (hp : p ≠ 0) (f : α → 𝕜) :
     ‖f‖_[p] = ‖fun a ↦ ‖f a‖ ^ (p : ℝ)‖_[1] ^ (p⁻¹ : ℝ) := by
-  ext; simp [dLpNorm_eq_sum_nnnorm hp, dL1Norm_eq_sum_nnnorm, abs_rpow_of_nonneg]
+  cases nonempty_fintype α
+  ext
+  simp [dLpNorm_eq_sum_nnnorm hp, dL1Norm_eq_sum_nnnorm, abs_rpow_of_nonneg]
 
 lemma dLpNorm_rpow' {p : ℝ≥0∞} (hp₀ : p ≠ 0) (hp : p ≠ ∞) (hq : q ≠ 0) (f : α → 𝕜) :
     ‖f‖_[p] ^ (q : ℝ) = ‖(fun a ↦ ‖f a‖) ^ (q : ℝ)‖_[p / q] := by

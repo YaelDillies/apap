@@ -55,7 +55,9 @@ lemma wInner_one_dconv_eq_conv_wInner_one (f g h : G → 𝕜) : ⟪f, h ○ g�
 
 variable [MeasurableSpace G] [DiscreteMeasurableSpace G]
 
-@[simp] lemma dLpNorm_trivChar (hp : p ≠ 0) : ‖(trivChar : G → 𝕜)‖_[p] = 1 := by
+omit [Fintype G] in
+@[simp] lemma dLpNorm_trivChar [Finite G] (hp : p ≠ 0) : ‖(trivChar : G → 𝕜)‖_[p] = 1 := by
+  cases nonempty_fintype G
   obtain _ | p := p
   · simp only [ENNReal.none_eq_top, dLinftyNorm_eq_iSup_nnnorm, trivChar_apply, apply_ite,
       nnnorm_one, nnnorm_zero]
