@@ -59,61 +59,61 @@ omit [Fintype G] in
 @[simp] lemma dLpNorm_trivChar [Finite G] (hp : p ≠ 0) : ‖(trivChar : G → 𝕜)‖_[p] = 1 := by
   cases nonempty_fintype G
   obtain _ | p := p
-  · simp only [ENNReal.none_eq_top, dLinftyNorm_eq_iSup_nnnorm, trivChar_apply, apply_ite,
-      nnnorm_one, nnnorm_zero]
+  · simp only [ENNReal.none_eq_top, dLinftyNorm_eq_iSup_norm, trivChar_apply, apply_ite,
+      norm_one, norm_zero]
     exact IsLUB.ciSup_eq ⟨by aesop (add simp mem_upperBounds), fun x hx ↦ hx ⟨0, if_pos rfl⟩⟩
   · simp at hp
-    simp [dLpNorm_eq_sum_nnnorm hp, apply_ite, hp]
+    simp [dLpNorm_eq_sum_norm hp, apply_ite, hp]
 
 /-- A special case of **Young's convolution inequality**. -/
 lemma dLpNorm_conv_le {p : ℝ≥0} (hp : 1 ≤ p) (f g : G → 𝕜) : ‖f ∗ g‖_[p] ≤ ‖f‖_[p] * ‖g‖_[1] := by
   obtain rfl | hp := hp.eq_or_lt
-  · simp_rw [ENNReal.coe_one, dL1Norm_eq_sum_nnnorm, sum_mul_sum, conv_eq_sum_sub']
+  · simp_rw [ENNReal.coe_one, dL1Norm_eq_sum_norm, sum_mul_sum, conv_eq_sum_sub']
     calc
-      ∑ x, ‖∑ y, f y * g (x - y)‖₊ ≤ ∑ x, ∑ y, ‖f y * g (x - y)‖₊ :=
-        sum_le_sum fun x _ ↦ nnnorm_sum_le _ _
+      ∑ x, ‖∑ y, f y * g (x - y)‖ ≤ ∑ x, ∑ y, ‖f y * g (x - y)‖ :=
+        sum_le_sum fun x _ ↦ norm_sum_le _ _
       _ = _ := ?_
     rw [sum_comm]
-    simp_rw [nnnorm_mul]
+    simp_rw [norm_mul]
     exact sum_congr rfl fun x _ ↦ Fintype.sum_equiv (Equiv.subRight x) _ _ fun _ ↦ rfl
   have hp₀ := zero_lt_one.trans hp
-  rw [← NNReal.rpow_le_rpow_iff hp₀, NNReal.mul_rpow]
+  rw [← rpow_le_rpow_iff _ _ hp₀, mul_rpow]
+  any_goals positivity
   dsimp
-  simp_rw [dLpNorm_rpow_eq_sum_nnnorm hp₀.ne', conv_eq_sum_sub']
+  simp_rw [dLpNorm_rpow_eq_sum_norm hp₀.ne', conv_eq_sum_sub']
   have hpconj : (p : ℝ).HolderConjugate (1 - (p : ℝ)⁻¹)⁻¹ :=
     ⟨by simp, mod_cast hp₀, by simpa using inv_lt_one_of_one_lt₀ hp⟩
-  have (x : G) : ‖∑ y, f y * g (x - y)‖₊ ^ (p : ℝ) ≤
-      (∑ y, ‖f y‖₊ ^ (p : ℝ) * ‖g (x - y)‖₊) * (∑ y, ‖g (x - y)‖₊) ^ (p - 1 : ℝ) := by
-    rw [← NNReal.le_rpow_inv_iff_of_pos, NNReal.mul_rpow, ← NNReal.rpow_mul, sub_one_mul,
-      mul_inv_cancel₀]
+  have (x : G) : ‖∑ y, f y * g (x - y)‖ ^ (p : ℝ) ≤
+      (∑ y, ‖f y‖ ^ (p : ℝ) * ‖g (x - y)‖) * (∑ y, ‖g (x - y)‖) ^ (p - 1 : ℝ) := by
+    rw [← le_rpow_inv_iff_of_pos, mul_rpow, ← rpow_mul, sub_one_mul, mul_inv_cancel₀]
     any_goals positivity
     calc
-      _ ≤ ∑ y, ‖f y * g (x - y)‖₊ := nnnorm_sum_le _ _
-      _ = ∑ y, ‖f y‖₊ * ‖g (x - y)‖₊ ^ (p : ℝ)⁻¹ * ‖g (x - y)‖₊ ^ (1 - (p : ℝ)⁻¹) := ?_
-      _ ≤ _ := NNReal.inner_le_Lp_mul_Lq _ _ _ hpconj
+      _ ≤ ∑ y, ‖f y * g (x - y)‖ := norm_sum_le _ _
+      _ = ∑ y, ‖f y‖ * ‖g (x - y)‖ ^ (p : ℝ)⁻¹ * ‖g (x - y)‖ ^ (1 - (p : ℝ)⁻¹) := ?_
+      _ ≤ _ := inner_le_Lp_mul_Lq _ _ _ hpconj
       _ = _ := ?_
     · congr with t
-      rw [nnnorm_mul, mul_assoc, ← NNReal.rpow_add', add_sub_cancel, NNReal.rpow_one]
+      rw [norm_mul, mul_assoc, ← rpow_add' (by positivity), add_sub_cancel, rpow_one]
       simp
     · have : 1 - (p : ℝ)⁻¹ ≠ 0 := sub_ne_zero.2 (inv_ne_one.2 <| NNReal.coe_ne_one.2 hp.ne').symm
-      simp [NNReal.mul_rpow, hp₀.ne', this]
+      simp [mul_rpow, rpow_nonneg, hp₀.ne', this, abs_rpow_of_nonneg]
   calc
-    ∑ x, ‖∑ y, f y * g (x - y)‖₊ ^ (p : ℝ) ≤
-        ∑ x, (∑ y, ‖f y‖₊ ^ (p : ℝ) * ‖g (x - y)‖₊) * (∑ y, ‖g (x - y)‖₊) ^ (p - 1 : ℝ) :=
+    ∑ x, ‖∑ y, f y * g (x - y)‖ ^ (p : ℝ) ≤
+        ∑ x, (∑ y, ‖f y‖ ^ (p : ℝ) * ‖g (x - y)‖) * (∑ y, ‖g (x - y)‖) ^ (p - 1 : ℝ) :=
       sum_le_sum fun i _ ↦ this _
     _ = _ := ?_
-  have hg : ∀ x, ∑ y, ‖g (x - y)‖₊ = ‖g‖_[1] := by
-    simp_rw [dL1Norm_eq_sum_nnnorm]
+  have hg : ∀ x, ∑ y, ‖g (x - y)‖ = ‖g‖_[1] := by
+    simp_rw [dL1Norm_eq_sum_norm]
     exact fun x ↦ Fintype.sum_equiv (Equiv.subLeft _) _ _ fun _ ↦ rfl
-  have hg' : ∀ y, ∑ x, ‖g (x - y)‖₊ = ‖g‖_[1] := by
-    simp_rw [dL1Norm_eq_sum_nnnorm]
+  have hg' : ∀ y, ∑ x, ‖g (x - y)‖ = ‖g‖_[1] := by
+    simp_rw [dL1Norm_eq_sum_norm]
     exact fun x ↦ Fintype.sum_equiv (Equiv.subRight _) _ _ fun _ ↦ rfl
   simp_rw [hg]
   rw [← sum_mul, sum_comm]
   simp_rw [← mul_sum, hg']
-  rw [← sum_mul, mul_assoc, ← NNReal.rpow_one_add', add_sub_cancel]
-  · rw [add_sub_cancel]
-    positivity
+  rw [← sum_mul, mul_assoc, ← rpow_one_add' (by positivity), add_sub_cancel]
+  rw [add_sub_cancel]
+  positivity
 
 /-- A special case of **Young's convolution inequality**. -/
 lemma dLpNorm_dconv_le {p : ℝ≥0} (hp : 1 ≤ p) (f g : G → 𝕜) : ‖f ○ g‖_[p] ≤ ‖f‖_[p] * ‖g‖_[1] := by
@@ -126,10 +126,9 @@ variable [MeasurableSpace G] [DiscreteMeasurableSpace G] {f g : G → ℝ} {n : 
 
 --TODO: Include `f : G → ℂ`
 lemma dL1Norm_conv (hf : 0 ≤ f) (hg : 0 ≤ g) : ‖f ∗ g‖_[1] = ‖f‖_[1] * ‖g‖_[1] := by
-  ext
   have : ∀ x, 0 ≤ ∑ y, f y * g (x - y) := fun x ↦ sum_nonneg fun y _ ↦ mul_nonneg (hf _) (hg _)
-  simp [dL1Norm_eq_sum_nnnorm, ← sum_conv, conv_eq_sum_sub', nnnorm_of_nonneg (this _),
-    nnnorm_of_nonneg (hf _), nnnorm_of_nonneg (hg _)]
+  simp [dL1Norm_eq_sum_norm, ← sum_conv, conv_eq_sum_sub', norm_of_nonneg (this _),
+    norm_of_nonneg (hf _), norm_of_nonneg (hg _)]
 
 lemma dL1Norm_dconv (hf : 0 ≤ f) (hg : 0 ≤ g) : ‖f ○ g‖_[1] = ‖f‖_[1] * ‖g‖_[1] := by
   simpa using dL1Norm_conv hf (conjneg_nonneg.2 hg)

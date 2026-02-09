@@ -2,8 +2,9 @@ import LeanAPAP.Extras.BSG
 import LeanAPAP.FiniteField
 import LeanAPAP.Integer
 import LeanAPAP.Mathlib.Analysis.Convolution
+import LeanAPAP.Mathlib.Analysis.Normed.Ring.Basic
+import LeanAPAP.Mathlib.Analysis.RCLike.Basic
 import LeanAPAP.Mathlib.Data.Real.ConjExponents
-import LeanAPAP.Mathlib.MeasureTheory.Function.LpSeminorm.NNLpNorm
 import LeanAPAP.Mathlib.Topology.Algebra.PontryaginDual
 import LeanAPAP.Physics.AlmostPeriodicity
 import LeanAPAP.Physics.DRC

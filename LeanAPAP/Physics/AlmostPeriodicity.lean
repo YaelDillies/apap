@@ -330,14 +330,14 @@ lemma just_the_triangle_inequality {t : G} {a : Fin k → G} (ha : a ∈ l k m �
     rwa [dLpNorm_sub_comm, ← h₄, ← h₃]
   have : (0 : ℝ) < k := by positivity
   refine le_of_mul_le_mul_left ?_ this
-  rw [← nsmul_eq_mul, ← NNReal.coe_nsmul, ← dLpNorm_nsmul _ (_ - mu A ∗ f), nsmul_sub, ←
+  rw [← nsmul_eq_mul, ← dLpNorm_nsmul _ (_ - mu A ∗ f), nsmul_sub, ←
     translate_smul_right (-t) (mu A ∗ f) k, mul_assoc, mul_left_comm, two_mul ((k : ℝ) * _), ←
     mul_assoc]
   calc
-    (‖τ (-t) (k • (μ A ∗ f)) - k • (μ A ∗ f)‖_[2 * m] : ℝ)
-      ≤ ↑(‖τ (-t) (k • (μ A ∗ f)) - f₁‖_[2 * m] + ‖f₁ - k • (μ A ∗ f)‖_[2 * m]) := by
-      gcongr; exact dLpNorm_sub_le_dLpNorm_sub_add_dLpNorm_sub (mod_cast hp)
-    _ ≤ k * ε * ‖f‖_[2 * m] + k * ε * ‖f‖_[2 * m] := by push_cast; gcongr
+    ‖τ (-t) (k • (μ A ∗ f)) - k • (μ A ∗ f)‖_[2 * m]
+      ≤ ‖τ (-t) (k • (μ A ∗ f)) - f₁‖_[2 * m] + ‖f₁ - k • (μ A ∗ f)‖_[2 * m] :=
+      dLpNorm_sub_le_dLpNorm_sub_add_dLpNorm_sub (mod_cast hp)
+    _ ≤ k * ε * ‖f‖_[2 * m] + k * ε * ‖f‖_[2 * m] := by gcongr
 
 lemma T_bound (hK₂ : 2 ≤ K) (Lc Sc Ac ASc Tc : ℕ) (hk : k = ⌈(64 : ℝ) * m / (ε / 2) ^ 2⌉₊)
     (h₁ : Lc * Sc ≤ ASc ^ k * Tc) (h₂ : (Ac : ℝ) ^ k / 2 ≤ Lc) (h₃ : (ASc : ℝ) ≤ K * Ac)
@@ -498,12 +498,11 @@ theorem linfty_almost_periodicity_boosted (ε : ℝ) (hε₀ : 0 < ε) (hε₁ :
     _ ≤ 𝔼 a ∈ T ^^ k, ‖τ (∑ i, a i) F - F‖_[∞] := MeasureTheory.dLpNorm_expect_le le_top
     _ ≤ 𝔼 _a ∈ T ^^ k, ε := ?_
     _ = ε := by rw [expect_const hT'.piFinset_const]
-  push_cast
   refine expect_le_expect fun x hx ↦
   calc
     (‖τ (∑ i, x i) F - F‖_[⊤] : ℝ)
     _ ≤ ∑ i, ‖τ (x i) F - F‖_[⊤] := MeasureTheory.dLpNorm_translate_sum_sub_le le_top _ _ _
-    _ ≤ ∑ _i, ε / k := by push_cast; exact sum_le_sum fun i _ ↦ hT _ <| Fintype.mem_piFinset.1 hx _
+    _ ≤ ∑ _i, ε / k := by gcongr; exact hT _ <| Fintype.mem_piFinset.1 hx _
     _ = ε := by simp only [sum_const, card_fin, nsmul_eq_mul]; rw [mul_div_cancel₀]; positivity
 
 end AlmostPeriodicity

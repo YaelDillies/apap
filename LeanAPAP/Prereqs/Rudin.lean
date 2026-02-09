@@ -68,10 +68,10 @@ private lemma rudin_ineq_aux (hp : 2 ≤ p) (f : G → ℂ) (hf : AddDissociated
     · rwa [cft_smul, support_const_smul_of_ne_zero]
       positivity
     have : 0 < ‖f‖ₙ_[2] := (cLpNorm_pos two_ne_zero).2 hf
-    have : 0 < |√ p| := by positivity
+    have : 0 < √ p := by positivity
     simp_rw [Function.comp_def, Pi.smul_apply, Complex.smul_re, ← Pi.smul_def] at H
-    simpa [cLpNorm_const_smul, nnnorm, sqrt_nonneg, ← mul_div_right_comm, mul_comm |√_|,
-      div_le_iff₀, mul_right_comm, *] using H
+    simpa [cLpNorm_const_smul, sqrt_pos.2, ← mul_div_right_comm, mul_comm √_,
+      div_le_iff₀, mul_right_comm, abs_of_nonneg, *] using H
   have hp₀ : p ≠ 0 := by positivity
   have : (‖re ∘ f‖ₙ_[↑p] / p) ^ p ≤ (2 * exp 2⁻¹) ^ p := by
     calc
@@ -97,7 +97,7 @@ lemma rudin_ineq (hp : 2 ≤ p) (f : G → ℂ) (hf : AddDissociated <| support 
     _ ≤ ‖fun a ↦ ((f a).re : ℂ)‖ₙ_[p] + ‖I • (fun a ↦ ((f a).im : ℂ))‖ₙ_[p]
       := cLpNorm_add_le hp₁
     _ = ‖re ∘ f‖ₙ_[p] + ‖re ∘ ((-I) • f)‖ₙ_[p] := by
-        rw [cLpNorm_const_smul, Complex.nnnorm_I, one_mul, ← Complex.cLpNorm_coe_comp,
+        rw [cLpNorm_const_smul, Complex.norm_I, one_mul, ← Complex.cLpNorm_coe_comp,
           ← Complex.cLpNorm_coe_comp]
         congr
         ext a : 1
@@ -106,4 +106,4 @@ lemma rudin_ineq (hp : 2 ≤ p) (f : G → ℂ) (hf : AddDissociated <| support 
       := add_le_add (rudin_ineq_aux hp _ hf) <| rudin_ineq_aux hp _ <| by
         rwa [cft_smul, support_const_smul_of_ne_zero]; simp
     _ = 4 * exp 2⁻¹ * sqrt p * ‖f‖ₙ_[2] := by
-        rw [cLpNorm_const_smul, nnnorm_neg, Complex.nnnorm_I, one_mul]; ring
+        rw [cLpNorm_const_smul, norm_neg, Complex.norm_I, one_mul]; ring

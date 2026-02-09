@@ -82,8 +82,7 @@ variable [Fintype G] [MeasurableSpace G] [DiscreteMeasurableSpace G]
 private lemma α_le_one (f : G → ℂ) : ‖f‖_[1] ^ 2 / ‖f‖_[2] ^ 2 / card G ≤ 1 := by
   refine div_le_one_of_le₀ (div_le_of_le_mul₀ ?_ ?_ ?_) ?_
   any_goals positivity
-  rw [dL1Norm_eq_sum_nnnorm, dL2Norm_sq_eq_sum_nnnorm, ← NNReal.coe_le_coe]
-  push_cast
+  rw [dL1Norm_eq_sum_norm, dL2Norm_sq_eq_sum_norm]
   exact sq_sum_le_card_mul_sum_sq
 
 lemma general_hoelder (hη : 0 ≤ η) (ν : G → ℝ≥0) (hfν : ∀ x, f x ≠ 0 → 1 ≤ ν x)
@@ -194,9 +193,6 @@ lemma chang (hf : f ≠ 0) (hη : 0 < η) :
   refine le_mul_of_one_le_right (by positivity) ?_
   rw [← inv_le_iff_one_le_mul₀' (by positivity)]
   calc
-    α⁻¹ = exp (0 + log α⁻¹) := by
-      rw [zero_add, exp_log]
-      · norm_cast
-      · positivity
+    α⁻¹ = exp (0 + log α⁻¹) := by rw [zero_add, exp_log]; positivity
     _ ≤ exp ⌈0 + log α⁻¹⌉₊ := by gcongr; exact Nat.le_ceil _
     _ ≤ exp β := by unfold β; gcongr; exact zero_le_one

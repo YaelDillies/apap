@@ -220,12 +220,11 @@ lemma sifting (B₁ B₂ : Finset G) (hε : 0 < ε) (hε₁ : ε ≤ 1) (hδ : 0
         := ?_
     _ ≤ _ :=
       mul_le_of_le_one_left (mul_nonneg (hp.pow_nonneg _) <| hp.pow_nonneg _) <|
-        mul_le_one₀ dL1Norm_mu_le_one (NNReal.coe_nonneg _) dL1Norm_mu_le_one
+        mul_le_one₀ dL1Norm_mu_le_one (by positivity) dL1Norm_mu_le_one
     _ ≤ _ := mul_le_mul_of_nonneg_right ?_ <| hp.pow_nonneg _
   · have : 0 ≤ μ_[ℝ] B₁ ○ μ B₂ := dconv_nonneg mu_nonneg mu_nonneg
-    simp_rw [← NNReal.coe_mul, ← dL1Norm_dconv mu_nonneg mu_nonneg, dL1Norm_eq_sum_nnnorm,
-      nnnorm_of_nonneg (this _), NNReal.coe_sum, sum_mul, mul_pow]
-    simp
+    simp_rw [← dL1Norm_dconv mu_nonneg mu_nonneg, dL1Norm_eq_sum_norm,
+      norm_of_nonneg (this _), sum_mul, mul_pow]
   calc
     (1 - ε) ^ p ≤ exp (-ε) ^ p := by gcongr; exacts [sub_nonneg.2 hε₁, one_sub_le_exp_neg _]
     _ = exp (-(ε * p)) := by rw [← neg_mul, exp_mul, rpow_natCast]

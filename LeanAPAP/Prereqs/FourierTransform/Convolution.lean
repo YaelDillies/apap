@@ -19,14 +19,12 @@ lemma cLpNorm_cconv_le_cLpNorm_cdconv (hn₀ : n ≠ 0) (hn : Even n) (f : G →
   simp only [ne_eq, mul_eq_zero, OfNat.ofNat_ne_zero, false_or] at hn₀
   refine Complex.le_of_eq_sum_of_eq_sum_norm (fun ψ : (Fin k → AddChar G ℂ) × (Fin k → AddChar G ℂ)
     ↦ conj (∏ i, cft f (ψ.1 i) ^ 2) * (∏ i, cft f (ψ.2 i) ^ 2) * 𝔼 x, (∑ i, ψ.2 i - ∑ i, ψ.1 i) x)
-    univ (by dsimp; norm_cast; positivity) ?_ ?_
-  · simp only [NNReal.val_eq_coe]
-    push_cast
+    univ (by norm_cast; positivity) ?_ ?_
+  · push_cast
     rw [← cft_inversion' (f ∗ₙ f), cLpNorm_two_mul_sum_pow hn₀]
     simp_rw [cft_cconv_apply, ← sq, Fintype.sum_prod_type, mul_expect, AddChar.sub_apply]
     simp [mul_mul_mul_comm, mul_comm, map_neg_eq_conj, prod_mul_distrib]
-  · simp only [NNReal.val_eq_coe]
-    push_cast
+  · push_cast
     rw [← cft_inversion' (f ○ₙ f), cLpNorm_two_mul_sum_pow hn₀]
     simp_rw [cft_cdconv_apply, Complex.mul_conj', Fintype.sum_prod_type, mul_expect]
     congr 1 with ψ

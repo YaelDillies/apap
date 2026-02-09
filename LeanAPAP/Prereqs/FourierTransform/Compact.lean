@@ -1,11 +1,16 @@
 import LeanAPAP.Prereqs.Convolution.Compact
+import LeanAPAP.Prereqs.Convolution.Discrete.Defs
 import LeanAPAP.Prereqs.FourierTransform.Discrete
 import LeanAPAP.Prereqs.Function.Indicator.Basic
+import LeanAPAP.Prereqs.Inner.Hoelder.Compact
+import Mathlib.Algebra.BigOperators.Balance
+import Mathlib.Analysis.Fourier.FiniteAbelian.PontryaginDuality
+import Mathlib.MeasureTheory.Constructions.AddChar
 
 /-!
-# Discrete Fourier transform in the compact normalisation
+# Compact Fourier transform
 
-This file defines the discrete Fourier transform in the compact normalisation and shows the
+This file defines the compact Fourier transform for finite groups and shows the
 Parseval-Plancherel identity and Fourier inversion formula for it.
 -/
 
@@ -52,7 +57,7 @@ lemma cft_apply (f : α → ℂ) (ψ : AddChar α ℂ) : cft f ψ = ⟪ψ, f⟫�
 /-- **Parseval-Plancherel identity** for the discrete Fourier transform. -/
 @[simp] lemma dL2Norm_cft [MeasurableSpace α] [DiscreteMeasurableSpace α] (f : α → ℂ) :
     ‖cft f‖_[2] = ‖f‖ₙ_[2] :=
-  (sq_eq_sq₀ (zero_le _) (zero_le _)).1 <| NNReal.coe_injective <| Complex.ofReal_injective <| by
+  (sq_eq_sq₀ lpNorm_nonneg lpNorm_nonneg).1 <| Complex.ofReal_injective <| by
     push_cast; simpa only [RCLike.wInner_cWeight_self, wInner_one_self] using wInner_one_cft f f
 
 /-- **Fourier inversion** for the discrete Fourier transform. -/

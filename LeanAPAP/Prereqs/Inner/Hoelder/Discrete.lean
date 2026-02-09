@@ -14,15 +14,15 @@ variable [RCLike 𝕜] {mι : MeasurableSpace ι} [DiscreteMeasurableSpace ι] {
 
 @[simp] lemma wInner_one_self {_ : MeasurableSpace ι} [DiscreteMeasurableSpace ι] (f : ι → 𝕜) :
     ⟪f, f⟫_[𝕜] = ((‖f‖_[2] : ℝ) : 𝕜) ^ 2 := by
-  simp_rw [← algebraMap.coe_pow, ← NNReal.coe_pow]
-  simp [dL2Norm_sq_eq_sum_nnnorm, wInner_one_eq_sum]
+  simp_rw [← algebraMap.coe_pow]
+  simp [dL2Norm_sq_eq_sum_norm, wInner_one_eq_sum]
 
 lemma dL1Norm_mul (f g : ι → 𝕜) : ‖f * g‖_[1] = ⟪fun i ↦ ‖f i‖, fun i ↦ ‖g i‖⟫_[ℝ] := by
-  simp [wInner_one_eq_sum, dL1Norm_eq_sum_nnnorm, mul_comm]
+  simp [wInner_one_eq_sum, dL1Norm_eq_sum_norm, mul_comm]
 
 /-- **Cauchy-Schwarz inequality** -/
 lemma wInner_one_le_dL2Norm_mul_dL2Norm (f g : ι → ℝ) : ⟪f, g⟫_[ℝ] ≤ ‖f‖_[2] * ‖g‖_[2] := by
-  simpa [dL2Norm_eq_sum_nnnorm, PiLp.norm_eq_of_L2, sqrt_eq_rpow, wInner_one_eq_inner]
+  simpa [dL2Norm_eq_sum_norm, PiLp.norm_eq_of_L2, sqrt_eq_rpow, wInner_one_eq_inner]
     using real_inner_le_norm ((WithLp.equiv 2 _).symm f) _
 
 end RCLike
@@ -47,7 +47,7 @@ lemma wInner_one_le_dLpNorm_mul_dLpNorm (p q : ℝ≥0∞) [p.HolderConjugate q]
 lemma abs_wInner_one_le_dLpNorm_mul_dLpNorm [p.HolderConjugate q] (f g : α → ℝ) :
     |⟪f, g⟫_[ℝ]| ≤ ‖f‖_[p] * ‖g‖_[q] :=
   (abs_wInner_le zero_le_one).trans <| (wInner_one_le_dLpNorm_mul_dLpNorm p q).trans_eq <| by
-    simp_rw [dLpNorm_abs]
+    simp_rw [dLpNorm_abs .of_discrete]
 
 end Real
 
@@ -64,7 +64,7 @@ lemma nnnorm_wInner_one_le_dLpNorm_mul_dLpNorm (p q : ℝ≥0∞) [p.HolderConju
   calc
     _ ≤ ⟪fun a ↦ ‖f a‖, fun a ↦ ‖g a‖⟫_[ℝ] := norm_wInner_one_le _ _
     _ ≤ ‖fun a ↦ ‖f a‖‖_[p] * ‖fun a ↦ ‖g a‖‖_[q] := wInner_one_le_dLpNorm_mul_dLpNorm _ _
-    _ = ‖f‖_[p] * ‖g‖_[q] := by simp_rw [dLpNorm_norm]
+    _ = ‖f‖_[p] * ‖g‖_[q] := by simp_rw [dLpNorm_norm .of_discrete]
 
 omit [Fintype α]
 variable [Finite α]
@@ -85,11 +85,9 @@ lemma dLpNorm_mul_le (p q : ℝ≥0∞) (hr₀ : r ≠ 0) [hpqr : ENNReal.Holder
   simp only [ENNReal.some_eq_coe] at *
   norm_cast at hr₀
   have : (‖(f * g) ·‖ ^ (r : ℝ)) = (‖f ·‖ ^ (r : ℝ)) * (‖g ·‖ ^ (r : ℝ)) := by ext; simp [mul_rpow]
-  rw [dLpNorm_eq_dL1Norm_rpow, NNReal.rpow_inv_le_iff_of_pos, this, ← NNReal.coe_le_coe]
+  rw [dLpNorm_eq_dL1Norm_rpow, rpow_inv_le_iff_of_pos, this]
   any_goals positivity
-  push_cast
-  rw [dL1Norm_mul_of_nonneg, mul_rpow, ← NNReal.coe_rpow, ← NNReal.coe_rpow, dLpNorm_rpow',
-    dLpNorm_rpow']
+  rw [dL1Norm_mul_of_nonneg, mul_rpow, dLpNorm_rpow', dLpNorm_rpow']
   any_goals intro a; dsimp
   any_goals positivity
   any_goals simp
