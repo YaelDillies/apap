@@ -49,7 +49,7 @@ size of a set without three term arithmetic progressions):
 
 ### Code organisation
 
-The Lean code is contained in the directory `LeanAPAP`. The subdirectories are:
+The Lean code is contained in the directory `APAP`. The subdirectories are:
 * `Mathlib`: Material missing from existing mathlib developments
 * `Prereqs`: New developments to be integrated to mathlib
 * `Physics`: The physical (as opposed to Fourier space) proof steps that are shared

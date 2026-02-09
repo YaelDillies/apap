@@ -31,7 +31,7 @@ def main():
             else: file_touched_pr[file].append(pr_data)
 
     project_files = {}
-    for entry in pathlib.Path("LeanAPAP").rglob("*.lean"):
+    for entry in pathlib.Path("APAP").rglob("*.lean"):
         code = None
         with open(entry, 'r') as reader:
             code = reader.read()
@@ -40,7 +40,7 @@ def main():
         project_files[entry] = {
             "prs" : [] if file not in file_touched_pr else file_touched_pr[file],
             "num_sorries" : code.count("sorry"),
-            "depends" : "import LeanAPAP" in code
+            "depends" : "import APAP" in code
         }
 
     folder_path = "./website/_includes"

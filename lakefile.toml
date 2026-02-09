@@ -1,6 +1,6 @@
-name = "LeanAPAP"
+name = "APAP"
 keywords = ["math", "combinatorics", "additive-combinatorics", "fourier-analysis"]
-defaultTargets = ["LeanAPAP"]
+defaultTargets = ["APAP"]
 
 [leanOptions]
 # Pretty-prints `fun a ↦ b`
@@ -22,4 +22,4 @@ name = "checkdecls"
 git = "https://github.com/PatrickMassot/checkdecls.git"
 
 [[lean_lib]]
-name = "LeanAPAP"
+name = "APAP"

@@ -26,11 +26,11 @@ jobs:
       - name: Don't 'import Mathlib', use precise imports
         if: always()
         run: |
-          ! (find LeanAPAP -name "*.lean" -type f -print0 | xargs -0 grep -E -n '^import Mathlib$')
+          ! (find APAP -name "*.lean" -type f -print0 | xargs -0 grep -E -n '^import Mathlib$')
 
-      - name: Files in LeanAPAP.Mathlib can't import LeanAPAP files outside LeanAPAP.Mathlib
+      - name: Files in APAP.Mathlib can't import APAP files outside APAP.Mathlib
         run: |
-          ! (find LeanAPAP/Mathlib -name "*.lean" -type f -print0 | xargs -0 grep -E -n '^import LeanAPAP.(?!Mathlib)')
+          ! (find APAP/Mathlib -name "*.lean" -type f -print0 | xargs -0 grep -E -n '^import APAP.(?!Mathlib)')
 
   build:
     name: Build project
