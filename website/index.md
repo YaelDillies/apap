@@ -65,7 +65,7 @@ The discrete convolution/Lp norm/Fourier transform material belongs in mathlib a
 
 On top of the new developments, there are many basic lemmas needed for this project that are currently missing from mathlib.
 
-See the [upstreaming dashboard](https://yaeldillies.github.io/LeanAPAP/upstreaming) for more information.
+See the [upstreaming dashboard](https://yaeldillies.github.io/apap/upstreaming) for more information.
 
 ## Build the Lean files
 
@@ -73,7 +73,7 @@ To build the Lean files of this project, you need to have a working version of L
 See [the installation instructions](https://leanprover-community.github.io/get_started.html) (under Regular install).
 Alternatively, click on the button below to open a Gitpod workspace containing the project.
 
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/YaelDillies/LeanAPAP)
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/YaelDillies/apap)
 
 In either case, run `lake exe cache get` and then `lake build` to build the project.
 
