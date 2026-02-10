@@ -1,6 +1,12 @@
-import APAP.Prereqs.Convolution.Discrete.Defs
+module
+
+public import APAP.Prereqs.Convolution.Discrete.Defs
+
 import APAP.Prereqs.DummyPositivity
 import Mathlib.Algebra.Order.Star.Conjneg
+import Mathlib.Analysis.Complex.Order
+
+@[expose] public section
 
 open Finset Function Real
 open scoped ComplexConjugate NNReal Pointwise
@@ -99,7 +105,7 @@ end
 set_option linter.unusedVariables false in
 /-- The `positivity` extension which identifies expressions of the form `f ∗ g`,
 such that `positivity` successfully recognises both `f` and `g`. -/
-@[positivity _ ∗ _] def evalConv : PositivityExt where eval {u G} zG pG e := do
+@[positivity _ ∗ _] meta def evalConv : PositivityExt where eval {u G} zG pG e := do
   let .app (.app (_f : Q($G → $G → $G)) (a : Q($G))) (b : Q($G)) ← withReducible (whnf e)
     | throwError "not ∗"
   let ra ← core zG pG a; let rb ← core zG pG b
@@ -117,7 +123,7 @@ such that `positivity` successfully recognises both `f` and `g`. -/
 set_option linter.unusedVariables false in
 /-- The `positivity` extension which identifies expressions of the form `f ○ g`,
 such that `positivity` successfully recognises both `f` and `g`. -/
-@[positivity _ ○ _] def evalDConv : PositivityExt where eval {u G} zG pG e := do
+@[positivity _ ○ _] meta def evalDConv : PositivityExt where eval {u G} zG pG e := do
   let .app (.app (_f : Q($G → $G → $G)) (a : Q($G))) (b : Q($G)) ← withReducible (whnf e)
     | throwError "not ∗"
   let ra ← core zG pG a; let rb ← core zG pG b
@@ -135,7 +141,7 @@ such that `positivity` successfully recognises both `f` and `g`. -/
 set_option linter.unusedVariables false in
 /-- The `positivity` extension which identifies expressions of the form `f ○ g`,
 such that `positivity` successfully recognises both `f` and `g`. -/
-@[positivity _ ∗^ _] def evalIterConv : PositivityExt where eval {u G} zG pG e := do
+@[positivity _ ∗^ _] meta def evalIterConv : PositivityExt where eval {u G} zG pG e := do
   let .app (.app (_f : Q($G → $G → $G)) (a : Q($G))) (b : Q($G)) ← withReducible (whnf e)
     | throwError "not ∗"
   match ← core zG pG a with

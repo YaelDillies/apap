@@ -1,12 +1,21 @@
+module
+
+public import Mathlib.Combinatorics.Additive.DoublingConst
+public import APAP.Prereqs.Convolution.Discrete.Defs
+public import APAP.Prereqs.Function.Indicator.Defs
+public import APAP.Prereqs.LpNorm.Discrete.Defs
+
 import APAP.Prereqs.Convolution.Discrete.Basic
 import APAP.Prereqs.Convolution.Norm
 import APAP.Prereqs.Inner.Hoelder.Discrete
+import APAP.Prereqs.LpNorm.Discrete.Basic
 import APAP.Prereqs.MarcinkiewiczZygmund
+import Mathlib.Algebra.Group.Action.Pointwise.Finset
 import Mathlib.Algebra.Order.Chebyshev
 import Mathlib.Analysis.Complex.ExponentialBounds
-import Mathlib.Combinatorics.Additive.DoublingConst
 import Mathlib.Data.Finset.CastCard
-import Mathlib.Tactic.Bound
+import Mathlib.Data.Real.StarOrdered
+import Mathlib.MeasureTheory.Integral.Bochner.Basic
 
 /-!
 # Almost-periodicity
@@ -477,8 +486,8 @@ theorem linfty_almost_periodicity (ε : ℝ) (hε₀ : 0 < ε) (hε₁ : ε ≤ 
     _ = r ^ (log r)⁻¹ := by simp [inv_neg]
     _ ≤ exp 1 := rpow_inv_log_le_exp_one
 
-theorem linfty_almost_periodicity_boosted (ε : ℝ) (hε₀ : 0 < ε) (hε₁ : ε ≤ 1) (k : ℕ) (hk : k ≠ 0)
-    (hK₂ : 2 ≤ K) (hK : σ[A, S] ≤ K) (hS : S.Nonempty)
+public theorem linfty_almost_periodicity_boosted (ε : ℝ) (hε₀ : 0 < ε) (hε₁ : ε ≤ 1) (k : ℕ)
+    (hk : k ≠ 0) (hK₂ : 2 ≤ K) (hK : σ[A, S] ≤ K) (hS : S.Nonempty)
     (B C : Finset G) (hB : B.Nonempty) (hC : C.Nonempty) :
     ∃ T : Finset G,
       K ^ (-4096 * ⌈𝓛 (#C / #B)⌉ * k ^ 2/ ε ^ 2) * #S ≤ #T ∧

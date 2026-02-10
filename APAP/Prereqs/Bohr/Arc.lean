@@ -1,5 +1,11 @@
-import APAP.Prereqs.Bohr.Basic
+module
+
+public import APAP.Prereqs.Bohr.Basic
+public import Mathlib.Geometry.Euclidean.Angle.Unoriented.Basic
+
 import Mathlib.Analysis.Complex.Angle
+
+@[expose] public section
 
 /- ### Arc Bohr sets -/
 

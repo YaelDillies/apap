@@ -1,40 +1,41 @@
-import APAP.Extras.BSG
-import APAP.FiniteField
-import APAP.Integer
-import APAP.Mathlib.Analysis.Convolution
-import APAP.Mathlib.Analysis.Normed.Ring.Basic
-import APAP.Mathlib.Analysis.RCLike.Basic
-import APAP.Mathlib.Data.Real.ConjExponents
-import APAP.Mathlib.Topology.Algebra.PontryaginDual
-import APAP.Physics.AlmostPeriodicity
-import APAP.Physics.DRC
-import APAP.Physics.Unbalancing
-import APAP.Prereqs.Bohr.Arc
-import APAP.Prereqs.Bohr.Basic
-import APAP.Prereqs.Bohr.Regular
-import APAP.Prereqs.Chang
-import APAP.Prereqs.Convolution.Compact
-import APAP.Prereqs.Convolution.Discrete.Basic
-import APAP.Prereqs.Convolution.Discrete.Defs
-import APAP.Prereqs.Convolution.Norm
-import APAP.Prereqs.Convolution.Order
-import APAP.Prereqs.Convolution.ThreeAP
-import APAP.Prereqs.DummyPositivity
-import APAP.Prereqs.Energy
-import APAP.Prereqs.FourierTransform.Compact
-import APAP.Prereqs.FourierTransform.Convolution
-import APAP.Prereqs.FourierTransform.Discrete
-import APAP.Prereqs.Function.Indicator.Basic
-import APAP.Prereqs.Function.Indicator.Complex
-import APAP.Prereqs.Function.Indicator.Defs
-import APAP.Prereqs.Inner.Function
-import APAP.Prereqs.Inner.Hoelder.Compact
-import APAP.Prereqs.Inner.Hoelder.Discrete
-import APAP.Prereqs.LargeSpec
-import APAP.Prereqs.LpNorm.Compact
-import APAP.Prereqs.LpNorm.Discrete.Basic
-import APAP.Prereqs.LpNorm.Discrete.Defs
-import APAP.Prereqs.LpNorm.Weighted
-import APAP.Prereqs.MarcinkiewiczZygmund
-import APAP.Prereqs.NewMarcinkiewiczZygmund
-import APAP.Prereqs.Rudin
+module
+
+public import APAP.Extras.BSG
+public import APAP.FiniteField
+public import APAP.Integer
+public import APAP.Mathlib.Analysis.Convolution
+public import APAP.Mathlib.Analysis.Normed.Ring.Basic
+public import APAP.Mathlib.Analysis.RCLike.Basic
+public import APAP.Mathlib.Topology.Algebra.PontryaginDual
+public import APAP.Physics.AlmostPeriodicity
+public import APAP.Physics.DRC
+public import APAP.Physics.Unbalancing
+public import APAP.Prereqs.Bohr.Arc
+public import APAP.Prereqs.Bohr.Basic
+public import APAP.Prereqs.Bohr.Regular
+public import APAP.Prereqs.Chang
+public import APAP.Prereqs.Convolution.Compact
+public import APAP.Prereqs.Convolution.Discrete.Basic
+public import APAP.Prereqs.Convolution.Discrete.Defs
+public import APAP.Prereqs.Convolution.Norm
+public import APAP.Prereqs.Convolution.Order
+public import APAP.Prereqs.Convolution.ThreeAP
+public import APAP.Prereqs.DummyPositivity
+public import APAP.Prereqs.Energy
+public import APAP.Prereqs.FourierTransform.Compact
+public import APAP.Prereqs.FourierTransform.Convolution
+public import APAP.Prereqs.FourierTransform.Discrete
+public import APAP.Prereqs.Function.Indicator.Basic
+public import APAP.Prereqs.Function.Indicator.Complex
+public import APAP.Prereqs.Function.Indicator.Defs
+public import APAP.Prereqs.Inner.Function
+public import APAP.Prereqs.Inner.Hoelder.Compact
+public import APAP.Prereqs.Inner.Hoelder.Discrete
+public import APAP.Prereqs.LargeSpec
+public import APAP.Prereqs.LpNorm.Compact
+public import APAP.Prereqs.LpNorm.Discrete.Basic
+public import APAP.Prereqs.LpNorm.Discrete.Defs
+public import APAP.Prereqs.LpNorm.Weighted
+public import APAP.Prereqs.MarcinkiewiczZygmund
+public import APAP.Prereqs.NewMarcinkiewiczZygmund
+public import APAP.Prereqs.Rudin

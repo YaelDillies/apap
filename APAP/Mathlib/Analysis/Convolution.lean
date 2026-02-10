@@ -1,11 +1,15 @@
-import Mathlib.Algebra.Group.Translate
-import Mathlib.Analysis.Convolution
+module
+
+public import Mathlib.Algebra.Group.Translate
+public import Mathlib.Analysis.Convolution
 
 /-!
 # TODO
 
 Extra arguments to `convolution_zero`
 -/
+
+public section
 
 open ContinuousLinearMap Function
 open scoped Convolution translate

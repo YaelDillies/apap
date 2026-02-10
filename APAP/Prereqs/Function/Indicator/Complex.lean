@@ -1,7 +1,12 @@
-import APAP.Prereqs.Function.Indicator.Defs
-import Mathlib.Analysis.RCLike.Basic
-import Mathlib.Data.Complex.Basic
+module
+
+public import APAP.Prereqs.Function.Indicator.Defs
+public import Mathlib.Analysis.RCLike.Basic
+public import Mathlib.Data.Complex.Basic
+
 import Mathlib.LinearAlgebra.Complex.Module
+
+public section
 
 open Finset Function
 open Fintype (card)

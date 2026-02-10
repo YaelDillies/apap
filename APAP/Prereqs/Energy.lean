@@ -1,8 +1,12 @@
-import APAP.Prereqs.Convolution.Discrete.Basic
-import APAP.Prereqs.FourierTransform.Discrete
-import APAP.Prereqs.Function.Indicator.Complex
+module
 
-noncomputable section
+public import APAP.Prereqs.FourierTransform.Discrete
+
+import APAP.Prereqs.Convolution.Discrete.Basic
+import APAP.Prereqs.Function.Indicator.Complex
+import Mathlib.MeasureTheory.Integral.Bochner.Basic
+
+@[expose] public noncomputable section
 
 open Finset Fintype Function MeasureTheory RCLike Real
 open scoped Nat

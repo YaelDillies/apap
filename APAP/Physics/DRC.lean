@@ -1,12 +1,24 @@
+module
+
+public import APAP.Prereqs.LpNorm.Weighted
+public import APAP.Prereqs.Convolution.Discrete.Defs
+public import APAP.Prereqs.Function.Indicator.Defs
+public import Mathlib.Analysis.RCLike.Inner
+
 import APAP.Prereqs.Convolution.Discrete.Basic
 import APAP.Prereqs.Convolution.Norm
 import APAP.Prereqs.Convolution.Order
+import APAP.Prereqs.Function.Indicator.Basic
 import APAP.Prereqs.Function.Indicator.Complex
-import APAP.Prereqs.LpNorm.Weighted
+import APAP.Prereqs.LpNorm.Discrete.Basic
+import Mathlib.Data.Real.StarOrdered
+import Mathlib.MeasureTheory.Integral.Bochner.Basic
 
 /-!
 # Dependent Random Choice
 -/
+
+public section
 
 open Finset Fintype Function MeasureTheory RCLike Real
 open scoped ENNReal NNReal Pointwise mu

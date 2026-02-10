@@ -1,9 +1,15 @@
-import APAP.Prereqs.LpNorm.Discrete.Defs
-import Mathlib.Algebra.Group.Translate
+module
+
+public import APAP.Prereqs.LpNorm.Discrete.Defs
+public import Mathlib.Algebra.Group.Translate
+
+import Mathlib.MeasureTheory.Function.LpSeminorm.LpNorm
 
 /-!
 # Lp norms
 -/
+
+public section
 
 open Finset Function Real MeasureTheory
 open scoped ComplexConjugate ENNReal NNReal translate
@@ -153,7 +159,7 @@ namespace Mathlib.Meta.Positivity
 open Lean Meta Qq Function MeasureTheory
 
 /-- The `positivity` extension which identifies expressions of the form `‖f‖_[p, w]`. -/
-@[positivity ‖_‖_[_, _]] def evalWLpNorm : PositivityExt where eval {u} R _z _p e := do
+@[positivity ‖_‖_[_, _]] meta def evalWLpNorm : PositivityExt where eval {u} R _z _p e := do
   match u, R, e with
   | 0, ~q(ℝ), ~q(@wLpNorm $α $E $instαmeas $instEnorm $p $w $f) =>
     assumeInstancesCommute

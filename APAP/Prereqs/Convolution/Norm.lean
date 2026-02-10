@@ -1,8 +1,13 @@
-import APAP.Prereqs.Convolution.Discrete.Defs
+module
+
+public import APAP.Prereqs.Convolution.Discrete.Defs
+public import APAP.Prereqs.LpNorm.Discrete.Defs
+public import Mathlib.Analysis.RCLike.Inner
+
 import APAP.Prereqs.LpNorm.Discrete.Basic
 import Mathlib.Algebra.Order.Star.Conjneg
-import Mathlib.Analysis.RCLike.Inner
 import Mathlib.Data.Real.StarOrdered
+import Mathlib.MeasureTheory.Integral.Bochner.Basic
 
 /-!
 # Norm of a convolution
@@ -10,6 +15,8 @@ import Mathlib.Data.Real.StarOrdered
 This file characterises the L1-norm of the convolution of two functions and proves the Young
 convolution inequality.
 -/
+
+@[expose] public section
 
 open Finset Function MeasureTheory RCLike Real
 open scoped ComplexConjugate ENNReal NNReal Pointwise translate

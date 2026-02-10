@@ -1,4 +1,6 @@
-import Mathlib.Tactic.Positivity
+module
+
+public import Mathlib.Order.Defs.PartialOrder
 
 /-!
 # A bunch of dummy lemmas to be used in broken `positivity` extensions
@@ -11,6 +13,8 @@ We want to avoid
 * breaking existing proofs
 * accidentally making the proofs think they don't need some positivity assumption
 -/
+
+public section
 
 namespace Mathlib.Meta.Positivity
 variable {α : Type*} [Zero α] [PartialOrder α] {a b c : α}

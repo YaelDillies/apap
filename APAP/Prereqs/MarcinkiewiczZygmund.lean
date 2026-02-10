@@ -3,11 +3,17 @@ Copyright (c) 2023 Yaël Dillies, Bhavik Mehta. All rights reserved.
 Released under Apache 2.0 license as described ∈ the file LICENSE.
 Authors: Yaël Dillies, Bhavik Mehta
 -/
+module
+
+public import Mathlib.Analysis.RCLike.Basic
+-- FIXME: This public import shouldn't be needed.
+public import Mathlib.Data.Matrix.Mul
+
 import Mathlib.Algebra.BigOperators.Field
+import Mathlib.Algebra.Order.Algebra
 import Mathlib.Algebra.Order.Chebyshev
-import Mathlib.Analysis.MeanInequalitiesPow
+import Mathlib.Analysis.SpecialFunctions.Pow.NNReal
 import Mathlib.Data.Nat.Choose.Multinomial
-import Mathlib.Tactic.Positivity.Finset
 
 /-!
 # The Marcinkiewicz-Zygmund inequality
@@ -20,7 +26,7 @@ variable {ι : Type*} {A : Finset ι} {m n : ℕ}
 
 local notation:70 s:70 " ^^ " n:71 => Fintype.piFinset fun _ : Fin n ↦ s
 
-private lemma step_one (hA : A.Nonempty) (f : ι → ℝ) (a : Fin n → ι)
+lemma step_one (hA : A.Nonempty) (f : ι → ℝ) (a : Fin n → ι)
     (hf : ∀ i, ∑ a ∈ A ^^ n, f (a i) = 0) :
     |∑ i, f (a i)| ^ (m + 1) ≤
       (∑ b ∈ A ^^ n, |∑ i, (f (a i) - f (b i))| ^ (m + 1)) / #A ^ n := by
@@ -44,7 +50,7 @@ private lemma step_one (hA : A.Nonempty) (f : ι → ℝ) (a : Fin n → ι)
       gcongr; exact pow_sum_div_card_le_sum_pow (fun _ _ ↦ abs_nonneg _) _
     _ = _ := by simp [B]
 
-private lemma step_one' (hA : A.Nonempty) (f : ι → ℝ) (hf : ∀ i, ∑ a ∈ A ^^ n, f (a i) = 0) (m : ℕ)
+lemma step_one' (hA : A.Nonempty) (f : ι → ℝ) (hf : ∀ i, ∑ a ∈ A ^^ n, f (a i) = 0) (m : ℕ)
     (a : Fin n → ι) :
     |∑ i, f (a i)| ^ m ≤ (∑ b ∈ A ^^ n, |∑ i, (f (a i) - f (b i))| ^ m) / #A ^ n := by
   cases m
@@ -56,7 +62,7 @@ private lemma step_one' (hA : A.Nonempty) (f : ι → ℝ) (hf : ∀ i, ∑ a �
   exact step_one hA f a hf
 
 -- works with this
--- private lemma step_two_aux' {β γ : Type*} [AddCommMonoid β] [CommRing γ]
+-- lemma step_two_aux' {β γ : Type*} [AddCommMonoid β] [CommRing γ]
 --   (f : (Fin n → ι) → (Fin n → γ)) (ε : Fin n → γ)
 --   (hε : ∀ i, ε i = -1 ∨ ε i = 1) (g : (Fin n → γ) → β) :
 --   ∑ a b ∈ A ^^ n, g (ε * (f a - f b)) = ∑ a b ∈ A ^^ n, g (f a - f b) :=
@@ -64,7 +70,7 @@ private lemma step_one' (hA : A.Nonempty) (f : ι → ℝ) (hf : ∀ i, ∑ a �
 -- the key point is that you combine the double sums into a single sum, and do a pair swap
 -- when the corresponding ε is -1
 -- but the order here is a bit subtle (ie this explanation is an oversimplification)
-private lemma step_two_aux (A : Finset ι) (f : ι → ℝ) (ε : Fin n → ℝ)
+lemma step_two_aux (A : Finset ι) (f : ι → ℝ) (ε : Fin n → ℝ)
     (hε : ε ∈ ({-1, 1} : Finset ℝ) ^^ n) (g : (Fin n → ℝ) → ℝ) :
     ∑ a ∈ A ^^ n, ∑ b ∈ A ^^ n, g (ε * (f ∘ a - f ∘ b)) =
       ∑ a ∈ A ^^ n, ∑ b ∈ A ^^ n, g (f ∘ a - f ∘ b) := by
@@ -90,7 +96,7 @@ private lemma step_two_aux (A : Finset ι) (f : ι → ℝ) (ε : Fin n → ℝ)
     rw [(hε i).resolve_right h]
     ring
 
-private lemma step_two (f : ι → ℝ) :
+lemma step_two (f : ι → ℝ) :
     ∑ a ∈ A ^^ n, ∑ b ∈ A ^^ n, (∑ i, (f (a i) - f (b i))) ^ (2 * m) =
       2⁻¹ ^ n * ∑ ε ∈ ({-1, 1} : Finset ℝ)^^n,
         ∑ a ∈ A ^^ n, ∑ b ∈ A ^^ n, (∑ i, ε i * (f (a i) - f (b i))) ^ (2 * m) := by
@@ -104,7 +110,7 @@ private lemma step_two (f : ι → ℝ) :
   · positivity
   · norm_num
 
-private lemma step_three (f : ι → ℝ) :
+lemma step_three (f : ι → ℝ) :
     ∑ ε ∈ ({-1, 1} : Finset ℝ)^^n,
       ∑ a ∈ A ^^ n, ∑ b ∈ A ^^ n, (∑ i, ε i * (f (a i) - f (b i))) ^ (2 * m) =
       ∑ a ∈ A ^^ n, ∑ b ∈ A ^^ n, ∑ k ∈ piAntidiag univ (2 * m),
@@ -117,7 +123,7 @@ private lemma step_three (f : ι → ℝ) :
   refine sum_congr rfl fun k _ ↦ ?_
   rw [← mul_assoc, mul_right_comm]
 
-private lemma step_four {k : Fin n → ℕ} :
+lemma step_four {k : Fin n → ℕ} :
     ∑ ε ∈ ({-1, 1} : Finset ℝ)^^n, ∏ t, ε t ^ k t = 2 ^ n * ite (∀ i, Even (k i)) 1 0 := by
   calc
     _ = ∏ i, ∑ j ∈ ({-1, 1} : Finset ℝ), j ^ k i := by rw [← sum_prod_piFinset]
@@ -127,7 +133,7 @@ private lemma step_four {k : Fin n → ℕ} :
     _ = _ := by simp [Fintype.prod_ite_zero]
 
 -- double_multinomial
-private lemma step_six {f : ι → ℝ} {a b : Fin n → ι} :
+lemma step_six {f : ι → ℝ} {a b : Fin n → ι} :
     ∑ k ∈ piAntidiag univ m,
         (multinomial univ fun a ↦ 2 * k a : ℝ) * ∏ i, (f (a i) - f (b i)) ^ (2 * k i) ≤
       m ^ m * (∑ i, (f (a i) - f (b i)) ^ 2) ^ m := by
@@ -140,14 +146,14 @@ private lemma step_six {f : ι → ℝ} {a b : Fin n → ι} :
   refine multinomial_two_mul_le_mul_multinomial.trans ?_
   rw [hk.1]
 
-private lemma step_seven {f : ι → ℝ} {a b : Fin n → ι} :
+lemma step_seven {f : ι → ℝ} {a b : Fin n → ι} :
     m ^ m * (∑ i, (f (a i) - f (b i)) ^ 2 : ℝ) ^ m ≤
       m ^ m * 2 ^ m * (∑ i, (f (a i) ^ 2 + f (b i) ^ 2)) ^ m := by
   rw [← mul_pow, ← mul_pow, ← mul_pow, mul_assoc, mul_sum _ _ (2 : ℝ)]
   gcongr with i
   exact add_sq_le.trans_eq (by simp)
 
-private lemma step_eight {f : ι → ℝ} {a b : Fin n → ι} :
+lemma step_eight {f : ι → ℝ} {a b : Fin n → ι} :
     m ^ m * 2 ^ m * (∑ i, (f (a i) ^ 2 + f (b i) ^ 2)) ^ m ≤
       m ^ m * 2 ^ (m + (m - 1)) *
         ((∑ i, f (a i) ^ 2) ^ m + (∑ i, f (b i) ^ 2) ^ m) := by
@@ -155,7 +161,7 @@ private lemma step_eight {f : ι → ℝ} {a b : Fin n → ι} :
   gcongr
   refine add_pow_le ?_ ?_ m <;> positivity
 
-private lemma end_step {f : ι → ℝ} (hm : 1 ≤ m) (hA : A.Nonempty) :
+lemma end_step {f : ι → ℝ} (hm : 1 ≤ m) (hA : A.Nonempty) :
     (∑ a ∈ A ^^ n, ∑ b ∈ A ^^ n, ∑ k ∈ piAntidiag univ m,
       ↑(multinomial univ fun i ↦ 2 * k i) * ∏ t, (f (a t) - f (b t)) ^ (2 * k t)) / #A ^ n
         ≤ (4 * m) ^ m * ∑ a ∈ A ^^ n, (∑ i, f (a i) ^ 2) ^ m := by
@@ -174,6 +180,8 @@ private lemma end_step {f : ι → ℝ} (hm : 1 ≤ m) (hA : A.Nonempty) :
       · norm_num
         dsimp [B]
       · positivity
+
+public section
 
 namespace Real
 

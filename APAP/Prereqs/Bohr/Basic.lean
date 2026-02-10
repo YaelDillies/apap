@@ -1,5 +1,11 @@
+module
+
+public import Mathlib.Analysis.Fourier.FiniteAbelian.Orthogonality
+
 import APAP.Mathlib.Analysis.Normed.Ring.Basic
 import Mathlib.Analysis.Fourier.FiniteAbelian.PontryaginDuality
+
+@[expose] public section
 
 open AddChar Function
 open scoped NNReal ENNReal Finset

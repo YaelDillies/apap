@@ -1,13 +1,20 @@
-import APAP.Prereqs.Convolution.Discrete.Defs
+module
+
+public import APAP.Prereqs.Convolution.Discrete.Defs
+public import APAP.Prereqs.Function.Indicator.Defs
+public import APAP.Prereqs.LpNorm.Weighted
+public import Mathlib.Analysis.RCLike.Inner
+
 import APAP.Prereqs.Function.Indicator.Complex
-import APAP.Prereqs.LpNorm.Weighted
 import Mathlib.Algebra.Order.Floor.Semifield
 import Mathlib.Analysis.Complex.ExponentialBounds
-import Mathlib.Analysis.RCLike.Inner
+import Mathlib.MeasureTheory.Integral.Bochner.Basic
 
 /-!
 # Unbalancing
 -/
+
+public section
 
 open Finset hiding card
 open Fintype (card)

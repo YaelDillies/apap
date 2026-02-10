@@ -1,6 +1,9 @@
-import APAP.Prereqs.Convolution.Discrete.Defs
-import APAP.Prereqs.Function.Indicator.Defs
-import Mathlib.Algebra.BigOperators.Balance
+module
+
+public import APAP.Prereqs.Convolution.Discrete.Defs
+public import APAP.Prereqs.Function.Indicator.Defs
+
+import Mathlib.Analysis.Complex.Basic
 
 /-!
 # Convolution in the compact normalisation
@@ -28,6 +31,8 @@ the codomain in applications is either `ℝ`, `ℝ≥0` or `ℂ`.
 Similarly we could drop the commutativity assumption on the domain, but this is unneeded at this
 point in time.
 -/
+
+@[expose] public section
 
 open Finset Fintype Function
 open scoped BigOperators ComplexConjugate NNReal Pointwise translate

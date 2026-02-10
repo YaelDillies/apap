@@ -1,11 +1,19 @@
-import APAP.Prereqs.FourierTransform.Compact
+module
+
+public import APAP.Prereqs.FourierTransform.Compact
+public import Mathlib.Combinatorics.Additive.Dissociation
+
 import Mathlib.Analysis.SpecialFunctions.Trigonometric.DerivHyp
 import Mathlib.Analysis.SpecialFunctions.Trigonometric.Series
 import Mathlib.Combinatorics.Additive.Randomisation
+import Mathlib.MeasureTheory.Integral.Bochner.Basic
+import Mathlib.Tactic.Ring.Common
 
 /-!
 # Rudin's inequality
 -/
+
+public section
 
 open Finset hiding card
 open Fintype (card)

@@ -1,10 +1,14 @@
-import APAP.Prereqs.Function.Indicator.Defs
-import Mathlib.Algebra.AddTorsor.Defs
-import Mathlib.Algebra.BigOperators.Expect
-import Mathlib.Algebra.Group.Translate
-import Mathlib.Algebra.Star.Conjneg
-import Mathlib.Data.Fintype.Lattice
-import Mathlib.Data.NNRat.Order
+module
+
+public import APAP.Prereqs.Function.Indicator.Defs
+public import Mathlib.Algebra.AddTorsor.Defs
+public import Mathlib.Algebra.BigOperators.Expect
+public import Mathlib.Algebra.Group.Translate
+public import Mathlib.Algebra.Star.Conjneg
+
+import Mathlib.Algebra.Group.Action.Pointwise.Finset
+
+@[expose] public section
 
 open Finset Function
 open Fintype (card)

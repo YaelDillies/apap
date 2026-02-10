@@ -1,11 +1,12 @@
-import APAP.Prereqs.Convolution.Compact
-import APAP.Prereqs.Convolution.Discrete.Defs
-import APAP.Prereqs.FourierTransform.Discrete
+module
+
+public import APAP.Prereqs.Convolution.Compact
+public import APAP.Prereqs.FourierTransform.Discrete
+
 import APAP.Prereqs.Function.Indicator.Basic
 import APAP.Prereqs.Inner.Hoelder.Compact
-import Mathlib.Algebra.BigOperators.Balance
-import Mathlib.Analysis.Fourier.FiniteAbelian.PontryaginDuality
-import Mathlib.MeasureTheory.Constructions.AddChar
+import APAP.Prereqs.Inner.Hoelder.Discrete
+import Mathlib.MeasureTheory.Function.LpSeminorm.LpNorm
 
 /-!
 # Compact Fourier transform
@@ -13,6 +14,8 @@ import Mathlib.MeasureTheory.Constructions.AddChar
 This file defines the compact Fourier transform for finite groups and shows the
 Parseval-Plancherel identity and Fourier inversion formula for it.
 -/
+
+@[expose] public section
 
 noncomputable section
 

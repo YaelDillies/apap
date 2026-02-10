@@ -1,10 +1,17 @@
+module
+
+public import Mathlib.MeasureTheory.Function.LpSeminorm.Defs
+
 import APAP.Mathlib.Analysis.RCLike.Basic
 import Mathlib.MeasureTheory.Function.LpSeminorm.LpNorm
 import Mathlib.Tactic.DepRewrite
+import Mathlib.Tactic.Positivity.Finset
 
 /-!
 # Lp norms
 -/
+
+@[expose] public section
 
 open Finset Function Real
 open scoped BigOperators ComplexConjugate ENNReal NNReal NNRat
@@ -210,14 +217,10 @@ end MeasureTheory
 namespace Mathlib.Meta.Positivity
 open Lean Meta Qq Function MeasureTheory
 
-private alias ⟨_, dLpNorm_pos_of_ne_zero⟩ := dLpNorm_pos
-
-private lemma dLpNorm_pos_of_pos {α E : Type*} {_ : MeasurableSpace α} [DiscreteMeasurableSpace α]
-    [Finite α] [NormedAddCommGroup E] [Preorder E] {p : ℝ≥0∞} {f : α → E}
-    (hp : p ≠ 0) (hf : 0 < f) : 0 < ‖f‖_[p] := dLpNorm_pos_of_ne_zero hp hf.ne'
+alias ⟨_, dLpNorm_pos_of_ne_zero⟩ := dLpNorm_pos
 
 /-- The `positivity` extension which identifies expressions of the form `‖f‖_[p]`. -/
-@[positivity ‖_‖_[_]] def evalDLpNorm : PositivityExt where eval {u} R _z _p e := do
+@[positivity ‖_‖_[_]] meta def evalDLpNorm : PositivityExt where eval {u} R _z _p e := do
   match u, R, e with
   | 0, ~q(ℝ), ~q(@dLpNorm $α $E $instαmeas $instEnorm $p $f) =>
     assumeInstancesCommute

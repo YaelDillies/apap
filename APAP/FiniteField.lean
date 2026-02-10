@@ -1,18 +1,33 @@
-import APAP.Prereqs.Chang
-import APAP.Prereqs.Convolution.ThreeAP
-import APAP.Prereqs.FourierTransform.Convolution
-import APAP.Prereqs.Inner.Function
+module
+
+public import Mathlib.Analysis.SpecialFunctions.Log.Basic
+public import Mathlib.Combinatorics.Additive.AP.Three.Defs
+public import Mathlib.LinearAlgebra.Dimension.Finrank
+
 import APAP.Physics.AlmostPeriodicity
 import APAP.Physics.DRC
 import APAP.Physics.Unbalancing
+import APAP.Prereqs.Chang
+import APAP.Prereqs.Convolution.Discrete.Basic
+import APAP.Prereqs.Convolution.Norm
+import APAP.Prereqs.Convolution.Order
+import APAP.Prereqs.Convolution.ThreeAP
+import APAP.Prereqs.FourierTransform.Convolution
+import APAP.Prereqs.Function.Indicator.Basic
+import APAP.Prereqs.Function.Indicator.Complex
+import APAP.Prereqs.Inner.Function
+import APAP.Prereqs.Inner.Hoelder.Discrete
+import APAP.Prereqs.LpNorm.Discrete.Basic
+import Mathlib.Algebra.Field.ZMod
 import Mathlib.Algebra.Group.Pointwise.Finset.Density
-import Mathlib.FieldTheory.Finite.Basic
+import Mathlib.Algebra.Order.Floor.Semifield
+import Mathlib.Analysis.Complex.ExponentialBounds
+import Mathlib.Data.Real.StarOrdered
+import Mathlib.MeasureTheory.Integral.Bochner.Basic
 
 /-!
 # Finite field case
 -/
-
-set_option linter.haveLet 0
 
 attribute [-simp] Real.log_inv
 
@@ -452,7 +467,7 @@ lemma di_in_ff [DecidableEq G] [MeasurableSpace G] [DiscreteMeasurableSpace G] (
         · exact mu_nonneg
 
 set_option linter.flexible false in
-theorem ff (hq₃ : 3 ≤ q) (hq : q.Prime) (hA₀ : A.Nonempty) (hA : ThreeAPFree (α := G) A) :
+public theorem ff (hq₃ : 3 ≤ q) (hq : q.Prime) (hA₀ : A.Nonempty) (hA : ThreeAPFree (α := G) A) :
     finrank (ZMod q) G ≤ 2 ^ 156 * 𝓛 A.dens ^ 9 := by
   let n : ℝ := finrank (ZMod q) G
   let α : ℝ := A.dens

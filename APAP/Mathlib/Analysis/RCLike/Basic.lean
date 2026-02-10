@@ -1,4 +1,8 @@
-import Mathlib.Analysis.RCLike.Basic
+module
+
+public import Mathlib.Analysis.RCLike.Basic
+
+public section
 
 namespace RCLike
 variable {K : Type*} [RCLike K]

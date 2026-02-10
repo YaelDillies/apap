@@ -1,9 +1,12 @@
-import APAP.Prereqs.Convolution.Discrete.Defs
+module
+
+public import APAP.Prereqs.Convolution.Discrete.Defs
+public import APAP.Prereqs.Function.Indicator.Defs
+
 import APAP.Prereqs.Function.Indicator.Basic
-import Mathlib.Algebra.BigOperators.Balance
+import Mathlib.Algebra.Group.Action.Pointwise.Finset
 import Mathlib.Algebra.Group.Pointwise.Finset.BigOperators
-import Mathlib.Algebra.Module.Pi
-import Mathlib.Analysis.Complex.Basic
+import Mathlib.Analysis.Complex.Order
 
 /-!
 # Convolution
@@ -34,6 +37,8 @@ point in time.
 
 Multiplicativise? Probably ugly and not very useful.
 -/
+
+@[expose] public section
 
 local notation:70 s:70 " ^^ " n:71 => Fintype.piFinset fun _ : Fin n ↦ s
 

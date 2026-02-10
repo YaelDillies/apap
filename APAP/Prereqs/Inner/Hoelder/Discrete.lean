@@ -1,8 +1,13 @@
-import APAP.Prereqs.LpNorm.Discrete.Defs
-import Mathlib.Analysis.RCLike.Inner
-import Mathlib.Data.Real.ConjExponents
+module
+
+public import APAP.Prereqs.LpNorm.Discrete.Defs
+public import Mathlib.Analysis.RCLike.Inner
+
+import Mathlib.MeasureTheory.Integral.Bochner.Basic
 
 /-! # Inner product -/
+
+public section
 
 open Finset Function MeasureTheory RCLike Real
 open scoped ComplexConjugate ENNReal NNReal NNRat

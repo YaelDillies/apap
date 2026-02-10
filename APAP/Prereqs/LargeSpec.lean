@@ -1,8 +1,14 @@
-import APAP.Prereqs.FourierTransform.Discrete
+module
+
+public import APAP.Prereqs.FourierTransform.Discrete
+
+import Mathlib.MeasureTheory.Integral.Bochner.Basic
 
 /-!
 # Large spectrum of a function
 -/
+
+@[expose] public section
 
 open Finset Fintype
 open scoped ComplexConjugate NNReal

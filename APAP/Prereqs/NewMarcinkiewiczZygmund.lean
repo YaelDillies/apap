@@ -3,8 +3,11 @@ Copyright (c) 2023 Yaël Dillies, Bhavik Mehta. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Yaël Dillies, Bhavik Mehta
 -/
+module
+
+public import Mathlib.Probability.IdentDistrib
+
 import Mathlib.Data.Nat.Choose.Multinomial
-import Mathlib.Probability.IdentDistrib
 
 /-!
 # The Marcinkiewicz-Zygmund inequality
@@ -26,6 +29,8 @@ Throughout this file, `A ^^ n` denotes `A × ... × A` (with `n` factors). Forma
 We currently only prove the inequality for `p = 2 * m` an even natural number. The general `p` case
 can be obtained from this specific one by nesting of Lp norms.
 -/
+
+public section
 
 open Finset Fintype Function Nat MeasureTheory ProbabilityTheory Real
 open scoped NNReal ENNReal

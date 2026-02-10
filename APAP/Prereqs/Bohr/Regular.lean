@@ -1,4 +1,8 @@
-import APAP.Prereqs.Bohr.Basic
+module
+
+public import APAP.Prereqs.Bohr.Basic
+
+public section
 
 open AddChar Complex Function
 open scoped NNReal

@@ -1,6 +1,9 @@
-import APAP.Prereqs.Function.Indicator.Defs
-import Mathlib.Algebra.BigOperators.Expect
-import Mathlib.Analysis.RCLike.Inner
+module
+
+public import APAP.Prereqs.Function.Indicator.Defs
+public import Mathlib.Analysis.RCLike.Inner
+
+public section
 
 open Finset RCLike
 open scoped BigOperators ComplexConjugate mu

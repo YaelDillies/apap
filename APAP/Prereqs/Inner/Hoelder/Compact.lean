@@ -1,7 +1,14 @@
+module
+
+public import APAP.Prereqs.LpNorm.Compact
+public import Mathlib.Analysis.RCLike.Inner
+
 import APAP.Prereqs.Inner.Hoelder.Discrete
-import APAP.Prereqs.LpNorm.Compact
+import Mathlib.MeasureTheory.Integral.Bochner.Basic
 
 /-! # Inner product -/
+
+public section
 
 open Finset hiding card
 open Fintype (card)

@@ -1,13 +1,24 @@
+module
+
+public import Mathlib.Algebra.Field.Defs
+public import Mathlib.Algebra.Star.Pi
+public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
+public import Mathlib.Algebra.Group.Action.Pi
+public import Mathlib.Algebra.Group.Pointwise.Finset.Basic
+public import Mathlib.Algebra.Group.Pointwise.Finset.Scalar
+public import Mathlib.Algebra.Notation.Support
+public import Mathlib.Algebra.Order.Ring.Defs
+
 import Mathlib.Algebra.BigOperators.Pi
-import Mathlib.Algebra.Field.Defs
 import Mathlib.Algebra.Group.Action.Pointwise.Finset
-import Mathlib.Algebra.Star.Pi
 import Mathlib.Data.Fintype.Lattice
 import Mathlib.Data.Nat.Cast.Order.Ring
 
 open Finset Function
 open Fintype (card)
 open scoped ComplexConjugate Pointwise NNRat
+
+@[expose] public section
 
 /-! ### Indicator -/
 

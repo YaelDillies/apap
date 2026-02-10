@@ -1,10 +1,14 @@
-import APAP.Prereqs.Convolution.Discrete.Defs
-import APAP.Prereqs.Function.Indicator.Defs
+module
+
+public import APAP.Prereqs.Convolution.Discrete.Defs
+public import APAP.Prereqs.LpNorm.Compact
+public import APAP.Prereqs.LpNorm.Discrete.Defs
+public import Mathlib.Analysis.Fourier.FiniteAbelian.PontryaginDuality
+public import Mathlib.MeasureTheory.Constructions.AddChar
+
 import APAP.Prereqs.Inner.Hoelder.Compact
 import APAP.Prereqs.Inner.Hoelder.Discrete
-import Mathlib.Algebra.BigOperators.Balance
-import Mathlib.Analysis.Fourier.FiniteAbelian.PontryaginDuality
-import Mathlib.MeasureTheory.Constructions.AddChar
+import Mathlib.MeasureTheory.Function.LpSeminorm.LpNorm
 
 /-!
 # Discrete Fourier transform
@@ -12,6 +16,8 @@ import Mathlib.MeasureTheory.Constructions.AddChar
 This file defines the discrete Fourier transform and shows the Parseval-Plancherel identity and
 Fourier inversion formula for it.
 -/
+
+@[expose] public section
 
 open AddChar Finset Fintype Function MeasureTheory RCLike
 open scoped BigOperators ComplexConjugate ComplexOrder translate

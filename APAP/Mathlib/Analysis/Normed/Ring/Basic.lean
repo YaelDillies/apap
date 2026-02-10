@@ -1,5 +1,10 @@
-import Mathlib.Analysis.Normed.Ring.Basic
+module
+
+public import Mathlib.Analysis.Normed.Ring.Basic
+
 import Mathlib.Tactic.NoncommRing
+
+public section
 
 variable {R : Type*} [SeminormedRing R] {a b c : R}
 

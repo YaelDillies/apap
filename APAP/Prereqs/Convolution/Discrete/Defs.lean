@@ -1,7 +1,14 @@
-import Mathlib.Algebra.Group.Translate
-import Mathlib.Algebra.Star.Conjneg
+module
+
+public import Mathlib.Algebra.Group.Translate
+public import Mathlib.Algebra.Star.Conjneg
+public import Mathlib.Analysis.RCLike.Basic
+public import Mathlib.Data.Complex.Basic
+-- FIXME: This public import shouldn't be needed.
+public import Mathlib.Data.Matrix.Mul
+public import Mathlib.Data.NNReal.Star
+
 import Mathlib.Analysis.Complex.Basic
-import Mathlib.Data.NNReal.Star
 
 /-!
 # Convolution
@@ -32,6 +39,8 @@ point in time.
 
 Multiplicativise? Probably ugly and not very useful.
 -/
+
+@[expose] public section
 
 open Finset Fintype Function
 open scoped ComplexConjugate NNReal Pointwise translate

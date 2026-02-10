@@ -1,6 +1,14 @@
+module
+
+public import Mathlib.Combinatorics.Additive.Energy
+-- FIXME: This public import shouldn't be needed.
+public import Mathlib.Data.Matrix.Mul
+public import Mathlib.Data.Real.Basic
+
 import APAP.Prereqs.Convolution.Discrete.Basic
 import APAP.Prereqs.Convolution.Order
-import Mathlib.Combinatorics.Additive.Energy
+import Mathlib.Algebra.Group.Action.Pointwise.Finset
+import Mathlib.Analysis.Complex.Order
 import Mathlib.Data.Finset.CastCard
 import Mathlib.Data.Real.StarOrdered
 import Mathlib.Tactic.Positivity.Finset
@@ -11,18 +19,18 @@ open scoped ComplexConjugate Pointwise Combinatorics.Additive
 section
 variable {α : Type*} [DecidableEq α] {H : Finset (α × α)} {A B X : Finset α} {x : α}
 
-private noncomputable def oneOfPair (H : Finset (α × α)) (X : Finset α) : Finset α :=
+noncomputable def oneOfPair (H : Finset (α × α)) (X : Finset α) : Finset α :=
   {x ∈ X | (3 / 4 : ℝ) * #X ≤ #{yz ∈ H | yz.1 = x}}
 
-private lemma oneOfPair_mem :
-    x ∈ oneOfPair H X ↔ x ∈ X ∧ (3 / 4 : ℝ) * #X ≤ #{yz ∈ H | yz.1 = x} := mem_filter
+lemma oneOfPair_mem : x ∈ oneOfPair H X ↔ x ∈ X ∧ (3 / 4 : ℝ) * #X ≤ #{yz ∈ H | yz.1 = x} :=
+  mem_filter
 
-private lemma oneOfPair_mem' (hH : H ⊆ X ×ˢ X) : #{yz ∈ H | yz.1 = x} = #{c ∈ X | (x, c) ∈ H} := by
+lemma oneOfPair_mem' (hH : H ⊆ X ×ˢ X) : #{yz ∈ H | yz.1 = x} = #{c ∈ X | (x, c) ∈ H} := by
   refine card_nbij' Prod.snd (fun c ↦ (x, c)) ?_ (by simp [Set.MapsTo])
     (by aesop (add simp [Set.LeftInvOn])) (by simp [Set.LeftInvOn])
   simpa +contextual [Set.MapsTo, eq_comm] using fun a b hab _ ↦ (mem_product.1 (hH hab)).2
 
-private lemma oneOfPair_bound_one :
+lemma oneOfPair_bound_one :
     ∑ x ∈ X \ oneOfPair H X, (#{yz ∈ H | yz.1 = x} : ℝ) ≤ (3 / 4) * #X ^ 2 :=
   calc _ ≤ ∑ _x ∈ X \ oneOfPair H X, (3 / 4 : ℝ) * #X := by
         gcongr with i hi
@@ -32,7 +40,7 @@ private lemma oneOfPair_bound_one :
        _ ≤ #X * ((3 / 4 : ℝ) * #X) := by gcongr; exact sdiff_subset
        _ = _ := by ring
 
-private lemma oneOfPair_bound_two (hH : H ⊆ X ×ˢ X) (Hcard : (7 / 8 : ℝ) * #X ^ 2 ≤ #H) :
+lemma oneOfPair_bound_two (hH : H ⊆ X ×ˢ X) (Hcard : (7 / 8 : ℝ) * #X ^ 2 ≤ #H) :
     (1 / 8 : ℝ) * #X ^ 2 ≤ #X * #(oneOfPair H X) :=
   calc _ = (7 / 8 : ℝ) * #X ^ 2 - 3 / 4 * #X ^ 2 := by ring
        _ ≤ #H - (3 / 4 : ℝ) * #X ^ 2 := by linarith
@@ -385,7 +393,7 @@ theorem BSG_aux {K : ℝ} (hK : 0 < K) (hA : (0 : ℝ) < #A) (hB : (0 : ℝ) < #
   rw [mul_div_assoc', div_le_iff₀ (by positivity)] at this
   exact this.trans_eq (by ring)
 
-theorem BSG {K : ℝ} (hK : 0 ≤ K) (hB : B.Nonempty) (hAB : K⁻¹ * (#A ^ 2 * #B) ≤ E[A, B]) :
+public theorem BSG {K : ℝ} (hK : 0 ≤ K) (hB : B.Nonempty) (hAB : K⁻¹ * (#A ^ 2 * #B) ≤ E[A, B]) :
     ∃ A' ⊆ A, (2 ^ 4)⁻¹ * K⁻¹ * #A ≤ #A' ∧ #(A' - A') ≤ 2 ^ 10 * K ^ 5 * #B ^ 4 / #A ^ 3 := by
   obtain rfl | hA := A.eq_empty_or_nonempty
   · exact ⟨∅, by simp⟩
@@ -394,7 +402,7 @@ theorem BSG {K : ℝ} (hK : 0 ≤ K) (hB : B.Nonempty) (hAB : K⁻¹ * (#A ^ 2 *
   · obtain ⟨s, A', hA, h⟩ := BSG_aux hK (by simpa [card_pos]) (by simpa [card_pos]) hAB
     exact ⟨A', hA.trans (inter_subset_left ..), h⟩
 
-theorem BSG₂ {K : ℝ} (hK : 0 ≤ K) (hB : B.Nonempty) (hAB : K⁻¹ * (#A ^ 2 * #B) ≤ E[A, B]) :
+public theorem BSG₂ {K : ℝ} (hK : 0 ≤ K) (hB : B.Nonempty) (hAB : K⁻¹ * (#A ^ 2 * #B) ≤ E[A, B]) :
     ∃ A' ⊆ A, ∃ B' ⊆ B, (2 ^ 4)⁻¹ * K⁻¹ * #A ≤ #A' ∧
       (2 ^ 4)⁻¹ * K⁻¹ * #A ≤ #B' ∧ #(A' - B') ≤ 2 ^ 10 * K ^ 5 * #B ^ 4 / #A ^ 3 := by
   obtain rfl | hA := A.eq_empty_or_nonempty
@@ -413,7 +421,7 @@ theorem BSG₂ {K : ℝ} (hK : 0 ≤ K) (hB : B.Nonempty) (hAB : K⁻¹ * (#A ^ 
       rw [add_vadd_comm]
       apply card_vadd_finset
 
-theorem BSG_self {K : ℝ} (hK : 0 ≤ K) (hA : A.Nonempty) (hAK : K⁻¹ * #A ^ 3 ≤ E[A]) :
+public theorem BSG_self {K : ℝ} (hK : 0 ≤ K) (hA : A.Nonempty) (hAK : K⁻¹ * #A ^ 3 ≤ E[A]) :
     ∃ A' ⊆ A, (2 ^ 4)⁻¹ * K⁻¹ * #A ≤ #A' ∧ #(A' - A') ≤ 2 ^ 10 * K ^ 5 * #A := by
   convert BSG hK hA ?_ using 5
   · have := hA.card_pos
@@ -421,7 +429,7 @@ theorem BSG_self {K : ℝ} (hK : 0 ≤ K) (hA : A.Nonempty) (hAK : K⁻¹ * #A ^
   · ring_nf
     assumption
 
-theorem BSG_self' {K : ℝ} (hK : 0 ≤ K) (hA : A.Nonempty) (hAK : K⁻¹ * #A ^ 3 ≤ E[A]) :
+public theorem BSG_self' {K : ℝ} (hK : 0 ≤ K) (hA : A.Nonempty) (hAK : K⁻¹ * #A ^ 3 ≤ E[A]) :
     ∃ A' ⊆ A, (2 ^ 4)⁻¹ * K⁻¹ * #A ≤ #A' ∧ #(A' - A') ≤ 2 ^ 14 * K ^ 6 * #A' := by
   obtain ⟨A', hA', hAA', hAK'⟩ := BSG_self hK hA hAK
   refine ⟨A', hA', hAA', hAK'.trans ?_⟩

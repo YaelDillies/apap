@@ -1,13 +1,19 @@
+module
+
+public import APAP.Prereqs.Function.Indicator.Defs
+public import Mathlib.Algebra.Group.Translate
+public import Mathlib.Algebra.Star.Conjneg
+public import Mathlib.MeasureTheory.Function.LpSeminorm.Defs
+
 import APAP.Mathlib.Analysis.RCLike.Basic
-import APAP.Prereqs.Function.Indicator.Defs
-import Mathlib.Algebra.Group.Translate
-import Mathlib.Algebra.Star.Conjneg
 import Mathlib.MeasureTheory.Function.LpSeminorm.LpNorm
 import Mathlib.Tactic.DepRewrite
 
 /-!
 # Normalised Lp norms
 -/
+
+@[expose] public section
 
 open Finset hiding card
 open Function ProbabilityTheory Real
@@ -213,10 +219,10 @@ end MeasureTheory
 namespace Mathlib.Meta.Positivity
 open Lean Meta Qq Function MeasureTheory
 
-private alias ⟨_, cLpNorm_pos_of_ne_zero⟩ := cLpNorm_pos
+alias ⟨_, cLpNorm_pos_of_ne_zero⟩ := cLpNorm_pos
 
 /-- The `positivity` extension which identifies expressions of the form `‖f‖ₙ_[p]`. -/
-@[positivity ‖_‖ₙ_[_]] def evalCLpNorm : PositivityExt where eval {u} R _z _p e := do
+@[positivity ‖_‖ₙ_[_]] meta def evalCLpNorm : PositivityExt where eval {u} R _z _p e := do
   match u, R, e with
   | 0, ~q(ℝ), ~q(@cLpNorm $α $E $instαmeas $instEnorm $p $f) =>
     assumeInstancesCommute

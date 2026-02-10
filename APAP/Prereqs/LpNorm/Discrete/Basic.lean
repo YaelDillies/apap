@@ -1,11 +1,18 @@
-import APAP.Prereqs.Function.Indicator.Defs
-import APAP.Prereqs.LpNorm.Discrete.Defs
-import Mathlib.Algebra.Group.Translate
-import Mathlib.Algebra.Star.Conjneg
+module
+
+public import APAP.Prereqs.Function.Indicator.Defs
+public import APAP.Prereqs.LpNorm.Discrete.Defs
+public import Mathlib.Algebra.Group.Translate
+public import Mathlib.Algebra.Star.Conjneg
+
+import Mathlib.MeasureTheory.Integral.Bochner.Basic
+import Mathlib.Tactic.Positivity.Finset
 
 /-!
 # Lp norms
 -/
+
+public section
 
 open Finset Function Real
 open scoped BigOperators ComplexConjugate ENNReal NNReal translate mu

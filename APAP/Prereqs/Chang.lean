@@ -1,13 +1,20 @@
-import APAP.Prereqs.Energy
-import APAP.Prereqs.LargeSpec
+module
+
+public import APAP.Prereqs.Energy
+public import APAP.Prereqs.LargeSpec
+public import Mathlib.Combinatorics.Additive.Dissociation
+
 import APAP.Prereqs.Rudin
 import Mathlib.Algebra.Order.Chebyshev
-import Mathlib.Analysis.MeanInequalities
-import Mathlib.Tactic.Bound
+import Mathlib.Analysis.SpecialFunctions.Trigonometric.DerivHyp
+import Mathlib.MeasureTheory.Integral.Bochner.Basic
+import Mathlib.Tactic.Ring.Common
 
 /-!
 # Chang's lemma
 -/
+
+@[expose] public section
 
 open Finset Fintype Function MeasureTheory RCLike Real
 open scoped ComplexConjugate ComplexOrder NNReal
@@ -47,7 +54,7 @@ namespace Mathlib.Meta.Positivity
 open Lean.Meta Qq
 
 /-- Extension for the `positivity` tactic: `changConst` is positive. -/
-@[positivity changConst] def evalChangConst : PositivityExt where eval _ _ _ := do
+@[positivity changConst] meta def evalChangConst : PositivityExt where eval _ _ _ := do
   return .positive (q(changConst_pos) : Lean.Expr)
 
 example : 0 < changConst := by positivity

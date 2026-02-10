@@ -1,12 +1,15 @@
-import APAP.Prereqs.Convolution.Discrete.Defs
-import APAP.Prereqs.Function.Indicator.Defs
-import Mathlib.Analysis.RCLike.Inner
-import Mathlib.Combinatorics.Additive.AP.Three.Defs
-import Mathlib.Data.Real.StarOrdered
+module
+
+public import APAP.Prereqs.Convolution.Discrete.Defs
+public import APAP.Prereqs.Function.Indicator.Defs
+public import Mathlib.Analysis.RCLike.Inner
+public import Mathlib.Combinatorics.Additive.AP.Three.Defs
 
 /-!
 # The convolution characterisation of 3AP-free sets
 -/
+
+@[expose] public section
 
 open Finset Fintype Function RCLike
 open scoped Pointwise mu

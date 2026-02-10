@@ -1,4 +1,8 @@
-import Mathlib.Topology.Algebra.PontryaginDual
+module
+
+public import Mathlib.Topology.Algebra.PontryaginDual
+
+public section
 
 namespace PontryaginDual
 variable {M : Type*} [Monoid M] [TopologicalSpace M]

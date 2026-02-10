@@ -1,9 +1,13 @@
-import APAP.Prereqs.Convolution.Compact
-import APAP.Prereqs.Function.Indicator.Defs
-import APAP.Prereqs.Inner.Hoelder.Compact
-import APAP.Prereqs.Inner.Hoelder.Discrete
+module
+
+public import APAP.Prereqs.Convolution.Compact
+public import APAP.Prereqs.LpNorm.Compact
+public import APAP.Prereqs.LpNorm.Discrete.Defs
+
 import APAP.Prereqs.FourierTransform.Compact
-import Mathlib.Analysis.Fourier.FiniteAbelian.PontryaginDuality
+import Mathlib.MeasureTheory.Integral.Bochner.Basic
+
+public section
 
 open AddChar Finset Function MeasureTheory
 open Fintype (card)
