@@ -3,10 +3,8 @@ module
 public import APAP.Prereqs.LpNorm.Discrete.Defs
 public import Mathlib.Analysis.RCLike.Inner
 
-import Mathlib.MeasureTheory.Function.LpSeminorm.CompareExp
 import Mathlib.MeasureTheory.Function.LpSeminorm.LpNorm
 import Mathlib.MeasureTheory.Integral.Bochner.Basic
-import Mathlib.MeasureTheory.Measure.Count
 
 /-! # Inner product -/
 
@@ -59,16 +57,14 @@ lemma wInner_one_le_dLpNorm_mul_dLpNorm (p q : ℝ≥0∞) [hpq : p.HolderConjug
     exact mul_comm (g i) (f i)
   have hfg : ∀ i, f i * g i ≤ ‖f i‖ * ‖g i‖ := fun i =>
     (le_abs_self _).trans_eq (by rw [abs_mul]; simp [Real.norm_eq_abs])
-  by_cases hpi : p = ∞
-  · have hq1 : q = 1 := (ENNReal.HolderConjugate.eq_top_iff_eq_one p q).mp hpi
-    subst hpi; subst hq1
+  obtain rfl | hpi := eq_or_ne p ∞
+  · obtain rfl : q = 1 := (ENNReal.HolderConjugate.eq_top_iff_eq_one ∞ q).mp rfl
     rw [hwInner, dLinftyNorm_eq_iSup_norm, dL1Norm_eq_sum_norm, Finset.mul_sum]
     exact Finset.sum_le_sum fun i _ ↦ (hfg i).trans
       (mul_le_mul_of_nonneg_right
         (le_ciSup (f := fun j ↦ ‖f j‖) (Finite.bddAbove_range _) i) (norm_nonneg _))
-  by_cases hqi : q = ∞
-  · have hp1 : p = 1 := (ENNReal.HolderConjugate.eq_top_iff_eq_one q p).mp hqi
-    subst hqi; subst hp1
+  obtain rfl | hqi := eq_or_ne q ∞
+  · obtain rfl : p = 1 := (ENNReal.HolderConjugate.eq_top_iff_eq_one ∞ p).mp rfl
     rw [hwInner, dLinftyNorm_eq_iSup_norm, dL1Norm_eq_sum_norm, Finset.sum_mul]
     exact Finset.sum_le_sum fun i _ ↦ (hfg i).trans
       (mul_le_mul_of_nonneg_left

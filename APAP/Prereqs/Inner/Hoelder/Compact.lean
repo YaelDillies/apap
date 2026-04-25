@@ -154,9 +154,10 @@ lemma cLpNorm_prod_le {ι : Type*} {s : Finset ι} (hs : s.Nonempty) {p : ι →
   | cons i s hi hs ih =>
   simp_rw [prod_cons]
   rw [sum_cons, ← inv_inv (∑ _ ∈ _, _)] at hpq
-  have : ENNReal.HolderTriple (p i) ↑(∑ i ∈ s, (p i)⁻¹)⁻¹ q := ⟨by
-    simpa [ENNReal.coe_inv (by simpa [hp] :
-      (∑ j ∈ s, (p j)⁻¹ : ℝ≥0) ≠ 0), ENNReal.coe_inv, hp] using hpq⟩
+  have : ENNReal.HolderTriple (p i) ↑(∑ i ∈ s, (p i)⁻¹)⁻¹ q := by
+    have : (∑ j ∈ s, (p j)⁻¹ : ℝ≥0) ≠ 0 := by simpa [hp]
+    constructor
+    simpa [ENNReal.coe_inv, *] using hpq
   grw [cLpNorm_mul_le (p i) ↑(∑ i ∈ s, (p i)⁻¹)⁻¹ , ih]
   · rw [← ENNReal.coe_inv, inv_inv]
     · push_cast

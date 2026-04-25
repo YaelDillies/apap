@@ -51,7 +51,7 @@ lemma cLpNorm_pow_eq_card_inv_mul_dLpNorm_pow (hn₀ : n ≠ 0) (f : G → ℂ) 
   simp [Fintype.expect_eq_sum_div_card, div_eq_mul_inv, mul_comm]
 
 omit [AddCommGroup G] [DecidableEq G] [DiscreteMeasurableSpace G] in
-lemma dLpNorm_card_inv_nnnat_smul (f : G → ℂ) :
+lemma dLpNorm_card_inv_nnrat_smul (f : G → ℂ) :
     ‖((Fintype.card G : ℚ≥0)⁻¹ • f)‖_[n] = (Fintype.card G : ℝ)⁻¹ * ‖f‖_[n] := by
   rw [show ((Fintype.card G : ℚ≥0)⁻¹ • f) = ((Fintype.card G : ℂ)⁻¹ • f) by
     ext x
@@ -66,7 +66,7 @@ lemma dLpNorm_conv_le_dLpNorm_dconv (hn₀ : n ≠ 0) (hn : Even n) (f : G → �
   rw [cconv_eq_smul_conv, cdconv_eq_smul_dconv] at h
   have h' : (Fintype.card G : ℝ)⁻¹ * (((Fintype.card G : ℝ)⁻¹) ^ n * ‖f ∗ f‖_[n] ^ n) ≤
       (Fintype.card G : ℝ)⁻¹ * (((Fintype.card G : ℝ)⁻¹) ^ n * ‖f ○ f‖_[n] ^ n) := by
-    simpa [cLpNorm_pow_eq_card_inv_mul_dLpNorm_pow hn₀, dLpNorm_card_inv_nnnat_smul, mul_pow,
+    simpa [cLpNorm_pow_eq_card_inv_mul_dLpNorm_pow hn₀, dLpNorm_card_inv_nnrat_smul, mul_pow,
       mul_assoc, mul_left_comm, mul_comm] using h
   have hpos : 0 < (Fintype.card G : ℝ)⁻¹ * ((Fintype.card G : ℝ)⁻¹) ^ n := by
     positivity
