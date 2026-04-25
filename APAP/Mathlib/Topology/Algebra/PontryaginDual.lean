@@ -94,31 +94,31 @@ private lemma circle_eq_one_of_forall_pow_mem_rightHalfArc {z : Circle}
 
 /-- A compact monoid has discrete Pontryagin dual. -/
 instance [CompactSpace M] : DiscreteTopology (PontryaginDual M) := by
+  refine discreteTopology_of_isOpen_singleton_one ?_
   let V : Set (PontryaginDual M) := {ψ | Set.MapsTo ψ Set.univ rightHalfArc}
   have hVopen : IsOpen V := by
     dsimp [V]
     exact isOpen_induced (ContinuousMap.isOpen_setOf_mapsTo isCompact_univ isOpen_rightHalfArc)
-  have hVeq : V = ({1} : Set (PontryaginDual M)) := by
-    ext ψ
-    constructor
-    · intro hψ
-      rw [Set.mem_singleton_iff]
-      apply ContinuousMonoidHom.ext
-      intro a
-      have hpow : ∀ n : ℕ, 0 < n → (ψ a) ^ n ∈ rightHalfArc := by
-        intro n hn
-        have hmap := hψ (Set.mem_univ (a ^ n))
-        simpa [map_pow] using hmap
-      simpa using circle_eq_one_of_forall_pow_mem_rightHalfArc hpow
-    · intro hψ
-      rw [Set.mem_singleton_iff] at hψ
-      subst ψ
-      intro _ _
-      refine ⟨0, ?_, ?_⟩
-      · constructor <;> linarith [Real.pi_pos]
-      · rw [Circle.exp_zero]
-        rfl
-  exact discreteTopology_of_isOpen_singleton_one (by simpa [hVeq] using hVopen)
+  convert hVopen
+  ext ψ
+  constructor
+  · intro hψ
+    rw [Set.mem_singleton_iff] at hψ
+    subst ψ
+    intro _ _
+    refine ⟨0, ?_, ?_⟩
+    · constructor <;> linarith [Real.pi_pos]
+    · rw [Circle.exp_zero]
+      rfl
+  · intro hψ
+    rw [Set.mem_singleton_iff]
+    apply ContinuousMonoidHom.ext
+    intro a
+    have hpow : ∀ n : ℕ, 0 < n → (ψ a) ^ n ∈ rightHalfArc := by
+      intro n hn
+      have hmap := hψ (Set.mem_univ (a ^ n))
+      simpa [map_pow] using hmap
+    simpa using circle_eq_one_of_forall_pow_mem_rightHalfArc hpow
 
 instance [DiscreteTopology M] [CompactSpace M] : Finite (PontryaginDual M) :=
   finite_of_compact_of_discrete
