@@ -195,7 +195,13 @@ lemma cLpNorm_exponent_top_eq_essSup (f : α → E) : ‖f‖ₙ_[∞] = ⨆ i, 
 @[simp] lemma cLpNorm_pos (hp : p ≠ 0) : 0 < ‖f‖ₙ_[p] ↔ f ≠ 0 :=
   lpNorm_nonneg.lt_iff_ne'.trans (cLpNorm_eq_zero hp).not
 
-@[gcongr] lemma cLpNorm_mono_right (hpq : p ≤ q) : ‖f‖ₙ_[p] ≤ ‖f‖ₙ_[q] := sorry
+@[gcongr] lemma cLpNorm_mono_right (hpq : p ≤ q) : ‖f‖ₙ_[p] ≤ ‖f‖ₙ_[q] := by
+  cases isEmpty_or_nonempty α
+  · simp [cLpNorm]
+  rw [cLpNorm, cLpNorm, ← toReal_eLpNorm (MemLp.of_discrete (p := p)).aestronglyMeasurable,
+      ← toReal_eLpNorm (MemLp.of_discrete (p := q)).aestronglyMeasurable]
+  exact ENNReal.toReal_mono (MemLp.of_discrete (p := q)).eLpNorm_ne_top
+    (eLpNorm_le_eLpNorm_of_exponent_le hpq (MemLp.of_discrete (p := p)).aestronglyMeasurable)
 
 lemma cLpNorm_mono_real {g : α → ℝ} (h : ∀ x, ‖f x‖ ≤ g x) : ‖f‖ₙ_[p] ≤ ‖g‖ₙ_[p] :=
   lpNorm_mono_real .of_discrete h
@@ -276,18 +282,20 @@ variable {α : Type*} {mα : MeasurableSpace α} [DiscreteMeasurableSpace α] [F
 lemma cLpNorm_rpow (hp : p ≠ 0) (hq : q ≠ 0) (hf : 0 ≤ f) :
     ‖f ^ (q : ℝ)‖ₙ_[p] = ‖f‖ₙ_[p * q] ^ (q : ℝ) := by
   cases nonempty_fintype α
-  refine rpow_left_injOn (NNReal.coe_ne_zero.2 hp) (by dsimp; sorry) (by dsimp; sorry) ?_
+  refine rpow_left_injOn (NNReal.coe_ne_zero.2 hp) (by dsimp; positivity)
+    (by dsimp; positivity) ?_
   dsimp
-  rw [← rpow_mul sorry, ← mul_comm, ← ENNReal.coe_mul, ← NNReal.coe_mul,
+  rw [← rpow_mul (by positivity), ← mul_comm, ← ENNReal.coe_mul, ← NNReal.coe_mul,
     cLpNorm_rpow_eq_expect_norm hp, cLpNorm_rpow_eq_expect_norm (mul_ne_zero hq hp)]
   simp [abs_rpow_of_nonneg (hf _), rpow_mul]
 
 lemma cLpNorm_pow (hp : p ≠ 0) {q : ℕ} (hq : q ≠ 0) (f : α → ℂ) :
     ‖f ^ q‖ₙ_[p] = ‖f‖ₙ_[p * q] ^ q := by
   cases nonempty_fintype α
-  refine rpow_left_injOn (NNReal.coe_ne_zero.2 hp) (by dsimp; sorry) (by dsimp; sorry) ?_
+  refine rpow_left_injOn (NNReal.coe_ne_zero.2 hp) (by dsimp; positivity)
+    (by dsimp; positivity) ?_
   dsimp
-  rw [← rpow_natCast_mul sorry, ← mul_comm, ← ENNReal.coe_natCast, ← ENNReal.coe_mul,
+  rw [← rpow_natCast_mul (by positivity), ← mul_comm, ← ENNReal.coe_natCast, ← ENNReal.coe_mul,
     ← NNReal.coe_natCast, ← NNReal.coe_mul, cLpNorm_rpow_eq_expect_norm hp,
     cLpNorm_rpow_eq_expect_norm (by positivity)]
   simp [← rpow_natCast_mul]

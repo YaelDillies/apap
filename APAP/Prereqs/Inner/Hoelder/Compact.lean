@@ -4,6 +4,8 @@ public import APAP.Prereqs.LpNorm.Compact
 public import Mathlib.Analysis.RCLike.Inner
 
 import APAP.Prereqs.Inner.Hoelder.Discrete
+import Mathlib.MeasureTheory.Function.LpSeminorm.CompareExp
+import Mathlib.MeasureTheory.Function.LpSeminorm.LpNorm
 import Mathlib.MeasureTheory.Integral.Bochner.Basic
 import Mathlib.Tactic.Positivity
 
@@ -46,6 +48,40 @@ end RCLike
 /-! ### Hölder inequality -/
 
 namespace MeasureTheory
+
+section Hoelder
+variable {α : Type*} {mα : MeasurableSpace α} [DiscreteMeasurableSpace α] [Fintype α] [RCLike 𝕜]
+  {p q r : ℝ≥0∞} {f g : α → 𝕜}
+
+omit [Fintype α]
+variable [Finite α]
+
+/-- **Hölder's inequality**, binary case. -/
+lemma cLpNorm_mul_le (p q : ℝ≥0∞) (_hr₀ : r ≠ 0) [hpqr : ENNReal.HolderTriple p q r] :
+    ‖f * g‖ₙ_[r] ≤ ‖f‖ₙ_[p] * ‖g‖ₙ_[q] := by
+  cases nonempty_fintype α
+  set μ := ProbabilityTheory.uniformOn (Set.univ : Set α) with hμ_def
+  have hμfin : IsFiniteMeasure μ := by rw [hμ_def]; infer_instance
+  have hm_r : MemLp (f * g) r μ := MemLp.of_discrete
+  have hm_p : MemLp f p μ := MemLp.of_discrete
+  have hm_q : MemLp g q μ := MemLp.of_discrete
+  have hbd : ∀ᵐ x ∂μ, ‖f x * g x‖₊ ≤ (1 : NNReal) * ‖f x‖₊ * ‖g x‖₊ :=
+    .of_forall fun x ↦ by rw [one_mul]; exact nnnorm_mul_le _ _
+  have key : eLpNorm (fun x ↦ f x * g x) r μ
+      ≤ ((1 : NNReal) : ℝ≥0∞) * eLpNorm f p μ * eLpNorm g q μ :=
+    eLpNorm_le_eLpNorm_mul_eLpNorm_of_nnnorm (p := p) (q := q) (r := r)
+      hm_p.aestronglyMeasurable hm_q.aestronglyMeasurable (· * ·) 1 hbd
+  change lpNorm _ _ μ ≤ lpNorm _ _ μ * lpNorm _ _ μ
+  rw [← toReal_eLpNorm hm_r.aestronglyMeasurable,
+      ← toReal_eLpNorm hm_p.aestronglyMeasurable,
+      ← toReal_eLpNorm hm_q.aestronglyMeasurable,
+      ← ENNReal.toReal_mul]
+  apply ENNReal.toReal_mono
+  · exact ENNReal.mul_ne_top hm_p.eLpNorm_ne_top hm_q.eLpNorm_ne_top
+  · simpa using key
+
+end Hoelder
+
 section Real
 variable {α : Type*} {mα : MeasurableSpace α} [DiscreteMeasurableSpace α] [Fintype α] {p q : ℝ≥0}
   {f g : α → ℝ}
@@ -54,22 +90,27 @@ lemma cL1Norm_mul_of_nonneg (hf : 0 ≤ f) (hg : 0 ≤ g) : ‖f * g‖ₙ_[1] =
   convert cL1Norm_mul f g using 2 <;> ext a <;> refine (norm_of_nonneg ?_).symm; exacts [hf _, hg _]
 
 /-- **Hölder's inequality**, binary case. -/
-lemma wInner_cWeight_le_cLpNorm_mul_cLpNorm (p q : ℝ≥0∞) [p.HolderConjugate q] :
+lemma wInner_cWeight_le_cLpNorm_mul_cLpNorm (p q : ℝ≥0∞) [hpq : p.HolderConjugate q] :
     ⟪f, g⟫ₙ_[ℝ] ≤ ‖f‖ₙ_[p] * ‖g‖ₙ_[q] := by
-  sorry
-  -- have hp := hpq.ne_zero
-  -- have hq := hpq.symm.ne_zero
-  -- norm_cast at hp hq
-  -- rw [wInner_cWeight_eq_expect, expect_eq_sum_div_card, cLpNorm_eq_expect_norm hp,
-  --   cLpNorm_eq_expect_norm hq, expect_eq_sum_div_card, expect_eq_sum_div_card,
-  --   NNReal.div_rpow, NNReal.div_rpow, ← NNReal.coe_mul, div_mul_div_comm, ← NNReal.rpow_add',
-  --   hpq.coe.inv_add_inv_conj, NNReal.rpow_one]
-  -- swap
-  -- · simp [hpq.coe.inv_add_inv_conj]
-  -- push_cast
-  -- gcongr
-  -- rw [← dLpNorm_eq_sum_norm hp, ← dLpNorm_eq_sum_norm hq, ← wInner_one_eq_sum]
-  -- exact wInner_one_le_dLpNorm_mul_dLpNorm hpq.coe_ennreal _ _
+  -- Step 1: `⟪f, g⟫ₙ_[ℝ] ≤ ⟪|f|, |g|⟫ₙ_[ℝ]` (dominate by absolute value)
+  have h_abs : ⟪f, g⟫ₙ_[ℝ] ≤ ⟪fun i ↦ |f i|, fun i ↦ |g i|⟫ₙ_[ℝ] := by
+    simp_rw [wInner_cWeight_eq_expect]
+    refine expect_le_expect fun i _ ↦ ?_
+    exact (le_abs_self _).trans (abs_mul _ _).le
+  refine h_abs.trans ?_
+  -- Step 2: Now both arguments are nonneg; the target becomes the Hölder inequality
+  -- `⟪|f|, |g|⟫ₙ_[ℝ] ≤ ‖|f|‖ₙ_[p] * ‖|g|‖ₙ_[q]` which we rewrite back to f, g using
+  -- `cLpNorm_abs` / `cLpNorm_fun_abs`.
+  have hfabs : ‖fun i ↦ |f i|‖ₙ_[p] = ‖f‖ₙ_[p] := by
+    simpa using cLpNorm_fun_abs (f := f) (p := p) .of_discrete
+  have hgabs : ‖fun i ↦ |g i|‖ₙ_[q] = ‖g‖ₙ_[q] := by
+    simpa using cLpNorm_fun_abs (f := g) (p := q) .of_discrete
+  rw [← hfabs, ← hgabs]
+  rw [show ⟪fun i ↦ |f i|, fun i ↦ |g i|⟫ₙ_[ℝ]
+        = ‖(fun i ↦ |f i|) * (fun i ↦ |g i|)‖ₙ_[1] from
+        (cL1Norm_mul_of_nonneg (f := fun i ↦ |f i|) (g := fun i ↦ |g i|)
+          (fun i ↦ abs_nonneg _) (fun i ↦ abs_nonneg _)).symm]
+  exact cLpNorm_mul_le p q one_ne_zero
 
 /-- **Hölder's inequality**, binary case. -/
 lemma abs_wInner_cWeight_le_dLpNorm_mul_dLpNorm (p q : ℝ≥0∞) [p.HolderConjugate q] :
@@ -98,32 +139,7 @@ lemma norm_wInner_cWeight_le_dLpNorm_mul_dLpNorm (p q : ℝ≥0∞) [p.HolderCon
     _ = ‖f‖ₙ_[p] * ‖g‖ₙ_[q] := by simp_rw [cLpNorm_norm .of_discrete]
 
 omit [Fintype α]
-
 variable [Finite α]
-
-set_option backward.isDefEq.respectTransparency false in
-/-- **Hölder's inequality**, binary case. -/
-lemma cLpNorm_mul_le (p q : ℝ≥0∞) (hr₀ : r ≠ 0) [hpqr : ENNReal.HolderTriple p q r] :
-    ‖f * g‖ₙ_[r] ≤ ‖f‖ₙ_[p] * ‖g‖ₙ_[q] := by
-  cases nonempty_fintype α
-  obtain rfl | p := p
-  · sorry
-  obtain rfl | q := q
-  · sorry
-  obtain rfl | r := r
-  · sorry
-  -- The following two come from `HolderTriple p q r`
-  have hp₀ : p ≠ 0 := sorry
-  have hq₀ : q ≠ 0 := sorry
-  simp only [ENNReal.some_eq_coe] at *
-  norm_cast at hr₀
-  have : (‖(f * g) ·‖ ^ (r : ℝ)) = (‖f ·‖ ^ (r : ℝ)) * (‖g ·‖ ^ (r : ℝ)) := by ext; simp [mul_rpow]
-  rw [cLpNorm_eq_expect_norm, rpow_inv_le_iff_of_pos, this, mul_rpow, cLpNorm_rpow', cLpNorm_rpow',
-    expect, smul_sum]
-  any_goals positivity
-  have := hpqr.holderConjugate_div_div _ _ _ (mod_cast hr₀) ENNReal.coe_ne_top
-  convert wInner_cWeight_le_cLpNorm_mul_cLpNorm (α := α) (p / r) (q / r) using 1
-  simp [wInner, cWeight, NNRat.smul_def, mul_comm]
 
 /-- **Hölder's inequality**, binary case. -/
 lemma cL1Norm_mul_le (p q : ℝ≥0∞) [hpq : ENNReal.HolderConjugate p q] :
@@ -138,7 +154,9 @@ lemma cLpNorm_prod_le {ι : Type*} {s : Finset ι} (hs : s.Nonempty) {p : ι →
   | cons i s hi hs ih =>
   simp_rw [prod_cons]
   rw [sum_cons, ← inv_inv (∑ _ ∈ _, _)] at hpq
-  have : ENNReal.HolderTriple (p i) ↑(∑ i ∈ s, (p i)⁻¹)⁻¹ q := ⟨sorry⟩
+  have : ENNReal.HolderTriple (p i) ↑(∑ i ∈ s, (p i)⁻¹)⁻¹ q := ⟨by
+    simpa [ENNReal.coe_inv (by simpa [hp] :
+      (∑ j ∈ s, (p j)⁻¹ : ℝ≥0) ≠ 0), ENNReal.coe_inv, hp] using hpq⟩
   grw [cLpNorm_mul_le (p i) ↑(∑ i ∈ s, (p i)⁻¹)⁻¹ , ih]
   · rw [← ENNReal.coe_inv, inv_inv]
     · push_cast

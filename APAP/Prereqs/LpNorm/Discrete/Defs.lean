@@ -273,18 +273,20 @@ variable {α : Type*} {mα : MeasurableSpace α} [DiscreteMeasurableSpace α] [F
 lemma dLpNorm_rpow (hp : p ≠ 0) (hq : q ≠ 0) (hf : 0 ≤ f) :
     ‖f ^ (q : ℝ)‖_[p] = ‖f‖_[p * q] ^ (q : ℝ) := by
   cases nonempty_fintype α
-  refine rpow_left_injOn (NNReal.coe_ne_zero.2 hp) (by dsimp; sorry) (by dsimp; sorry) ?_
+  refine rpow_left_injOn (NNReal.coe_ne_zero.2 hp) (by dsimp; positivity)
+    (by dsimp; positivity) ?_
   dsimp
-  rw [← rpow_mul sorry, ← mul_comm, ← ENNReal.coe_mul, ← NNReal.coe_mul,
+  rw [← rpow_mul (by positivity), ← mul_comm, ← ENNReal.coe_mul, ← NNReal.coe_mul,
     dLpNorm_rpow_eq_sum_norm hp, dLpNorm_rpow_eq_sum_norm (mul_ne_zero hq hp)]
   simp [abs_rpow_of_nonneg (hf _), ← rpow_mul]
 
 lemma dLpNorm_pow (hp : p ≠ 0) {q : ℕ} (hq : q ≠ 0) (f : α → ℂ) :
     ‖f ^ q‖_[p] = ‖f‖_[p * q] ^ q := by
   cases nonempty_fintype α
-  refine rpow_left_injOn (NNReal.coe_ne_zero.2 hp) (by dsimp; sorry) (by dsimp; sorry) ?_
+  refine rpow_left_injOn (NNReal.coe_ne_zero.2 hp) (by dsimp; positivity)
+    (by dsimp; positivity) ?_
   dsimp
-  rw [← rpow_natCast_mul sorry, ← mul_comm, ← ENNReal.coe_natCast, ← ENNReal.coe_mul,
+  rw [← rpow_natCast_mul (by positivity), ← mul_comm, ← ENNReal.coe_natCast, ← ENNReal.coe_mul,
     ← NNReal.coe_natCast, ← NNReal.coe_mul, dLpNorm_rpow_eq_sum_norm hp,
     dLpNorm_rpow_eq_sum_norm (by positivity)]
   simp [← rpow_natCast_mul]

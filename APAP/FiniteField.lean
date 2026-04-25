@@ -167,7 +167,7 @@ lemma ap_in_ff [DecidableEq G] (hq₃ : 3 ≤ q) (hq : q.Prime) (hα₀ : 0 < α
           |∑ x ∈ S, (μ (Set.toFinset V) ∗ μ A₁ ∗ μ A₂) x - ∑ x ∈ S, (μ A₁ ∗ μ A₂) x| ≤ ε := by
   classical
   let _ : MeasurableSpace G := ⊤
-  have : Fact (1 < q) := sorry
+  have : Fact (1 < q) := ⟨hq.one_lt⟩
   have : DiscreteMeasurableSpace G := ⟨fun _ ↦ trivial⟩
   have hA₁ : A₁.Nonempty := by simpa using hα₀.trans_le hαA₁
   have hA₂ : A₂.Nonempty := by simpa using hα₀.trans_le hαA₂

@@ -90,8 +90,10 @@ lemma wLpNorm_toNNReal_eq_sum_norm {p : ℝ} (hp : 0 < p) (w : α → ℝ≥0) (
 
 lemma wLpNorm_rpow_eq_sum_norm {p : ℝ≥0} (hp : p ≠ 0) (w : α → ℝ≥0) (f : α → E) :
     ‖f‖_[p, w] ^ (p : ℝ) = ∑ i, w i • ‖f i‖ ^ (p : ℝ) := by
-  simp [wLpNorm_eq_sum_norm, hp]
-  sorry
+  have hnn : 0 ≤ ∑ i, w i • ‖f i‖ ^ (p : ℝ) :=
+    Finset.sum_nonneg fun i _ => by rw [NNReal.smul_def]; positivity
+  rw [wLpNorm_eq_sum_norm (by exact_mod_cast hp) (by simp), ENNReal.coe_toReal,
+      Real.rpow_inv_rpow hnn (by exact_mod_cast hp)]
 
 lemma wLpNorm_pow_eq_sum_norm {p : ℕ} (hp : p ≠ 0) (w : α → ℝ≥0) (f : α → E) :
     ‖f‖_[p, w] ^ p = ∑ i, w i • ‖f i‖ ^ p := by
@@ -138,7 +140,8 @@ variable [DiscreteMeasurableSpace α] {p : ℝ≥0∞} {w : α → ℝ≥0} {f g
 
 @[simp]
 lemma wLpNorm_one [Fintype α] (hp₀ : p ≠ 0) (hp : p ≠ ∞) (w : α → ℝ≥0) :
-    ‖(1 : α → ℝ)‖_[p, w] = (∑ i, w i) ^ p.toReal⁻¹ := by simp [wLpNorm_eq_sum_norm hp₀ hp]; sorry
+    ‖(1 : α → ℝ)‖_[p, w] = (∑ i, w i) ^ p.toReal⁻¹ := by
+  simp [wLpNorm_eq_sum_norm hp₀ hp, NNReal.smul_def]
 
 lemma wLpNorm_mono [Finite α] (hf : 0 ≤ f) (hfg : f ≤ g) : ‖f‖_[p, w] ≤ ‖g‖_[p, w] :=
   lpNorm_mono_real .of_discrete (by simpa [abs_of_nonneg (hf _)])

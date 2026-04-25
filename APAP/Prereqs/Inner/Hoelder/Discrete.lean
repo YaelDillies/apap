@@ -3,7 +3,10 @@ module
 public import APAP.Prereqs.LpNorm.Discrete.Defs
 public import Mathlib.Analysis.RCLike.Inner
 
+import Mathlib.MeasureTheory.Function.LpSeminorm.CompareExp
+import Mathlib.MeasureTheory.Function.LpSeminorm.LpNorm
 import Mathlib.MeasureTheory.Integral.Bochner.Basic
+import Mathlib.MeasureTheory.Measure.Count
 
 /-! # Inner product -/
 
@@ -45,10 +48,40 @@ lemma dL1Norm_mul_of_nonneg (hf : 0 ≤ f) (hg : 0 ≤ g) : ‖f * g‖_[1] = �
   convert dL1Norm_mul f g using 2 <;> ext a <;> refine (norm_of_nonneg ?_).symm; exacts [hf _, hg _]
 
 /-- **Hölder's inequality**, binary case. -/
-lemma wInner_one_le_dLpNorm_mul_dLpNorm (p q : ℝ≥0∞) [p.HolderConjugate q] :
+lemma wInner_one_le_dLpNorm_mul_dLpNorm (p q : ℝ≥0∞) [hpq : p.HolderConjugate q] :
     ⟪f, g⟫_[ℝ] ≤ ‖f‖_[p] * ‖g‖_[q] := by
-  sorry
-  -- simpa [wInner_one_eq_sum, dLpNorm_eq_sum_nnnorm, *] using inner_le_Lp_mul_Lq _ f g _
+  have hp0 : p ≠ 0 := ENNReal.HolderConjugate.ne_zero p q
+  have hq0 : q ≠ 0 := ENNReal.HolderConjugate.ne_zero q p
+  have hwInner : ⟪f, g⟫_[ℝ] = ∑ i, f i * g i := by
+    rw [wInner_one_eq_sum]
+    refine Finset.sum_congr rfl fun i _ ↦ ?_
+    change (inner ℝ (f i) (g i) : ℝ) = f i * g i
+    exact mul_comm (g i) (f i)
+  have hfg : ∀ i, f i * g i ≤ ‖f i‖ * ‖g i‖ := fun i =>
+    (le_abs_self _).trans_eq (by rw [abs_mul]; simp [Real.norm_eq_abs])
+  by_cases hpi : p = ∞
+  · have hq1 : q = 1 := (ENNReal.HolderConjugate.eq_top_iff_eq_one p q).mp hpi
+    subst hpi; subst hq1
+    rw [hwInner, dLinftyNorm_eq_iSup_norm, dL1Norm_eq_sum_norm, Finset.mul_sum]
+    exact Finset.sum_le_sum fun i _ ↦ (hfg i).trans
+      (mul_le_mul_of_nonneg_right
+        (le_ciSup (f := fun j ↦ ‖f j‖) (Finite.bddAbove_range _) i) (norm_nonneg _))
+  by_cases hqi : q = ∞
+  · have hp1 : p = 1 := (ENNReal.HolderConjugate.eq_top_iff_eq_one q p).mp hqi
+    subst hqi; subst hp1
+    rw [hwInner, dLinftyNorm_eq_iSup_norm, dL1Norm_eq_sum_norm, Finset.sum_mul]
+    exact Finset.sum_le_sum fun i _ ↦ (hfg i).trans
+      (mul_le_mul_of_nonneg_left
+        (le_ciSup (f := fun j ↦ ‖g j‖) (Finite.bddAbove_range _) i) (norm_nonneg _))
+  have hpr : 0 < p.toReal := ENNReal.toReal_pos hp0 hpi
+  have hqr : 0 < q.toReal := ENNReal.toReal_pos hq0 hqi
+  have hreal : Real.HolderConjugate p.toReal q.toReal := by
+    have := ENNReal.HolderTriple.toReal (p := p) (q := q) (r := 1) hpr hqr
+    simpa using this
+  rw [hwInner, dLpNorm_eq_sum_norm' hp0 hpi, dLpNorm_eq_sum_norm' hq0 hqi]
+  have key := Real.inner_le_Lp_mul_Lq Finset.univ f g hreal
+  simp only [one_div] at key
+  simpa [Real.norm_eq_abs] using key
 
 /-- **Hölder's inequality**, binary case. -/
 lemma abs_wInner_one_le_dLpNorm_mul_dLpNorm [p.HolderConjugate q] (f g : α → ℝ) :
@@ -78,29 +111,20 @@ omit [Fintype α]
 variable [Finite α]
 
 /-- **Hölder's inequality**, binary case. -/
-lemma dLpNorm_mul_le (p q : ℝ≥0∞) (hr₀ : r ≠ 0) [hpqr : ENNReal.HolderTriple p q r] :
+lemma dLpNorm_mul_le (p q : ℝ≥0∞) (_hr₀ : r ≠ 0) [hpqr : ENNReal.HolderTriple p q r] :
     ‖f * g‖_[r] ≤ ‖f‖_[p] * ‖g‖_[q] := by
   cases nonempty_fintype α
-  obtain rfl | p := p
-  · sorry
-  obtain rfl | q := q
-  · sorry
-  obtain rfl | r := r
-  · sorry
-  -- The following two come from `HolderTriple p q r`
-  have hp₀ : p ≠ 0 := sorry
-  have hq₀ : q ≠ 0 := sorry
-  simp only [ENNReal.some_eq_coe] at *
-  norm_cast at hr₀
-  have : (‖(f * g) ·‖ ^ (r : ℝ)) = (‖f ·‖ ^ (r : ℝ)) * (‖g ·‖ ^ (r : ℝ)) := by ext; simp [mul_rpow]
-  rw [dLpNorm_eq_dL1Norm_rpow, rpow_inv_le_iff_of_pos, this]
-  any_goals positivity
-  rw [dL1Norm_mul_of_nonneg, mul_rpow, dLpNorm_rpow', dLpNorm_rpow']
-  any_goals intro a; dsimp
-  any_goals positivity
-  any_goals simp
-  have := hpqr.holderConjugate_div_div _ _ _ (mod_cast hr₀) ENNReal.coe_ne_top
-  exact wInner_one_le_dLpNorm_mul_dLpNorm _ _
+  change lpNorm (f * g) r .count ≤ lpNorm f p .count * lpNorm g q .count
+  have hf : AEStronglyMeasurable f .count := .of_discrete
+  have hg : AEStronglyMeasurable g .count := .of_discrete
+  have hfg : AEStronglyMeasurable (f * g) .count := .of_discrete
+  rw [← toReal_eLpNorm hf, ← toReal_eLpNorm hg, ← toReal_eLpNorm hfg,
+      ← ENNReal.toReal_mul]
+  refine ENNReal.toReal_mono ?_ ?_
+  · exact (ENNReal.mul_lt_top eLpNorm_lt_top_of_finite eLpNorm_lt_top_of_finite).ne
+  · have hsmul : (f : α → 𝕜) • g = f * g := rfl
+    rw [← hsmul]
+    exact eLpNorm_smul_le_mul_eLpNorm hg hf
 
 /-- **Hölder's inequality**, binary case. -/
 lemma dL1Norm_mul_le (p q : ℝ≥0∞) [hpq : ENNReal.HolderConjugate p q] :
@@ -118,7 +142,9 @@ lemma dLpNorm_prod_le {ι : Type*} {s : Finset ι} (hs : s.Nonempty) {p : ι →
       simp [← hpq]
     simp_rw [prod_cons]
     rw [sum_cons, ← inv_inv (∑ _ ∈ _, _)] at hpq
-    have : ENNReal.HolderTriple (p i) ↑(∑ i ∈ s, (p i)⁻¹)⁻¹ q := ⟨sorry⟩
+    have : ENNReal.HolderTriple (p i) ↑(∑ i ∈ s, (p i)⁻¹)⁻¹ q := ⟨by
+      simpa [ENNReal.coe_inv (by simpa [hp] :
+        (∑ j ∈ s, (p j)⁻¹ : ℝ≥0) ≠ 0), ENNReal.coe_inv, hp] using hpq⟩
     grw [dLpNorm_mul_le (p i) ↑(∑ i ∈ s, (p i)⁻¹)⁻¹, ih hs]
     · rw [← ENNReal.coe_inv, inv_inv]
       · push_cast
