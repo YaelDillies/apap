@@ -72,25 +72,25 @@ private lemma circle_eq_one_of_forall_pow_mem_rightHalfArc {z : Circle}
     (hz : ∀ n : ℕ, 0 < n → z ^ n ∈ rightHalfArc) :
     z = 1 := by
   let θ : ℝ := Complex.arg (z : ℂ)
-  by_cases hθ : θ = 0
+  obtain hθ | hθ := eq_or_ne θ 0
   · rw [← Circle.exp_arg z, show Complex.arg (z : ℂ) = 0 from hθ]
     simp [Circle.exp_zero]
-  · have hθ₁ : -Real.pi < θ := by
-      dsimp [θ]
-      exact Complex.neg_pi_lt_arg _
-    have hθ₂ : θ ≤ Real.pi := by
-      dsimp [θ]
-      exact Complex.arg_le_pi _
-    rcases eventually_cos_mul_nonpos hθ₁ hθ₂ hθ with ⟨n, hn, hcos⟩
-    rcases hz n hn with ⟨t, ht, hzt⟩
-    have hpow : z ^ n = Circle.exp ((n : ℝ) * θ) := by
-      rw [← Circle.exp_arg z]
-      dsimp [θ]
-      exact circle_pow_exp _ n
-    have hcosEq : Real.cos ((n : ℝ) * θ) = Real.cos t :=
-      circle_cos_eq_of_exp_eq (hpow.symm.trans hzt.symm)
-    have hcospos : 0 < Real.cos t := Real.cos_pos_of_mem_Ioo ht
-    linarith
+  have hθ₁ : -Real.pi < θ := by
+    dsimp [θ]
+    exact Complex.neg_pi_lt_arg _
+  have hθ₂ : θ ≤ Real.pi := by
+    dsimp [θ]
+    exact Complex.arg_le_pi _
+  rcases eventually_cos_mul_nonpos hθ₁ hθ₂ hθ with ⟨n, hn, hcos⟩
+  rcases hz n hn with ⟨t, ht, hzt⟩
+  have hpow : z ^ n = Circle.exp ((n : ℝ) * θ) := by
+    rw [← Circle.exp_arg z]
+    dsimp [θ]
+    exact circle_pow_exp _ n
+  have hcosEq : Real.cos ((n : ℝ) * θ) = Real.cos t :=
+    circle_cos_eq_of_exp_eq (hpow.symm.trans hzt.symm)
+  have hcospos : 0 < Real.cos t := Real.cos_pos_of_mem_Ioo ht
+  linarith
 
 /-- A compact monoid has discrete Pontryagin dual. -/
 instance [CompactSpace M] : DiscreteTopology (PontryaginDual M) := by
@@ -102,10 +102,7 @@ instance [CompactSpace M] : DiscreteTopology (PontryaginDual M) := by
   convert hVopen
   ext ψ
   constructor
-  · intro hψ
-    rw [Set.mem_singleton_iff] at hψ
-    subst ψ
-    intro _ _
+  · rintro rfl _ _
     refine ⟨0, ?_, ?_⟩
     · constructor <;> linarith [Real.pi_pos]
     · rw [Circle.exp_zero]
@@ -114,7 +111,7 @@ instance [CompactSpace M] : DiscreteTopology (PontryaginDual M) := by
     rw [Set.mem_singleton_iff]
     apply ContinuousMonoidHom.ext
     intro a
-    have hpow : ∀ n : ℕ, 0 < n → (ψ a) ^ n ∈ rightHalfArc := by
+    have hpow : ∀ n : ℕ, 0 < n → ψ a ^ n ∈ rightHalfArc := by
       intro n hn
       have hmap := hψ (Set.mem_univ (a ^ n))
       simpa [map_pow] using hmap
