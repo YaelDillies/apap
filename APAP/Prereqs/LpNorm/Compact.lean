@@ -198,10 +198,9 @@ lemma cLpNorm_exponent_top_eq_essSup (f : α → E) : ‖f‖ₙ_[∞] = ⨆ i, 
 @[gcongr] lemma cLpNorm_mono_right (hpq : p ≤ q) : ‖f‖ₙ_[p] ≤ ‖f‖ₙ_[q] := by
   cases isEmpty_or_nonempty α
   · simp [cLpNorm]
-  rw [cLpNorm, cLpNorm, ← toReal_eLpNorm (MemLp.of_discrete (p := p)).aestronglyMeasurable,
-      ← toReal_eLpNorm (MemLp.of_discrete (p := q)).aestronglyMeasurable]
+  rw [cLpNorm, cLpNorm, ← toReal_eLpNorm .of_discrete, ← toReal_eLpNorm .of_discrete]
   exact ENNReal.toReal_mono (MemLp.of_discrete (p := q)).eLpNorm_ne_top
-    (eLpNorm_le_eLpNorm_of_exponent_le hpq (MemLp.of_discrete (p := p)).aestronglyMeasurable)
+    (eLpNorm_le_eLpNorm_of_exponent_le hpq .of_discrete)
 
 lemma cLpNorm_mono_real {g : α → ℝ} (h : ∀ x, ‖f x‖ ≤ g x) : ‖f‖ₙ_[p] ≤ ‖g‖ₙ_[p] :=
   lpNorm_mono_real .of_discrete h

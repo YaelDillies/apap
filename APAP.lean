@@ -8,6 +8,7 @@ public import APAP.Mathlib.Analysis.Convolution
 public import APAP.Mathlib.Analysis.Normed.Ring.Basic
 public import APAP.Mathlib.Analysis.RCLike.Basic
 public import APAP.Mathlib.Analysis.SpecialFunctions.Complex.Circle
+public import APAP.Mathlib.MeasureTheory.Function.LpSeminorm.CompareExp
 public import APAP.Mathlib.Topology.Algebra.PontryaginDual
 public import APAP.Physics.AlmostPeriodicity
 public import APAP.Physics.DRC

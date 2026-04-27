@@ -458,7 +458,7 @@ theorem linfty_almost_periodicity (ε : ℝ) (hε₀ : 0 < ε) (hε₁ : ε ≤ 
       = ‖∑ y, F y * μ (x +ᵥ -C) y‖ := by rw [this]
     _ ≤ ∑ y, ‖F y * μ (x +ᵥ -C) y‖ := norm_sum_le _ _
     _ = ‖F * μ (x +ᵥ -C)‖_[1] := by rw [MeasureTheory.dL1Norm_eq_sum_norm]; rfl
-    _ ≤ ‖F‖_[M] * ‖μ_[ℂ] (x +ᵥ -C)‖_[NNReal.conjExponent M] := MeasureTheory.dL1Norm_mul_le  _ _
+    _ ≤ ‖F‖_[M] * ‖μ_[ℂ] (x +ᵥ -C)‖_[NNReal.conjExponent M] := MeasureTheory.dLpNorm_mul_le  _ _
     _ ≤ ε / exp 1 * #B ^ (M : ℝ)⁻¹ * ‖μ_[ℂ] (x +ᵥ -C)‖_[NNReal.conjExponent M] := by
         gcongr
         simpa only [← ENNReal.coe_natCast, MeasureTheory.dLpNorm_indicate hM₀] using hT _ ht

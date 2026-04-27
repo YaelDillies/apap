@@ -1,5 +1,6 @@
 module
 
+public import APAP.Mathlib.MeasureTheory.Function.LpSeminorm.CompareExp
 public import APAP.Prereqs.LpNorm.Discrete.Defs
 public import Mathlib.Analysis.RCLike.Inner
 
@@ -99,24 +100,13 @@ omit [Fintype α]
 variable [Finite α]
 
 /-- **Hölder's inequality**, binary case. -/
-lemma dLpNorm_mul_le (p q : ℝ≥0∞) (_hr₀ : r ≠ 0) [hpqr : ENNReal.HolderTriple p q r] :
-    ‖f * g‖_[r] ≤ ‖f‖_[p] * ‖g‖_[q] := by
+lemma dLpNorm_mul_le (p q : ℝ≥0∞) [p.HolderTriple q r] : ‖f * g‖_[r] ≤ ‖f‖_[p] * ‖g‖_[q] := by
   cases nonempty_fintype α
   change lpNorm (f * g) r .count ≤ lpNorm f p .count * lpNorm g q .count
-  have hf : AEStronglyMeasurable f .count := .of_discrete
-  have hg : AEStronglyMeasurable g .count := .of_discrete
   have hfg : AEStronglyMeasurable (f * g) .count := .of_discrete
-  rw [← toReal_eLpNorm hf, ← toReal_eLpNorm hg, ← toReal_eLpNorm hfg,
-      ← ENNReal.toReal_mul]
-  refine ENNReal.toReal_mono ?_ ?_
-  · exact (ENNReal.mul_lt_top eLpNorm_lt_top_of_finite eLpNorm_lt_top_of_finite).ne
-  · have hsmul : (f : α → 𝕜) • g = f * g := rfl
-    rw [← hsmul]
-    exact eLpNorm_smul_le_mul_eLpNorm hg hf
-
-/-- **Hölder's inequality**, binary case. -/
-lemma dL1Norm_mul_le (p q : ℝ≥0∞) [hpq : ENNReal.HolderConjugate p q] :
-    ‖f * g‖_[1] ≤ ‖f‖_[p] * ‖g‖_[q] := dLpNorm_mul_le _ _ one_ne_zero
+  grw [← toReal_eLpNorm .of_discrete, ← toReal_eLpNorm .of_discrete, ← toReal_eLpNorm .of_discrete,
+    ← ENNReal.toReal_mul, ← eLpNorm_mul_le_mul_eLpNorm (r := r) .of_discrete .of_discrete]
+  exact (ENNReal.mul_lt_top eLpNorm_lt_top_of_finite eLpNorm_lt_top_of_finite).ne
 
 /-- **Hölder's inequality**, finitary case. -/
 lemma dLpNorm_prod_le {ι : Type*} {s : Finset ι} (hs : s.Nonempty) {p : ι → ℝ≥0} (hp : ∀ i, p i ≠ 0)
@@ -134,14 +124,11 @@ lemma dLpNorm_prod_le {ι : Type*} {s : Finset ι} (hs : s.Nonempty) {p : ι →
       simpa [ENNReal.coe_inv (by simpa [hp] :
         (∑ j ∈ s, (p j)⁻¹ : ℝ≥0) ≠ 0), ENNReal.coe_inv, hp] using hpq⟩
     grw [dLpNorm_mul_le (p i) ↑(∑ i ∈ s, (p i)⁻¹)⁻¹, ih hs]
-    · rw [← ENNReal.coe_inv, inv_inv]
-      · push_cast
-        congr! with i
-        exact (ENNReal.coe_inv <| hp _).symm
-      · simpa [hp]
-    · norm_cast
-      rintro rfl
-      simp [hp] at hpq
+    rw [← ENNReal.coe_inv, inv_inv]
+    · push_cast
+      congr! with i
+      exact (ENNReal.coe_inv <| hp _).symm
+    · simpa [hp]
 
 end Hoelder
 end MeasureTheory

@@ -4,6 +4,7 @@ public import APAP.Prereqs.LpNorm.Discrete.Defs
 public import Mathlib.Algebra.Group.Translate
 
 import Mathlib.MeasureTheory.Function.LpSeminorm.LpNorm
+import Mathlib.Tactic.Positivity
 
 /-!
 # Lp norms
@@ -90,10 +91,10 @@ lemma wLpNorm_toNNReal_eq_sum_norm {p : ℝ} (hp : 0 < p) (w : α → ℝ≥0) (
 
 lemma wLpNorm_rpow_eq_sum_norm {p : ℝ≥0} (hp : p ≠ 0) (w : α → ℝ≥0) (f : α → E) :
     ‖f‖_[p, w] ^ (p : ℝ) = ∑ i, w i • ‖f i‖ ^ (p : ℝ) := by
-  have hnn : 0 ≤ ∑ i, w i • ‖f i‖ ^ (p : ℝ) :=
-    Finset.sum_nonneg fun i _ => by rw [NNReal.smul_def]; positivity
-  rw [wLpNorm_eq_sum_norm (by exact_mod_cast hp) (by simp), ENNReal.coe_toReal,
-      Real.rpow_inv_rpow hnn (by exact_mod_cast hp)]
+  rw [wLpNorm_eq_sum_norm (mod_cast hp) (by simp), ENNReal.coe_toReal,
+    Real.rpow_inv_rpow _ (mod_cast hp)]
+  simp only [NNReal.smul_def, smul_eq_mul]
+  positivity
 
 lemma wLpNorm_pow_eq_sum_norm {p : ℕ} (hp : p ≠ 0) (w : α → ℝ≥0) (f : α → E) :
     ‖f‖_[p, w] ^ p = ∑ i, w i • ‖f i‖ ^ p := by
