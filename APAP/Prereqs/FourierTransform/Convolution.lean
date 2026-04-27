@@ -1,8 +1,7 @@
 module
 
 public import APAP.Prereqs.Convolution.Compact
-public import APAP.Prereqs.LpNorm.Compact
-public import APAP.Prereqs.LpNorm.Discrete.Defs
+public import APAP.Prereqs.LpNorm.Discrete.Basic
 
 import APAP.Prereqs.FourierTransform.Compact
 import Mathlib.MeasureTheory.Integral.Bochner.Basic
@@ -44,32 +43,16 @@ lemma cLpNorm_cconv_le_cLpNorm_cdconv (hn₀ : n ≠ 0) (hn : Even n) (f : G →
       _ = ‖𝔼 x, (∑ i, φ i - ∑ i, ψ i) x‖ := by simp [expect_eq_ite, apply_ite]
       _ = ‖𝔼 x, (∏ i, φ i x) * ∏ i, (ψ i) (-x)‖ := by simp [map_neg_eq_conj, AddChar.sub_apply]
 
-omit [AddCommGroup G] [DecidableEq G] in
-lemma cLpNorm_pow_eq_card_inv_mul_dLpNorm_pow (hn₀ : n ≠ 0) (f : G → ℂ) :
-    ‖f‖ₙ_[n] ^ n = (Fintype.card G : ℝ)⁻¹ * ‖f‖_[n] ^ n := by
-  rw [cLpNorm_pow_eq_expect_norm hn₀, dLpNorm_pow_eq_sum_norm hn₀]
-  simp [Fintype.expect_eq_sum_div_card, div_eq_mul_inv, mul_comm]
-
-omit [AddCommGroup G] [DecidableEq G] [DiscreteMeasurableSpace G] in
-lemma dLpNorm_card_inv_nnrat_smul (f : G → ℂ) :
-    ‖((Fintype.card G : ℚ≥0)⁻¹ • f)‖_[n] = (Fintype.card G : ℝ)⁻¹ * ‖f‖_[n] := by
-  rw [show ((Fintype.card G : ℚ≥0)⁻¹ • f) = ((Fintype.card G : ℂ)⁻¹ • f) by
-    ext x
-    simp [NNRat.smul_def]]
-  rw [dLpNorm_const_smul]
-  simp [norm_inv]
-
 lemma dLpNorm_conv_le_dLpNorm_dconv (hn₀ : n ≠ 0) (hn : Even n) (f : G → ℂ) :
     ‖f ∗ f‖_[n] ≤ ‖f ○ f‖_[n] := by
   refine le_of_pow_le_pow_left₀ hn₀ (by positivity) ?_
   have h := pow_le_pow_left₀ (by positivity) (cLpNorm_cconv_le_cLpNorm_cdconv hn₀ hn f) n
   rw [cconv_eq_smul_conv, cdconv_eq_smul_dconv] at h
-  have h' : (Fintype.card G : ℝ)⁻¹ * (((Fintype.card G : ℝ)⁻¹) ^ n * ‖f ∗ f‖_[n] ^ n) ≤
-      (Fintype.card G : ℝ)⁻¹ * (((Fintype.card G : ℝ)⁻¹) ^ n * ‖f ○ f‖_[n] ^ n) := by
-    simpa [cLpNorm_pow_eq_card_inv_mul_dLpNorm_pow hn₀, dLpNorm_card_inv_nnrat_smul, mul_pow,
+  have h' : (Fintype.card G : ℝ)⁻¹ * (Fintype.card G : ℝ)⁻¹ ^ n * ‖f ∗ f‖_[n] ^ n ≤
+      (Fintype.card G : ℝ)⁻¹ * (Fintype.card G : ℝ)⁻¹ ^ n * ‖f ○ f‖_[n] ^ n := by
+    simpa [cLpNorm_pow_eq_card_inv_mul_dLpNorm_pow hn₀, dLpNorm_nnqsmul, mul_pow,
       mul_assoc, mul_left_comm, mul_comm] using h
-  have hpos : 0 < (Fintype.card G : ℝ)⁻¹ * ((Fintype.card G : ℝ)⁻¹) ^ n := by
-    positivity
+  have hpos : 0 < (Fintype.card G : ℝ)⁻¹ * (Fintype.card G : ℝ)⁻¹ ^ n := by positivity
   nlinarith
 
 -- TODO: Can we unify with `cLpNorm_cconv_le_cLpNorm_cdconv`?

@@ -1,6 +1,7 @@
 module
 
 public import APAP.Prereqs.Function.Indicator.Defs
+public import APAP.Prereqs.LpNorm.Compact
 public import APAP.Prereqs.LpNorm.Discrete.Defs
 public import Mathlib.Algebra.Group.Translate
 public import Mathlib.Algebra.Star.Conjneg
@@ -19,6 +20,12 @@ open scoped BigOperators ComplexConjugate ENNReal NNReal translate mu
 
 namespace MeasureTheory
 variable {ι G 𝕜 E R : Type*} [Finite ι] {mι : MeasurableSpace ι} [DiscreteMeasurableSpace ι]
+
+omit [Finite ι] in
+lemma cLpNorm_pow_eq_card_inv_mul_dLpNorm_pow [Fintype ι] {n : ℕ} (hn₀ : n ≠ 0) (f : ι → ℂ) :
+    ‖f‖ₙ_[n] ^ n = (Fintype.card ι : ℝ)⁻¹ * ‖f‖_[n] ^ n := by
+  rw [cLpNorm_pow_eq_expect_norm hn₀, dLpNorm_pow_eq_sum_norm hn₀]
+  simp [Fintype.expect_eq_sum_div_card, div_eq_mul_inv, mul_comm]
 
 /-! ### Indicator -/
 
