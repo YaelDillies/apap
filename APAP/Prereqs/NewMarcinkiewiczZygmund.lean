@@ -57,39 +57,15 @@ theorem marcinkiewicz_zygmund_symmetric (iIndepFun_X : iIndepFun X μ)
   have integrable_prod_norm_X I (hI : I ∈ A ×ˢ A ^^ m) :
     Integrable (fun ω ↦ ∏ k, ‖X (I k).1 ω‖ * ‖X (I k).2 ω‖) μ := by
     obtain rfl | hm := eq_or_ne m 0
-    · have : (fun ω : Ω ↦ ∏ k : Fin 0, ‖X (I k).1 ω‖ * ‖X (I k).2 ω‖) = fun _ => 1 := by
-        funext ω; simp
-      rw [this]
-      exact integrable_const 1
+    · simp
     simp_rw [Finset.prod_mul_distrib]
     rw [← memLp_one_iff_integrable]
-    have h1 : ∀ k ∈ (univ : Finset (Fin m)),
-        MemLp (fun ω => ‖X (I k).1 ω‖) (2 * (m : ℝ≥0∞)) μ := by
-      intro k _
-      have hk := Fintype.mem_piFinset.mp hI k
-      simp only [Finset.mem_product] at hk
-      exact (memLp_X _ hk.1).norm
-    have h2 : ∀ k ∈ (univ : Finset (Fin m)),
-        MemLp (fun ω => ‖X (I k).2 ω‖) (2 * (m : ℝ≥0∞)) μ := by
-      intro k _
-      have hk := Fintype.mem_piFinset.mp hI k
-      simp only [Finset.mem_product] at hk
-      exact (memLp_X _ hk.2).norm
-    have M1 := MemLp.prod' h1
-    have M2 := MemLp.prod' h2
-    have hm' : (m : ℝ≥0∞) ≠ 0 := by exact_mod_cast hm
-    have hmtop : (m : ℝ≥0∞) ≠ ⊤ := ENNReal.natCast_ne_top _
-    have heq2 : (∑ _k : Fin m, (2 * (m : ℝ≥0∞))⁻¹)⁻¹ = 2 := by
-      simp only [Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul]
-      rw [ENNReal.mul_inv (Or.inl (by norm_num : (2:ℝ≥0∞) ≠ 0))
-          (Or.inl (by norm_num : (2:ℝ≥0∞) ≠ ⊤)),
-          mul_comm (2 : ℝ≥0∞)⁻¹, ← mul_assoc, ENNReal.mul_inv_cancel hm' hmtop,
-          one_mul, inv_inv]
-    rw [heq2] at M1 M2
-    have : ENNReal.HolderTriple (2 : ℝ≥0∞) 2 1 := ⟨by
-      rw [show (2 : ℝ≥0∞)⁻¹ + (2 : ℝ≥0∞)⁻¹ = 1 from ENNReal.inv_two_add_inv_two]
-      simp⟩
-    exact M2.mul' M1
+    have aux : (∑ _k : Fin m, (2 * (m : ℝ≥0∞))⁻¹)⁻¹ = 2 := by
+      rw [ENNReal.mul_inv (a := 2) (.inl <| by norm_num) (.inl <| by norm_num)]
+      simp [hm, mul_comm, ← mul_assoc, ENNReal.mul_inv_cancel]
+    refine .mul' (p := 2) (q := 2) ?_ ?_ <;>
+    · rw [← aux]
+      exact .prod' fun k _ ↦ (memLp_X _ <| by simp_all).norm
   have integrable_prod_inner_X I (hI : I ∈ A ×ˢ A ^^ m) :
     Integrable (fun ω ↦ ∏ k, inner ℝ (X (I k).1 ω) (X (I k).2 ω)) μ := sorry
   -- Call a family of indices `i₁, ..., iₙ, j₁, ..., jₙ` *even* if each `i ∈ A` appears an even
