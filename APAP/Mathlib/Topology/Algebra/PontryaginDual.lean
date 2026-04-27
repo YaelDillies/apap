@@ -1,121 +1,62 @@
 module
 
+public import APAP.Mathlib.Analysis.Complex.Circle
+public import APAP.Mathlib.Analysis.SpecialFunctions.Complex.Circle
 public import Mathlib.Topology.Algebra.PontryaginDual
 
 public section
 
+open Real Set
+
+-- TODO: Fix in mathlib
+set_option allowUnsafeReducibility true in
+attribute [reducible] PontryaginDual
+
 namespace PontryaginDual
 variable {M : Type*} [Monoid M] [TopologicalSpace M]
 
-open Complex Set
-
-private def rightHalfArc : Set Circle :=
-  Circle.exp '' Set.Ioo (-(Real.pi / 2)) (Real.pi / 2)
+private def rightHalfArc : Set Circle := .exp '' .Ioo (-(π / 2)) (π / 2)
 
 private lemma isOpen_rightHalfArc : IsOpen rightHalfArc := by
   simpa [rightHalfArc] using isLocalHomeomorph_circleExp.isOpenMap _ isOpen_Ioo
 
-private lemma eventually_cos_mul_nonpos_of_pos {θ : ℝ} (hθ0 : 0 < θ) (hθπ : θ ≤ Real.pi) :
-    ∃ n : ℕ, 0 < n ∧ Real.cos ((n : ℝ) * θ) ≤ 0 := by
-  let n : ℕ := Nat.ceil ((Real.pi / 2) / θ)
-  have hqpos : 0 < (Real.pi / 2) / θ := div_pos (half_pos Real.pi_pos) hθ0
-  have hnpos : 0 < n := by
-    dsimp [n]
-    exact Nat.ceil_pos.mpr hqpos
-  refine ⟨n, hnpos, ?_⟩
-  have hceil : (Real.pi / 2) / θ ≤ (n : ℝ) := by
-    dsimp [n]
-    exact Nat.le_ceil _
-  have hl : Real.pi / 2 ≤ (n : ℝ) * θ := by
-    have h := mul_le_mul_of_nonneg_right hceil (le_of_lt hθ0)
-    simpa [div_mul_cancel₀ _ (ne_of_gt hθ0)] using h
-  have hceil_lt : (n : ℝ) < (Real.pi / 2) / θ + 1 := by
-    dsimp [n]
-    exact Nat.ceil_lt_add_one (le_of_lt hqpos)
-  have hu_lt : (n : ℝ) * θ < Real.pi / 2 + θ := by
-    have h := mul_lt_mul_of_pos_right hceil_lt hθ0
-    simpa [add_mul, div_mul_cancel₀ _ (ne_of_gt hθ0), one_mul] using h
-  have hu : (n : ℝ) * θ ≤ Real.pi + Real.pi / 2 := by
-    linarith
-  exact Real.cos_nonpos_of_pi_div_two_le_of_le hl hu
+private lemma exists_pos_cos_mul_nonpos_of_pos {θ : ℝ} (hθ0 : 0 < θ) (hθπ : θ ≤ π) :
+    ∃ n > (0 : ℕ), cos ((n : ℝ) * θ) ≤ 0 := by
+  refine ⟨⌈π / 2 / θ⌉₊, by positivity, cos_nonpos_of_pi_div_two_le_of_le ?_ ?_⟩
+  · grw [← Nat.le_ceil]
+    simp [hθ0.ne']
+  · grw [Nat.ceil_lt_add_one (by positivity), add_one_mul]
+    simpa [hθ0.ne', add_comm]
 
-private lemma eventually_cos_mul_nonpos {θ : ℝ}
-    (hθ₁ : -Real.pi < θ) (hθ₂ : θ ≤ Real.pi) (hθ : θ ≠ 0) :
-    ∃ n : ℕ, 0 < n ∧ Real.cos ((n : ℝ) * θ) ≤ 0 := by
-  rcases lt_or_gt_of_ne hθ with _hθneg | hθpos
-  · rcases eventually_cos_mul_nonpos_of_pos (show 0 < -θ by linarith)
-      (show -θ ≤ Real.pi by linarith) with ⟨n, hn, hcos⟩
-    refine ⟨n, hn, ?_⟩
-    have harg : (n : ℝ) * θ = -((n : ℝ) * -θ) := by ring
-    have hcosEq : Real.cos ((n : ℝ) * θ) = Real.cos ((n : ℝ) * -θ) := by
-      rw [harg, Real.cos_neg]
-    exact hcosEq.trans_le hcos
-  · exact eventually_cos_mul_nonpos_of_pos hθpos hθ₂
+private lemma exists_pos_cos_mul_nonpos {θ : ℝ} (hθ₁ : -π < θ) (hθ₂ : θ ≤ π) (hθ : θ ≠ 0) :
+    ∃ n > (0 : ℕ), cos ((n : ℝ) * θ) ≤ 0 := by
+  obtain (_hθ | hθ) := hθ.lt_or_gt
+  · simpa using exists_pos_cos_mul_nonpos_of_pos (θ := -θ) (by linarith) (by linarith)
+  · exact exists_pos_cos_mul_nonpos_of_pos hθ hθ₂
 
-private lemma circle_pow_exp (x : ℝ) (n : ℕ) :
-    (Circle.exp x) ^ n = Circle.exp ((n : ℝ) * x) := by
-  induction n with
-  | zero => simp [Circle.exp_zero]
-  | succ n ih =>
-      rw [pow_succ, ih, ← Circle.exp_add]
-      congr 1
-      norm_num
-      ring
-
-private lemma circle_cos_eq_of_exp_eq {x y : ℝ} (h : Circle.exp x = Circle.exp y) :
-    Real.cos x = Real.cos y := by
-  have hc := congrArg (fun z : Circle => (z : ℂ)) h
-  have hre := congrArg Complex.re hc
-  simpa [Circle.coe_exp, Complex.exp_mul_I] using hre
-
-private lemma circle_eq_one_of_forall_pow_mem_rightHalfArc {z : Circle}
-    (hz : ∀ n : ℕ, 0 < n → z ^ n ∈ rightHalfArc) :
-    z = 1 := by
-  let θ : ℝ := Complex.arg (z : ℂ)
-  obtain hθ | hθ := eq_or_ne θ 0
-  · rw [← Circle.exp_arg z, show Complex.arg (z : ℂ) = 0 from hθ]
-    simp [Circle.exp_zero]
-  have hθ₁ : -Real.pi < θ := by
-    dsimp [θ]
-    exact Complex.neg_pi_lt_arg _
-  have hθ₂ : θ ≤ Real.pi := by
-    dsimp [θ]
-    exact Complex.arg_le_pi _
-  rcases eventually_cos_mul_nonpos hθ₁ hθ₂ hθ with ⟨n, hn, hcos⟩
-  rcases hz n hn with ⟨t, ht, hzt⟩
-  have hpow : z ^ n = Circle.exp ((n : ℝ) * θ) := by
-    rw [← Circle.exp_arg z]
-    dsimp [θ]
-    exact circle_pow_exp _ n
-  have hcosEq : Real.cos ((n : ℝ) * θ) = Real.cos t :=
-    circle_cos_eq_of_exp_eq (hpow.symm.trans hzt.symm)
-  have hcospos : 0 < Real.cos t := Real.cos_pos_of_mem_Ioo ht
-  linarith
+private lemma eq_one_of_forall_pow_mem_rightHalfArc {z : Circle}
+    (hz : ∀ n > 0, z ^ n ∈ rightHalfArc) : z = 1 := by
+  rw [← Circle.arg_eq_zero]
+  by_contra hθ
+  obtain ⟨n, hn, hcos⟩ :=
+    exists_pos_cos_mul_nonpos (Complex.neg_pi_lt_arg _) (Complex.arg_le_pi _) hθ
+  obtain ⟨t, ht, hzt⟩ := hz n hn
+  have : cos (n * (z : ℂ).arg) = cos t := Circle.cos_eq_cos_of_exp_eq_exp (by simp [*])
+  linarith [cos_pos_of_mem_Ioo ht]
 
 /-- A compact monoid has discrete Pontryagin dual. -/
 instance [CompactSpace M] : DiscreteTopology (PontryaginDual M) := by
   refine discreteTopology_of_isOpen_singleton_one ?_
-  let V : Set (PontryaginDual M) := {ψ | Set.MapsTo ψ Set.univ rightHalfArc}
-  have hVopen : IsOpen V := by
-    dsimp [V]
-    exact isOpen_induced (ContinuousMap.isOpen_setOf_mapsTo isCompact_univ isOpen_rightHalfArc)
-  convert hVopen
+  have hopen : IsOpen {ψ : PontryaginDual M | Set.MapsTo ψ .univ rightHalfArc} :=
+    isOpen_induced (ContinuousMap.isOpen_setOf_mapsTo isCompact_univ isOpen_rightHalfArc)
+  convert hopen
   ext ψ
-  constructor
+  refine ⟨?_, fun hψ ↦ ?_⟩
   · rintro rfl _ _
-    refine ⟨0, ?_, ?_⟩
-    · constructor <;> linarith [Real.pi_pos]
-    · rw [Circle.exp_zero]
-      rfl
-  · intro hψ
-    rw [Set.mem_singleton_iff]
-    apply ContinuousMonoidHom.ext
-    intro a
-    have hpow : ∀ n : ℕ, 0 < n → ψ a ^ n ∈ rightHalfArc := by
-      intro n hn
-      have hmap := hψ (Set.mem_univ (a ^ n))
-      simpa [map_pow] using hmap
-    simpa using circle_eq_one_of_forall_pow_mem_rightHalfArc hpow
+    exact ⟨0, by simp [pi_pos]⟩
+  · ext a : 1
+    refine eq_one_of_forall_pow_mem_rightHalfArc fun n hn ↦ ?_
+    simpa [map_pow] using hψ (Set.mem_univ (a ^ n))
 
 instance [DiscreteTopology M] [CompactSpace M] : Finite (PontryaginDual M) :=
   finite_of_compact_of_discrete
