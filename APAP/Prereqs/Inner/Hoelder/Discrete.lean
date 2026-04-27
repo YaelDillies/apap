@@ -48,7 +48,7 @@ lemma dL1Norm_mul_of_nonneg (hf : 0 ≤ f) (hg : 0 ≤ g) : ‖f * g‖_[1] = �
 
 set_option backward.isDefEq.respectTransparency false in
 /-- **Hölder's inequality**, binary case. -/
-lemma wInner_one_le_dLpNorm_mul_dLpNorm (p q : ℝ≥0∞) [hpq : p.HolderConjugate q] :
+lemma wInner_one_le_dLpNorm_mul_dLpNorm (p q : ℝ≥0∞) [p.HolderConjugate q] :
     ⟪f, g⟫_[ℝ] ≤ ‖f‖_[p] * ‖g‖_[q] := by
   have hp0 : p ≠ 0 := ENNReal.HolderConjugate.ne_zero p q
   have hq0 : q ≠ 0 := ENNReal.HolderConjugate.ne_zero q p

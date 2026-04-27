@@ -90,7 +90,7 @@ lemma cL1Norm_mul_of_nonneg (hf : 0 ≤ f) (hg : 0 ≤ g) : ‖f * g‖ₙ_[1] =
   convert cL1Norm_mul f g using 2 <;> ext a <;> refine (norm_of_nonneg ?_).symm; exacts [hf _, hg _]
 
 /-- **Hölder's inequality**, binary case. -/
-lemma wInner_cWeight_le_cLpNorm_mul_cLpNorm (p q : ℝ≥0∞) [hpq : p.HolderConjugate q] :
+lemma wInner_cWeight_le_cLpNorm_mul_cLpNorm (p q : ℝ≥0∞) [p.HolderConjugate q] :
     ⟪f, g⟫ₙ_[ℝ] ≤ ‖f‖ₙ_[p] * ‖g‖ₙ_[q] := by
   -- Step 1: `⟪f, g⟫ₙ_[ℝ] ≤ ⟪|f|, |g|⟫ₙ_[ℝ]` (dominate by absolute value)
   have h_abs : ⟪f, g⟫ₙ_[ℝ] ≤ ⟪fun i ↦ |f i|, fun i ↦ |g i|⟫ₙ_[ℝ] := by
