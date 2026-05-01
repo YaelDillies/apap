@@ -1,16 +1,19 @@
 module
 
+public import Mathlib.Combinatorics.Additive.AP.Three.Defs
 public import APAP.Prereqs.Convolution.Discrete.Defs
 public import APAP.Prereqs.LpNorm.Weighted
 public import APAP.Prereqs.Mu
 public import Mathlib.Analysis.RCLike.Inner
 public import Mathlib.Analysis.SpecialFunctions.Log.Basic
-public import Mathlib.Combinatorics.Additive.AP.Three.Defs
 public import Mathlib.LinearAlgebra.Dimension.Finrank
 public import Mathlib.MeasureTheory.MeasurableSpace.Defs
 
 import AddCombi.Mathlib.Algebra.Order.GroupWithZero.Indicator
 import APAP.Mathlib.Analysis.Fourier.FiniteAbelian.PontryaginDuality
+import APAP.Mathlib.Data.Complex.Basic
+import APAP.Mathlib.Data.Real.Sqrt
+import APAP.Mathlib.LinearAlgebra.FiniteDimensional.Lemmas
 import APAP.Physics.AlmostPeriodicity
 import APAP.Physics.DRC
 import APAP.Physics.Unbalancing
@@ -21,8 +24,10 @@ import APAP.Prereqs.Convolution.Order
 import APAP.Prereqs.Convolution.ThreeAP
 import APAP.Prereqs.FourierTransform.Convolution
 import APAP.Prereqs.Inner.Function
+import APAP.Prereqs.Inner.Hoelder.Compact
 import APAP.Prereqs.Inner.Hoelder.Discrete
 import APAP.Prereqs.LpNorm.Discrete.Basic
+import APAP.Prereqs.Mu
 import Mathlib.Algebra.Field.ZMod
 import Mathlib.Algebra.Group.Pointwise.Finset.Density
 import Mathlib.Algebra.Order.Floor.Semifield
@@ -39,7 +44,8 @@ attribute [-simp] Real.log_inv
 
 open Fintype Function MeasureTheory Module RCLike Real
 open Finset hiding card
-open scoped ENNReal NNReal BigOperators Combinatorics.Additive Pointwise Indicator mu
+open scoped ENNReal NNReal BigOperators Combinatorics.Additive ComplexConjugate Pointwise
+open scoped Indicator mu
 
 universe u
 variable {G : Type u} [AddCommGroup G] [Fintype G] {A C : Finset G} {x y γ ε : ℝ}
@@ -111,6 +117,272 @@ lemma ceil_curlog_div_four_le_three_curlog (hx₀ : 0 < x) (hx₁ : x ≤ 2⁻¹
     log_mul (by norm_num) (by positivity), log_mul (by norm_num) (by norm_num)]
   have : log 2 ≤ log x⁻¹ := by grw [hx₁, inv_inv]
   nlinarith [log_two_gt_d9]
+
+lemma exp_neg_nat_ceil_curlog_div_four_mul_inv_alpha_le_quarter
+    {ε α : ℝ} (hε₀ : 0 < ε) (hα₀ : 0 < α) :
+    exp (-(⌈𝓛 (ε * α / 4)⌉₊ : ℝ)) * α⁻¹ ≤ ε / 4 := by
+  have hy₀ : 0 < ε * α / 4 := by positivity
+  have hceil : 𝓛 (ε * α / 4) ≤ (⌈𝓛 (ε * α / 4)⌉₊ : ℝ) := Nat.le_ceil _
+  have hexp :
+      exp (-(⌈𝓛 (ε * α / 4)⌉₊ : ℝ)) ≤ exp (-(𝓛 (ε * α / 4))) :=
+    exp_le_exp.2 (by linarith)
+  have hcurlog :
+      exp (-(𝓛 (ε * α / 4))) = exp (-1) * (ε * α / 4) := by
+    rw [neg_add, exp_add]
+    have hlog : exp (-log (ε * α / 4)⁻¹) = ε * α / 4 := by
+      rw [exp_neg, exp_log (inv_pos.2 hy₀), inv_inv]
+    rw [hlog]
+  calc
+    exp (-(⌈𝓛 (ε * α / 4)⌉₊ : ℝ)) * α⁻¹
+        ≤ exp (-(𝓛 (ε * α / 4))) * α⁻¹ := by gcongr
+    _ = exp (-1) * (ε * α / 4) * α⁻¹ := by rw [hcurlog]
+    _ ≤ 1 * (ε * α / 4) * α⁻¹ := by
+      gcongr
+      calc
+        exp (-1 : ℝ) ≤ exp 0 := exp_le_exp.2 (by norm_num)
+        _ = 1 := exp_zero
+    _ = ε / 4 := by field_simp [hα₀.ne']
+
+omit [Fintype G] in
+lemma expect_char_common_ker_eq_one_of_mem_closure {q : ℕ}
+    [Module (ZMod q) G] (Δ : Set (AddChar G ℂ)) (V : Submodule (ZMod q) G)
+    [Fintype V] (hV : V = (⨅ γ ∈ Δ, γ.toAddMonoidHom.ker).toZModSubmodule q)
+    (ψ : AddChar G ℂ) (hψ : ψ ∈ AddSubgroup.closure Δ) :
+    𝔼 x ∈ Set.toFinset V, ψ x = 1 := by
+  have hψV : ∀ x ∈ V, ψ x = 1 :=
+    fun x hx ↦ AddChar.map_eq_one_of_mem_closure hψ (by simpa [hV] using hx)
+  calc
+    𝔼 x ∈ Set.toFinset V, ψ x = 𝔼 _x ∈ Set.toFinset V, (1 : ℂ) :=
+      Finset.expect_congr rfl fun x hx ↦ hψV x (by simpa using hx)
+    _ = 1 := Finset.expect_const ⟨0, by simp⟩ _
+
+omit [Fintype G] in
+lemma expect_char_common_ker_eq_zero_of_not_mem_closure {q : ℕ}
+    [Finite G] [Module (ZMod q) G] (Δ : Set (AddChar G ℂ))
+    (V : Submodule (ZMod q) G) [Fintype V]
+    (hV : V = AddSubgroup.toZModSubmodule q (⨅ γ ∈ Δ, γ.toAddMonoidHom.ker)) (ψ : AddChar G ℂ)
+    (hψ : ψ ∉ AddSubgroup.closure Δ) :
+    𝔼 x ∈ Set.toFinset V, ψ x = 0 := by
+  obtain ⟨x, hxΔ, hxψ⟩ : ∃ x, (∀ γ ∈ Δ, γ x = 1) ∧ ψ x ≠ 1 := by
+    simpa [AddChar.mem_closure_iff] using hψ
+  let ψV : AddChar V ℂ := ψ.compAddMonoidHom V.subtype
+  have hψV : ψV ≠ 0 := by
+    intro hzero
+    apply hxψ
+    have hxV : x ∈ V := by simpa [hV] using hxΔ
+    simpa [ψV] using DFunLike.congr_fun hzero ⟨x, hxV⟩
+  calc
+    𝔼 x ∈ Set.toFinset V, ψ x
+      = (∑ x ∈ Set.toFinset V, ψ x) / #(Set.toFinset V) := by rw [Finset.expect_eq_sum_div_card]
+    _ = (∑ x : V, ψV x) / Fintype.card V := by
+      have hsum : ∑ x ∈ Set.toFinset (V : Set G), ψ x = ∑ x : V, ψ x :=
+        Finset.sum_subtype (Set.toFinset (V : Set G)) (by intro x; simp) fun x ↦ ψ x
+      have hcard : #(Set.toFinset (V : Set G)) = Fintype.card V := by simp
+      rw [hsum, hcard]
+      rfl
+    _ = 0 := by
+      rw [AddChar.sum_eq_zero_iff_ne_zero.2 hψV]
+      simp
+
+lemma expect_common_ker_eq_dft_closure {q : ℕ}
+    [Module (ZMod q) G] (Δ : Set (AddChar G ℂ))
+    [DecidablePred (· ∈ AddSubgroup.closure Δ)]
+    (V : Submodule (ZMod q) G) [Fintype V]
+    (hV : V = AddSubgroup.toZModSubmodule q (⨅ γ ∈ Δ, γ.toAddMonoidHom.ker))
+    (f : G → ℂ) :
+    𝔼 x ∈ Set.toFinset V, f x =
+      𝔼 ψ : AddChar G ℂ, if ψ ∈ AddSubgroup.closure Δ then dft f ψ else 0 := by
+  rw [show (𝔼 x ∈ Set.toFinset V, f x) =
+      𝔼 x ∈ Set.toFinset V, 𝔼 ψ : AddChar G ℂ, dft f ψ * ψ x by
+    refine Finset.expect_congr rfl fun x _ ↦ ?_
+    exact (dft_inversion f x).symm]
+  rw [expect_comm]
+  refine Finset.expect_congr rfl fun ψ _ ↦ ?_
+  by_cases hψ : ψ ∈ AddSubgroup.closure Δ
+  · rw [if_pos hψ, ← Finset.mul_expect,
+      expect_char_common_ker_eq_one_of_mem_closure Δ V hV ψ hψ, mul_one]
+  · rw [if_neg hψ, ← Finset.mul_expect,
+      expect_char_common_ker_eq_zero_of_not_mem_closure Δ V hV ψ hψ, mul_zero]
+
+lemma expect_common_ker_sub_zero_eq_dft_off_closure {q : ℕ}
+    [Module (ZMod q) G] (Δ : Set (AddChar G ℂ))
+    [DecidablePred (· ∈ AddSubgroup.closure Δ)]
+    (V : Submodule (ZMod q) G) [Fintype V]
+    (hV : V = AddSubgroup.toZModSubmodule q (⨅ γ ∈ Δ, γ.toAddMonoidHom.ker))
+    (f : G → ℂ) :
+    𝔼 x ∈ Set.toFinset V, f x - f 0 =
+      𝔼 ψ : AddChar G ℂ,
+        if ψ ∈ AddSubgroup.closure Δ then 0 else -dft f ψ := by
+  rw [expect_common_ker_eq_dft_closure Δ V hV f]
+  have hzero : f 0 = 𝔼 ψ : AddChar G ℂ, dft f ψ := by
+    simpa using (dft_inversion f (0 : G)).symm
+  rw [hzero, ← Finset.expect_sub_distrib]
+  refine Finset.expect_congr rfl fun ψ _ ↦ ?_
+  by_cases hψ : ψ ∈ AddSubgroup.closure Δ <;> simp [hψ]
+
+lemma expect_common_ker_iterConv_ddconv_sub_zero_eq_dft_off_closure [DecidableEq G]
+    [MeasurableSpace G] {q : ℕ} [Module (ZMod q) G] (T : Finset G) (k : ℕ)
+    (Δ : Set (AddChar G ℂ))
+    [DecidablePred (· ∈ AddSubgroup.closure Δ)]
+    (V : Submodule (ZMod q) G) [Fintype V]
+    (hV : V = AddSubgroup.toZModSubmodule q (⨅ γ ∈ Δ, γ.toAddMonoidHom.ker))
+    (f : G → ℂ) :
+    𝔼 x ∈ Set.toFinset V, (μ T ∗ᵈ^ k ∗ᵈ f) x - (μ T ∗ᵈ^ k ∗ᵈ f) 0 =
+      𝔼 ψ : AddChar G ℂ,
+        if ψ ∈ AddSubgroup.closure Δ then 0
+        else -(dft (μ T) ψ ^ k * dft f ψ) := by
+  rw [expect_common_ker_sub_zero_eq_dft_off_closure Δ V hV (μ T ∗ᵈ^ k ∗ᵈ f)]
+  refine Finset.expect_congr rfl fun ψ _ ↦ ?_
+  by_cases hψ : ψ ∈ AddSubgroup.closure Δ
+  · simp [hψ]
+  · simp [hψ, dft_ddconv_apply, dft_iterConv_apply]
+
+omit [Fintype G] in
+lemma norm_common_ker_sub_zero_sub_le_two_mul_dLinfty
+    [Finite G] [MeasurableSpace G] [DiscreteMeasurableSpace G] {q : ℕ} [Module (ZMod q) G]
+    (V : Submodule (ZMod q) G) [Fintype V] (f g : G → ℂ) :
+    ‖(Finset.expect (Set.toFinset (V : Set G)) (fun x ↦ f x) - f 0) -
+      (Finset.expect (Set.toFinset (V : Set G)) (fun x ↦ g x) - g 0)‖ ≤
+      2 * ‖f - g‖_[∞] := by
+  have hVne : (Set.toFinset (V : Set G)).Nonempty := ⟨0, by simp⟩
+  have hpoint (x : G) : ‖(f - g) x‖ ≤ ‖f - g‖_[∞] :=
+    norm_le_dLinftyNorm (f := f - g) (i := x)
+  have hbody (x : G) :
+      ‖(f x - f 0) - (g x - g 0)‖ ≤ 2 * ‖f - g‖_[∞] := by
+    calc
+      ‖(f x - f 0) - (g x - g 0)‖ = ‖(f - g) x - (f - g) 0‖ := by
+        congr 1
+        simp only [Pi.sub_apply]
+        abel
+      _ ≤ ‖(f - g) x‖ + ‖(f - g) 0‖ := norm_sub_le _ _
+      _ ≤ ‖f - g‖_[∞] + ‖f - g‖_[∞] := add_le_add (hpoint x) (hpoint 0)
+      _ = 2 * ‖f - g‖_[∞] := by ring
+  calc
+    ‖(Finset.expect (Set.toFinset (V : Set G)) (fun x ↦ f x) - f 0) -
+        (Finset.expect (Set.toFinset (V : Set G)) (fun x ↦ g x) - g 0)‖ =
+        ‖((Set.toFinset (V : Set G)).expect fun x ↦ (f x - f 0) - (g x - g 0))‖ := by
+      simp [Finset.expect_sub_distrib]
+    _ ≤ (Set.toFinset (V : Set G)).expect fun x ↦ ‖(f x - f 0) - (g x - g 0)‖ :=
+      RCLike.norm_expect_le (K := ℝ)
+    _ ≤ 2 * ‖f - g‖_[∞] := Finset.expect_le hVne fun x _ ↦ hbody x
+
+lemma norm_expect_off_closure_le_two_mul_linfty_add_smooth_tail [DecidableEq G]
+    [MeasurableSpace G] [DiscreteMeasurableSpace G] {q : ℕ} [Module (ZMod q) G]
+    (T : Finset G) (k : ℕ) (Δ : Set (AddChar G ℂ))
+    [DecidablePred (· ∈ AddSubgroup.closure Δ)]
+    (V : Submodule (ZMod q) G) [Finite V]
+    (hV : V = AddSubgroup.toZModSubmodule q (⨅ γ ∈ Δ, γ.toAddMonoidHom.ker))
+    (f : G → ℂ) {ε δ : ℝ}
+    (hε : ‖μ T ∗ᵈ^ k ∗ᵈ f - f‖_[∞] ≤ ε)
+    (hsmooth :
+      ‖𝔼 ψ : AddChar G ℂ,
+          if ψ ∈ AddSubgroup.closure Δ then 0
+          else -(dft (μ T) ψ ^ k * dft f ψ)‖ ≤ δ) :
+    ‖𝔼 ψ : AddChar G ℂ,
+        if ψ ∈ AddSubgroup.closure Δ then 0 else -dft f ψ‖ ≤
+      2 * ε + δ := by
+  have := Fintype.ofFinite V
+  let g : G → ℂ := μ T ∗ᵈ^ k ∗ᵈ f
+  let Lf : ℂ := Finset.expect (Set.toFinset (V : Set G)) (fun x ↦ f x) - f 0
+  let Lg : ℂ := Finset.expect (Set.toFinset (V : Set G)) (fun x ↦ g x) - g 0
+  have hε' : ‖f - g‖_[∞] ≤ ε := by
+    simpa [g, dLpNorm_sub_comm] using hε
+  have hfg : ‖Lf - Lg‖ ≤ 2 * ε :=
+    (norm_common_ker_sub_zero_sub_le_two_mul_dLinfty V f g).trans
+      (mul_le_mul_of_nonneg_left hε' (by norm_num))
+  have hg :
+      Finset.expect (Set.toFinset (V : Set G)) (fun x ↦ g x) - g 0 =
+        𝔼 ψ : AddChar G ℂ,
+          if ψ ∈ AddSubgroup.closure Δ then 0
+          else -(dft (μ T) ψ ^ k * dft f ψ) := by
+    simpa [g] using expect_common_ker_iterConv_ddconv_sub_zero_eq_dft_off_closure T k Δ V hV f
+  have hf :
+      Finset.expect (Set.toFinset (V : Set G)) (fun x ↦ f x) - f 0 =
+        𝔼 ψ : AddChar G ℂ,
+          if ψ ∈ AddSubgroup.closure Δ then 0 else -dft f ψ :=
+    expect_common_ker_sub_zero_eq_dft_off_closure Δ V hV f
+  have hsplit : Lf = (Lf - Lg) + Lg := by abel
+  calc
+    ‖𝔼 ψ : AddChar G ℂ,
+        if ψ ∈ AddSubgroup.closure Δ then 0 else -dft f ψ‖ =
+        ‖Lf‖ := by rw [← hf]
+    _ = ‖(Lf - Lg) + Lg‖ := by rw [← hsplit]
+    _ ≤ ‖Lf - Lg‖ + ‖Lg‖ := norm_add_le _ _
+    _ ≤ 2 * ε + δ := by
+      have hLg : ‖Lg‖ ≤ δ := by
+        change ‖Finset.expect (Set.toFinset (V : Set G)) (fun x ↦ g x) - g 0‖ ≤ δ
+        rwa [hg]
+      exact add_le_add hfg hLg
+
+lemma norm_expect_off_closure_le_of_two_mul_linfty_add_smooth_tail_le
+    [DecidableEq G] [MeasurableSpace G] [DiscreteMeasurableSpace G] {q : ℕ}
+    [Module (ZMod q) G] (T : Finset G) (k : ℕ) (Δ : Set (AddChar G ℂ))
+    [DecidablePred (· ∈ AddSubgroup.closure Δ)]
+    (V : Submodule (ZMod q) G) [Finite V]
+    (hV : V = AddSubgroup.toZModSubmodule q (⨅ γ ∈ Δ, γ.toAddMonoidHom.ker))
+    (f : G → ℂ) {η δ ε : ℝ}
+    (hη : ‖μ T ∗ᵈ^ k ∗ᵈ f - f‖_[∞] ≤ η)
+    (hsmooth :
+      ‖𝔼 ψ : AddChar G ℂ,
+          if ψ ∈ AddSubgroup.closure Δ then 0 else -(dft (μ T) ψ ^ k * dft f ψ)‖ ≤ δ)
+    (hηδε : 2 * η + δ ≤ ε) :
+    ‖𝔼 ψ : AddChar G ℂ, if ψ ∈ AddSubgroup.closure Δ then 0 else -dft f ψ‖ ≤ ε :=
+  (norm_expect_off_closure_le_two_mul_linfty_add_smooth_tail T k Δ V hV f hη hsmooth).trans hηδε
+
+lemma norm_dft_mu_le_exp_neg_one_of_not_mem_largeSpec_closure
+    [MeasurableSpace G] [DiscreteMeasurableSpace G] (T : Finset G) (hT : T.Nonempty)
+    (ψ : AddChar G ℂ)
+    (hψ : ψ ∉ AddSubgroup.closure (largeSpec (μ T) (exp (-1)) : Set (AddChar G ℂ))) :
+    ‖dft (μ T) ψ‖ ≤ exp (-1) := by
+  have hψΔ : ψ ∉ largeSpec (μ T) (exp (-1)) := by
+    intro hmem
+    exact hψ (AddSubgroup.subset_closure (by simpa using hmem))
+  exact (not_le.1 <| by
+    simpa [mem_largeSpec, dL1Norm_mu hT] using hψΔ).le
+
+lemma norm_dft_mu_pow_le_exp_neg_nat_of_not_mem_largeSpec_closure
+    [MeasurableSpace G] [DiscreteMeasurableSpace G] (T : Finset G) (hT : T.Nonempty)
+    (k : ℕ) (ψ : AddChar G ℂ)
+    (hψ : ψ ∉ AddSubgroup.closure (largeSpec (μ T) (exp (-1)) : Set (AddChar G ℂ))) :
+    ‖dft (μ T) ψ ^ k‖ ≤ exp (-k) := by
+  grw [norm_pow, norm_dft_mu_le_exp_neg_one_of_not_mem_largeSpec_closure T hT ψ hψ,
+    ← exp_nat_mul, mul_neg, mul_one]
+
+lemma norm_smooth_tail_le_exp_neg_nat_mul_cL1Norm
+    [MeasurableSpace G] [DiscreteMeasurableSpace G] (T : Finset G) (hT : T.Nonempty)
+    (k : ℕ)
+    [DecidablePred (· ∈ AddSubgroup.closure (largeSpec (μ T) (exp (-1)) : Set (AddChar G ℂ)))]
+    (f : G → ℂ) :
+    ‖𝔼 ψ,
+        if ψ ∈ AddSubgroup.closure (largeSpec (μ T) (exp (-1)) : Set (AddChar G ℂ)) then 0
+        else -(dft (μ T) ψ ^ k * dft f ψ)‖ ≤
+      exp (-k) * ‖dft f‖ₙ_[1] := by
+  calc
+    ‖𝔼 ψ,
+        if ψ ∈ AddSubgroup.closure (largeSpec (μ T) (exp (-1)) : Set (AddChar G ℂ)) then 0
+        else -(dft (μ T) ψ ^ k * dft f ψ)‖
+        ≤ 𝔼 ψ : AddChar G ℂ,
+          ‖if ψ ∈ AddSubgroup.closure (largeSpec (μ T) (exp (-1)) : Set (AddChar G ℂ)) then 0
+            else -(dft (μ T) ψ ^ k * dft f ψ)‖ :=
+      RCLike.norm_expect_le (K := ℝ)
+    _ ≤ 𝔼 ψ, exp (-k) * ‖dft f ψ‖ := by
+      refine Finset.expect_le_expect fun ψ _ ↦ ?_
+      by_cases hψ : ψ ∈ AddSubgroup.closure (largeSpec (μ T) (exp (-1)) : Set (AddChar G ℂ))
+      · simp only [hψ, ↓reduceIte, norm_zero]
+        positivity
+      · simp only [hψ, ↓reduceIte, norm_neg]
+        grw [norm_mul, norm_pow, norm_dft_mu_le_exp_neg_one_of_not_mem_largeSpec_closure T hT ψ hψ,
+          ← exp_nat_mul, mul_neg, mul_one]
+    _ = exp (-k) * ‖dft f‖ₙ_[1] := by rw [cL1Norm_eq_expect_norm, Finset.mul_expect]
+
+lemma exp_chang_codim_budget {L : ℝ} (hL : 1 ≤ L) : ⌈32 * exp 1 ^ 4 * ⌈L⌉₊⌉₊ ≤ 2 ^ 12 * L := by
+  have hexp : exp 1 ^ 4 ≤ (55 : ℝ) := by grw [exp_one_lt_d9]; norm_num
+  have hceil : (⌈L⌉₊ : ℝ) ≤ L + 1 := (Nat.ceil_lt_add_one (by linarith)).le
+  calc
+    (⌈32 * exp 1 ^ 4 * ⌈L⌉₊⌉₊ : ℝ)
+        ≤ 32 * exp 1 ^ 4 * ⌈L⌉₊ + 1 := (Nat.ceil_lt_add_one <| by positivity).le
+    _ ≤ 32 * 55 * (L + 1) + 1 := by gcongr
+    _ ≤ 2 ^ 12 * L := by nlinarith
 
 -- Public because it is in the blueprint
 public lemma global_dichotomy [DecidableEq G] [MeasurableSpace G] [DiscreteMeasurableSpace G]
@@ -192,11 +464,11 @@ public lemma ap_in_ff [DecidableEq G] (hq : q.Prime) (hα₀ : 0 < α) (hα₂ :
   have hT : T.Nonempty := by
     have hTpos : 0 < (#T : ℝ) := hTcard.trans_lt' (by positivity)
     simpa using hTpos
-  let Δ := largeSpec (μ T) 2⁻¹
+  let Δ := largeSpec (μ T) (exp (-1))
   let V : Submodule (ZMod q) G := AddSubgroup.toZModSubmodule _ <| ⨅ γ ∈ Δ, γ.toAddMonoidHom.ker
   let V' : Finset G := Set.toFinset V
   refine ⟨V, inferInstance, ?_, ?_⟩
-  · obtain ⟨Δ', -, hΔ'card, hfΔ'⟩ : ∃ Δ' ⊆ Δ, _ := chang (mu_ne_zero.2 hT) (by norm_num)
+  · obtain ⟨Δ', -, hΔ'card, hfΔ'⟩ : ∃ Δ' ⊆ Δ, _ := chang (mu_ne_zero.2 hT) (by positivity)
     let W : Submodule (ZMod q) G := AddSubgroup.toZModSubmodule _ <| ⨅ γ ∈ Δ', γ.toAddMonoidHom.ker
     have mem_W {x} : x ∈ W ↔ ∀ γ ∈ Δ', γ x = 1 := by simp [W]
     have hWV : W ≤ V := by
@@ -226,30 +498,70 @@ public lemma ap_in_ff [DecidableEq G] (hq : q.Prime) (hα₀ : 0 < α) (hα₂ :
       _ ≤ #Δ' := by
         let : Fact q.Prime := ⟨hq⟩
         simpa [W] using AddChar.codim_iInf_ker_le_finsetCard (s := Δ')
-      _ ≤ ⌈changConst * exp 1 * ⌈𝓛 (‖μ T‖_[1] ^ 2 / ‖μ T‖_[2] ^ 2 / card G)⌉₊ / 2⁻¹ ^ 2⌉₊ := by
+      _ ≤ ⌈changConst * exp 1 * ⌈𝓛 (‖μ T‖_[1] ^ 2 / ‖μ T‖_[2] ^ 2 / card G)⌉₊ / exp (-1) ^ 2⌉₊ := by
         gcongr
-      _ = ⌈128 * exp 1 ^ 2 * ⌈𝓛 T.dens⌉₊⌉₊ := by
+      _ = ⌈32 * exp 1 ^ 4 * ⌈𝓛 T.dens⌉₊⌉₊ := by
         congr 1
-        simp [hT, ← rpow_mul_natCast, dens, changConst, -exp_one_pow, rpow_neg_one]
+        simp [hT, ← rpow_mul_natCast, dens, changConst, -exp_one_pow, rpow_neg_one, exp_neg]
         field_simp [exp_ne_zero]
-        ring_nf
-      _ ≤ 2 ^ 12 * 𝓛 T.dens := by
-        have : 1 ≤ 𝓛 T.dens := one_le_curlog (by positivity) <| mod_cast T.dens_le_one
-        grw [(Nat.ceil_lt_add_one <| by positivity).le, (Nat.ceil_lt_add_one <| by linarith).le,
-          exp_one_lt_d9]
-        linarith
+      _ ≤ 2 ^ 12 * 𝓛 T.dens :=
+        exp_chang_codim_budget <| one_le_curlog (by positivity) <| mod_cast T.dens_le_one
       _ ≤ 2 ^ 12 * (1 + 2 ^ 19 * 𝓛 α ^ 2 * 𝓛 (ε * α) ^ 2 * ε⁻¹ ^ 2) := by gcongr
       _ ≤ 2 ^ 12 * (2 ^ 19 * 𝓛 α ^ 2 * 𝓛 (ε * α) ^ 2 * ε⁻¹ ^ 2 +
             2 ^ 19 * 𝓛 α ^ 2 * 𝓛 (ε * α) ^ 2 * ε⁻¹ ^ 2) := by bound
       _ = 2 ^ 32 * 𝓛 α ^ 2 * 𝓛 (ε * α) ^ 2 * ε⁻¹ ^ 2 := by ring
-  · have : ∑ x ∈ S, (μ_[ℝ] V' ∗ᵈ μ A₁ ∗ᵈ μ A₂) x = 𝔼 x ∈ V', (μ A₁ ∗ᵈ μ A₂ ○ᵈ 𝟭_[S]) x := by
+  · have hVavg :
+        ∑ x ∈ S, (μ_[ℝ] V' ∗ᵈ μ A₁ ∗ᵈ μ A₂) x = 𝔼 x ∈ V', (μ A₁ ∗ᵈ μ A₂ ○ᵈ 𝟭_[S]) x := by
       have : -V' = V' := by ext; simp [V']
       rw [← mu_wInner_one, ← indicator_one_wInner_one, ddconv_rotate,
         ← dddconv_wInner_one_eq_wInner_one_ddconv, wInner_one_dddconv_eq_ddconv_wInner_one,
         ← ddconv_conjneg, conjneg_mu, this, ddconv_comm]
-    have : ∑ x ∈ S, (μ_[ℝ] A₁ ∗ᵈ μ A₂) x = (μ_[ℝ] A₁ ∗ᵈ μ A₂ ○ᵈ 𝟭_[S]) 0 := by
+    have hzero : ∑ x ∈ S, (μ_[ℝ] A₁ ∗ᵈ μ A₂) x = (μ_[ℝ] A₁ ∗ᵈ μ A₂ ○ᵈ 𝟭_[S]) 0 := by
       simp [dddconv_indicator_one_eq_sum]
-    sorry
+    rw [hVavg, hzero]
+    let F : G → ℂ := μ_[ℂ] A₁ ∗ᵈ 𝟭_[-S] ∗ᵈ μ A₂
+    have hTεF : ‖μ T ∗ᵈ^ k ∗ᵈ F - F‖_[∞] ≤ 3 * ε / 8 := by simpa [F] using hTε
+    have hVeq : V = (⨅ γ ∈ Δ, γ.toAddMonoidHom.ker).toZModSubmodule q := rfl
+    have hoff :
+        𝔼 x ∈ V', F x - F 0 =
+          𝔼 ψ : AddChar G ℂ,
+            if ψ ∈ AddSubgroup.closure (Δ : Set (AddChar G ℂ)) then 0 else -dft F ψ := by
+      simpa [F, V'] using expect_common_ker_sub_zero_eq_dft_off_closure _ V hVeq F
+    suffices htail :
+        ‖𝔼 ψ : AddChar G ℂ,
+            if ψ ∈ AddSubgroup.closure Δ then 0 else -dft F ψ‖ ≤ ε by
+      have hcomplex : ‖(𝔼 x ∈ V', F x) - F 0‖ ≤ ε := by rwa [hoff]
+      have hcomplex' :
+          ‖(((𝔼 x ∈ V', (μ_[ℝ] A₁ ∗ᵈ μ A₂ ○ᵈ 𝟭_[S]) x) -
+              (μ_[ℝ] A₁ ∗ᵈ μ A₂ ○ᵈ 𝟭_[S]) 0 : ℝ) : ℂ)‖ ≤ ε := by
+        simpa [F, dddconv_indicator_one, ddconv_right_comm] using hcomplex
+      rw [Complex.norm_real] at hcomplex'
+      simpa [Real.norm_eq_abs] using hcomplex'
+    refine norm_expect_off_closure_le_of_two_mul_linfty_add_smooth_tail_le
+      (η := 3 * ε / 8) (δ := ε / 4) T k Δ V hVeq F hTεF ?_ (by nlinarith)
+    calc
+      ‖𝔼 ψ, if ψ ∈ AddSubgroup.closure Δ then 0 else -(dft (μ T) ψ ^ k * dft F ψ)‖
+      _ ≤ .exp (-k) * ‖dft F‖ₙ_[1] := by
+        simpa [Δ] using norm_smooth_tail_le_exp_neg_nat_mul_cL1Norm T hT k F
+      _ ≤ .exp (-k) * α⁻¹ := by
+        gcongr
+        calc
+          ‖dft F‖ₙ_[1]
+          _ ≤ ‖dft (μ A₁ ∗ᵈ 𝟭_[-S, ℂ])‖ₙ_[1] := by
+            grw [dft_ddconv, cL1Norm_mul_le 1 ∞, cLinftyNorm_dft_le_dL1Norm, dL1Norm_mu hA₂,
+              mul_one]
+          _ ≤ √(#A₁ / #S)⁻¹ := by
+            -- TODO: `ring` should be doing most of this.
+            grw [dft_ddconv, cL1Norm_mul_le 2 2, cL2Norm_dft, dL2Norm_mu hA₁, cL2Norm_dft,
+              ← Finset.coe_neg, dL2Norm_indicator_one, card_neg, Real.sqrt_eq_rpow,
+              Real.sqrt_eq_rpow, inv_div, Real.div_rpow (by positivity) (by positivity),
+              div_eq_mul_inv (_ ^ _), ← Real.rpow_neg (by positivity)]
+            apply le_of_eq
+            ring_nf
+          _ ≤ √α⁻¹ := by grw [S.subset_univ, card_univ, ← nnratCast_dens, hαA₁]
+          _ ≤ α⁻¹ := by rw [sqrt_inv]; gcongr; simpa
+      _ ≤ ε / 4 := by
+        simpa [k] using exp_neg_nat_ceil_curlog_div_four_mul_inv_alpha_le_quarter hε₀ hα₀
 
 lemma ap_in_ff' [DecidableEq G] (hq : q.Prime) (hα₀ : 0 < α) (hα₂ : α ≤ 2⁻¹)
     (hε₀ : 0 < ε) (hε₁ : ε ≤ 1) (hαA₁ : α ≤ A₁.dens) (hαA₂ : α ≤ A₂.dens) :

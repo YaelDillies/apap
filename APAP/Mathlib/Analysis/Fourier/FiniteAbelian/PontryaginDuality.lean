@@ -13,8 +13,35 @@ public section
 open scoped Finset
 
 namespace AddChar
-variable {ι G : Type*} {q : ℕ} [AddCommGroup G] [Module (ZMod q) G] {γ : AddChar G ℂ}
-  {r : ZMod q} {x : G}
+variable {ι G : Type*} {q : ℕ} [AddCommGroup G]
+
+section
+variable {Δ : Set (AddChar G ℂ)} {ψ : AddChar G ℂ} {x : G}
+
+lemma map_eq_one_of_mem_closure (hψ : ψ ∈ AddSubgroup.closure Δ) (hx : ∀ γ ∈ Δ, γ x = 1) :
+    ψ x = 1 := (doubleDualEmb x).toAddMonoidHom.ker.closure_le.2 (hx · <| by simpa using ·) hψ
+
+variable [Finite G]
+
+@[simp] lemma map_doubleDualEquiv_symm (χ : AddChar (AddChar G ℂ) ℂ) (ψ : AddChar G ℂ) :
+    ψ (doubleDualEquiv.symm χ) = χ ψ :=
+  congr($(doubleDualEmb_doubleDualEquiv_symm_apply χ) ψ)
+
+lemma mem_closure_iff : ψ ∈ AddSubgroup.closure Δ ↔ ∀ x, (∀ γ ∈ Δ, γ x = 1) → ψ x = 1 where
+  mp hψ x hx := map_eq_one_of_mem_closure hψ hx
+  mpr hψ := by
+    contrapose! hψ
+    let H : AddSubgroup (AddChar G ℂ) := AddSubgroup.closure Δ
+    have hquot : QuotientAddGroup.mk ψ ≠ (0 : AddChar G ℂ ⧸ H) := fun h ↦ hψ <| by simpa using h
+    obtain ⟨χ, hχ⟩ := exists_apply_ne_zero.2 hquot
+    let χ' : AddChar (AddChar G ℂ) ℂ := χ.compAddMonoidHom (QuotientAddGroup.mk' H)
+    refine ⟨doubleDualEquiv.symm χ', fun γ hγ ↦ ?_, by simpa [χ'] using hχ⟩
+    have hγH : γ ∈ H := AddSubgroup.subset_closure hγ
+    simp [χ', (QuotientAddGroup.eq_zero_iff _).2 hγH]
+
+end
+
+variable [Module (ZMod q) G] {γ : AddChar G ℂ} {r : ZMod q} {x : G}
 
 variable (q γ) in
 /-- Characters of a `q`-group `G` are (noncanonically) the same as `ZMod q`-linear forms on `G`. -/
