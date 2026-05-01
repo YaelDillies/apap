@@ -346,7 +346,7 @@ lemma di_in_ff [DecidableEq G] [MeasurableSpace G] [DiscreteMeasurableSpace G] (
         gcongr
         · norm_num
         · positivity
-  have :=
+  have hp'q' : p' ≤ q' :=
     calc
       p' = 1 * ⌈(p' + 0 : ℝ)⌉₊ := by simp
       _ ≤ q' := by
@@ -363,7 +363,11 @@ lemma di_in_ff [DecidableEq G] [MeasurableSpace G] [DiscreteMeasurableSpace G] (
       1 + ε / 4 = 1 + ε / 2 / 2 := by ring
       _ ≤ ‖card G • (f ○ f) + 1‖_[p', μ univ] := unbalancing
       _ = card G • ‖(μ_[ℝ] A ○ μ A)‖_[p', μ univ] := by simp [this, wLpNorm_nsmul, -nsmul_eq_mul]
-      _ ≤ card G • ‖(μ_[ℝ] A ○ μ A)‖_[q', μ univ] := by gcongr
+      _ ≤ card G • ‖(μ_[ℝ] A ○ μ A)‖_[q', μ univ] := by
+        haveI : Nonempty G := ⟨hA₀.choose⟩
+        gcongr
+        exact wLpNorm_mono_right_of_sum_eq_one
+          (by exact_mod_cast sum_mu (R := ℝ≥0) univ_nonempty) (by exact_mod_cast hp'q') _
   let s' : Finset G := {x | 1 + ε / 8 ≤ card G • (μ A ○ μ A) x}
   have hss' : s q' (ε / 16) univ univ A ⊆ s' := by
     simp only [subset_iff, mem_s', ENNReal.coe_natCast, mu_univ_dconv_mu_univ,

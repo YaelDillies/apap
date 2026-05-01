@@ -103,11 +103,22 @@ lemma wLpNorm_pow_eq_sum_norm {p : ℕ} (hp : p ≠ 0) (w : α → ℝ≥0) (f :
 lemma wL1Norm_eq_sum_norm (w : α → ℝ≥0) (f : α → E) : ‖f‖_[1, w] = ∑ i, w i • ‖f i‖ := by
   simp [wLpNorm_eq_sum_norm]
 
-omit [Fintype α]
+/-- Monotonicity of weighted `L^p` norms in the exponent, for probability weights. -/
+lemma wLpNorm_mono_right_of_sum_eq_one
+    (hw : ∑ i, (w i : ℝ≥0∞) = 1) (hpq : p ≤ q) (f : α → E) :
+    ‖f‖_[p, w] ≤ ‖f‖_[q, w] := by
+  haveI : IsProbabilityMeasure (Measure.sum fun i ↦ (w i : ℝ≥0) • Measure.dirac (i : α)) := by
+    rw [isProbabilityMeasure_iff, Measure.sum_apply _ MeasurableSet.univ]
+    simp [hw, ENNReal.smul_def]
+  rw [wLpNorm, wLpNorm,
+      ← toReal_eLpNorm (μ := Measure.sum fun i ↦ (w i : ℝ≥0) • Measure.dirac i)
+        (MemLp.of_discrete (p := p)).aestronglyMeasurable,
+      ← toReal_eLpNorm (μ := Measure.sum fun i ↦ (w i : ℝ≥0) • Measure.dirac i)
+        (MemLp.of_discrete (p := q)).aestronglyMeasurable]
+  exact ENNReal.toReal_mono (MemLp.of_discrete (p := q)).eLpNorm_ne_top
+    (eLpNorm_le_eLpNorm_of_exponent_le hpq (MemLp.of_discrete (p := p)).aestronglyMeasurable)
 
-@[gcongr]
-lemma wLpNorm_mono_right (hpq : p ≤ q) (w : α → ℝ≥0) (f : α → E) : ‖f‖_[p, w] ≤ ‖f‖_[q, w] :=
-  sorry
+omit [Fintype α]
 
 section one_le
 
