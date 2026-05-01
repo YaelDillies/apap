@@ -366,8 +366,8 @@ lemma di_in_ff [DecidableEq G] [MeasurableSpace G] [DiscreteMeasurableSpace G] (
       _ ≤ card G • ‖(μ_[ℝ] A ○ μ A)‖_[q', μ univ] := by
         haveI : Nonempty G := ⟨hA₀.choose⟩
         gcongr
-        exact wLpNorm_mono_right_of_sum_eq_one
-          (by exact_mod_cast sum_mu (R := ℝ≥0) univ_nonempty) (by exact_mod_cast hp'q') _
+        exact wLpNorm_mono_right
+          (mod_cast sum_mu (R := ℝ≥0) univ_nonempty) (mod_cast hp'q') _
   let s' : Finset G := {x | 1 + ε / 8 ≤ card G • (μ A ○ μ A) x}
   have hss' : s q' (ε / 16) univ univ A ⊆ s' := by
     simp only [subset_iff, mem_s', ENNReal.coe_natCast, mu_univ_dconv_mu_univ,

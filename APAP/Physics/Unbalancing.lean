@@ -70,13 +70,13 @@ private lemma unbalancing'' (p : ℕ) (hp : 5 ≤ p) (hp₁ : Odd p) (hε₀ : 0
     (hε : ε ≤ ‖f‖_[p, ν]) :
     1 + ε / 2 ≤ ‖f + 1‖_[.ofReal (24 / ε * log (3 / ε) * p), ν] := by
   have hνprob : ∑ x, (ν x : ℝ≥0∞) = 1 := by
-    exact_mod_cast hν₁
+    exact mod_cast hν₁
   obtain hf₁ | hf₁ := le_total 2 ‖f + 1‖_[2 * p, ν]
   · calc
       1 + ε / 2 ≤ 1 + 1 / 2 := by grw [hε₁]
       _ ≤ 2 := by norm_num
       _ ≤ ‖f + 1‖_[2 * p, ν] := hf₁
-      _ ≤ _ := wLpNorm_mono_right_of_sum_eq_one hνprob ?_ _
+      _ ≤ _ := wLpNorm_mono_right hνprob ?_ _
     norm_cast
     rw [ENNReal.natCast_le_ofReal (by positivity)]
     push_cast
@@ -232,13 +232,13 @@ lemma unbalancing' (p : ℕ) (hp : p ≠ 0) (ε : ℝ) (hε₀ : 0 < ε) (hε₁
       _ ≤ 2 * (2 ^ 7 * ε⁻¹ * (2 ^ 2 * ε⁻¹) * p) := by gcongr <;> norm_num
       _ = 2 ^ 10 * ε⁻¹ ^ 2 * p := by ring
   have hνprob : ∑ x, (ν x : ℝ≥0∞) = 1 := by
-    exact_mod_cast hν₁
+    exact mod_cast hν₁
   calc
     1 + ε / 2 ≤ ↑‖f + 1‖_[.ofReal (24 / ε * log (3 / ε) * ↑(2 * p + 3)), ν] :=
       unbalancing'' (2 * p + 3) this ((even_two_mul _).add_odd <| by decide) hε₀ hε₁ hf hν hν₁ <|
-        hε.trans <| wLpNorm_mono_right_of_sum_eq_one hνprob
+        hε.trans <| wLpNorm_mono_right hνprob
           (Nat.cast_le.2 <| le_add_of_le_left <| le_mul_of_one_le_left' one_le_two) _
-    _ ≤ _ := wLpNorm_mono_right_of_sum_eq_one hνprob ?_ _
+    _ ≤ _ := wLpNorm_mono_right hνprob ?_ _
   norm_cast
   calc
     _ = 24 / ε * log (3 / ε) * ↑(2 * p + 3 * 1) := by simp

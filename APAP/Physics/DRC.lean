@@ -266,11 +266,11 @@ lemma sifting_cor (hε : 0 < ε) (hε₁ : ε ≤ 1) (hδ : 0 < δ) (hp : Even p
       rw [nnratCast_dens, le_div_iff₀ (by positivity), ← mul_div_right_comm]
       have hμ_univ : ∑ x : G, ((μ univ x : ℝ≥0) : ℝ≥0∞) = 1 := by
         haveI : Nonempty G := ⟨hA.choose⟩
-        exact_mod_cast sum_mu (R := ℝ≥0) univ_nonempty
+        exact mod_cast sum_mu (R := ℝ≥0) univ_nonempty
       calc
         _ = (‖𝟭_[ℝ] A ○ 𝟭 A‖_[1, μ univ] : ℝ) := by
           simp [mu, wLpNorm_smul_right, dL1Norm_dconv, card_univ, inv_mul_eq_div]
-        _ ≤ _ := wLpNorm_mono_right_of_sum_eq_one hμ_univ (one_le_two.trans <| by norm_cast) _
+        _ ≤ _ := wLpNorm_mono_right hμ_univ (one_le_two.trans <| by norm_cast) _
     obtain ⟨A₁, -, A₂, -, h, hcard₁, hcard₂⟩ :=
       sifting univ univ hε hε₁ hδ hp hp₂ hpε (by simp) hA (by simpa)
     exact ⟨A₁, A₂, h, this.trans <| by simpa [nnratCast_dens] using hcard₁,
