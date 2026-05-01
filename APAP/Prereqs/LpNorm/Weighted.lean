@@ -107,7 +107,7 @@ lemma wL1Norm_eq_sum_norm (w : α → ℝ≥0) (f : α → E) : ‖f‖_[1, w] =
 lemma wLpNorm_mono_right
     (hw : ∑ i, (w i : ℝ≥0∞) = 1) (hpq : p ≤ q) (f : α → E) :
     ‖f‖_[p, w] ≤ ‖f‖_[q, w] := by
-  haveI : IsProbabilityMeasure (Measure.sum fun i ↦ (w i : ℝ≥0) • Measure.dirac (i : α)) := by
+  have : IsProbabilityMeasure (Measure.sum fun i ↦ (w i : ℝ≥0) • Measure.dirac (i : α)) := by
     rw [isProbabilityMeasure_iff, Measure.sum_apply _ MeasurableSet.univ]
     simp [hw, ENNReal.smul_def]
   rw [wLpNorm, wLpNorm,

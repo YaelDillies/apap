@@ -364,7 +364,7 @@ lemma di_in_ff [DecidableEq G] [MeasurableSpace G] [DiscreteMeasurableSpace G] (
       _ ≤ ‖card G • (f ○ f) + 1‖_[p', μ univ] := unbalancing
       _ = card G • ‖(μ_[ℝ] A ○ μ A)‖_[p', μ univ] := by simp [this, wLpNorm_nsmul, -nsmul_eq_mul]
       _ ≤ card G • ‖(μ_[ℝ] A ○ μ A)‖_[q', μ univ] := by
-        haveI : Nonempty G := ⟨hA₀.choose⟩
+        have : Nonempty G := ⟨hA₀.choose⟩
         gcongr
         exact wLpNorm_mono_right
           (mod_cast sum_mu (R := ℝ≥0) univ_nonempty) (mod_cast hp'q') _

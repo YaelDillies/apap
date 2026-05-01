@@ -69,8 +69,7 @@ private lemma unbalancing'' (p : ℕ) (hp : 5 ≤ p) (hp₁ : Odd p) (hε₀ : 0
     (hf : g ○ g = (↑) ∘ f) (hν : h ○ h = (↑) ∘ ν) (hν₁ : ∑ x, ν x = 1)
     (hε : ε ≤ ‖f‖_[p, ν]) :
     1 + ε / 2 ≤ ‖f + 1‖_[.ofReal (24 / ε * log (3 / ε) * p), ν] := by
-  have hνprob : ∑ x, (ν x : ℝ≥0∞) = 1 := by
-    exact mod_cast hν₁
+  have hνprob : ∑ x, (ν x : ℝ≥0∞) = 1 := mod_cast hν₁
   obtain hf₁ | hf₁ := le_total 2 ‖f + 1‖_[2 * p, ν]
   · calc
       1 + ε / 2 ≤ 1 + 1 / 2 := by grw [hε₁]
@@ -231,8 +230,7 @@ lemma unbalancing' (p : ℕ) (hp : p ≠ 0) (ε : ℝ) (hε₀ : 0 < ε) (hε₁
       _ ≤ 2 * (120 * ε⁻¹ * (3 * ε⁻¹) * p) := by gcongr; exact Real.log_le_self (by positivity)
       _ ≤ 2 * (2 ^ 7 * ε⁻¹ * (2 ^ 2 * ε⁻¹) * p) := by gcongr <;> norm_num
       _ = 2 ^ 10 * ε⁻¹ ^ 2 * p := by ring
-  have hνprob : ∑ x, (ν x : ℝ≥0∞) = 1 := by
-    exact mod_cast hν₁
+  have hνprob : ∑ x, (ν x : ℝ≥0∞) = 1 := mod_cast hν₁
   calc
     1 + ε / 2 ≤ ↑‖f + 1‖_[.ofReal (24 / ε * log (3 / ε) * ↑(2 * p + 3)), ν] :=
       unbalancing'' (2 * p + 3) this ((even_two_mul _).add_odd <| by decide) hε₀ hε₁ hf hν hν₁ <|
