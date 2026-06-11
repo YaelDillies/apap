@@ -23,6 +23,7 @@ GEM
     commonmarker (0.23.10)
     concurrent-ruby (1.1.10)
     connection_pool (2.4.1)
+    csv (3.3.5)
     dnsruby (1.61.9)
       simpleidn (~> 0.1)
     drb (2.2.1)
@@ -240,7 +241,7 @@ GEM
     minitest (5.15.0)
     multipart-post (2.1.1)
     mutex_m (0.2.0)
-    nokogiri (1.16.7-x86_64-linux)
+    nokogiri (1.19.3-x86_64-linux-gnu)
       racc (~> 1.4)
     octokit (4.22.0)
       faraday (>= 0.9)
@@ -248,7 +249,7 @@ GEM
     pathutil (0.16.2)
       forwardable-extended (~> 2.6)
     public_suffix (4.0.7)
-    racc (1.6.0)
+    racc (1.8.1)
     rb-fsevent (0.11.1)
     rb-inotify (0.10.1)
       ffi (~> 1.0)
@@ -285,6 +286,7 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
+  csv
   github-pages
   http_parser.rb (~> 0.6.0)
   tzinfo (~> 1.2)
@@ -293,4 +295,4 @@ DEPENDENCIES
   webrick (~> 1.8)
 
 BUNDLED WITH
-   2.3.14
+   2.6.7
