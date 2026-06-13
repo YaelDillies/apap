@@ -9,7 +9,6 @@ public import APAP.Mathlib.Algebra.Group.Pointwise.Set.Basic
 public import APAP.Mathlib.Algebra.Group.Translate
 public import APAP.Mathlib.Algebra.Module.AddChar
 public import APAP.Mathlib.Algebra.Module.ZMod
-public import APAP.Mathlib.Algebra.Order.Group.Parity
 public import APAP.Mathlib.Algebra.Star.Conjneg
 public import APAP.Mathlib.Algebra.Star.SelfAdjoint
 public import APAP.Mathlib.Analysis.Complex.Circle

@@ -10,7 +10,6 @@ public import Mathlib.LinearAlgebra.Dimension.Finrank
 public import Mathlib.MeasureTheory.MeasurableSpace.Defs
 
 import AddCombi.Mathlib.Algebra.Order.GroupWithZero.Indicator
-import APAP.Mathlib.Algebra.Order.Group.Parity
 import APAP.Mathlib.Analysis.Fourier.FiniteAbelian.PontryaginDuality
 import APAP.Physics.AlmostPeriodicity
 import APAP.Physics.DRC
@@ -226,7 +225,7 @@ public lemma ap_in_ff [DecidableEq G] (hq : q.Prime) (hα₀ : 0 < α) (hα₂ :
         ≤ ↑(finrank (ZMod q) G - W.finrank) := by gcongr; exact Submodule.finrank_mono hWV
       _ ≤ #Δ' := by
         let : Fact q.Prime := ⟨hq⟩
-        simpa [W] using AddChar.codim_iInf_ker_le_finsetCard (s := Δ') 
+        simpa [W] using AddChar.codim_iInf_ker_le_finsetCard (s := Δ')
       _ ≤ ⌈changConst * exp 1 * ⌈𝓛 ↑(‖μ T‖_[1] ^ 2 / ‖μ T‖_[2] ^ 2 / card G)⌉₊ / 2⁻¹ ^ 2⌉₊ := by
         gcongr
       _ = ⌈2 ^ 7 * exp 1 ^ 2 * ⌈𝓛 T.dens⌉₊⌉₊ := by
@@ -309,7 +308,7 @@ public lemma di_in_ff [DecidableEq G] [MeasurableSpace G] [DiscreteMeasurableSpa
   have : 0 < p' := pos_iff_ne_zero.2 <| by rintro rfl; simp at unbalancing; linarith
   let q' : ℕ := max (2 * p') (2 ^ 4 * ⌈ε⁻¹ * log (64 / ε)⌉₊)
   have : 0 < q' := by positivity
-  have hq'even : Even q' := (even_two_mul _).max ((even_two.pow_of_ne_zero <| by lia).mul_right _)
+  have hq'even : Even q' := by grind
   have hp'q' : p' ≤ q' := by unfold q'; grw [← le_max_left]; lia
   have hq'lower : 2 ^ 4 * ε⁻¹ * log (64 / ε) ≤ q' := by
     unfold q'; grw [mul_assoc, ← le_max_right]; push_cast; grw [← Nat.le_ceil]; norm_num
