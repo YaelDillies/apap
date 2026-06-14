@@ -105,7 +105,6 @@ lemma curlog_rpow_le (hx₀ : 0 < x) (hy : 1 ≤ y) : 𝓛 (x ^ y) ≤ y * 𝓛 
 lemma curlog_pow_le {n : ℕ} (hx₀ : 0 < x) (hn : n ≠ 0) : 𝓛 (x ^ n) ≤ n * 𝓛 x := by
   rw [← rpow_natCast]; exact curlog_rpow_le hx₀ <| mod_cast Nat.one_le_iff_ne_zero.2 hn
 
-set_option backward.isDefEq.respectTransparency false in
 -- Public because it is in the blueprint
 public lemma global_dichotomy [DecidableEq G] [MeasurableSpace G] [DiscreteMeasurableSpace G]
     (hA : A.Nonempty) (hγC : γ ≤ C.dens) (hγ : 0 < γ)
@@ -264,7 +263,6 @@ lemma ap_in_ff' [DecidableEq G] (hq : q.Prime) (hα₀ : 0 < α) (hα₂ : α �
           |∑ x ∈ S, (μ (Set.toFinset V) ∗ᵈ μ A₁ ○ᵈ μ A₂) x - ∑ x ∈ S, (μ A₁ ○ᵈ μ A₂) x| ≤ ε := by
   simpa [← conjneg_mu] using ap_in_ff S hq (A₂ := -A₂) hα₀ hα₂ hε₀ hε₁ hαA₁ (by simpa)
 
-set_option backward.isDefEq.respectTransparency false in
 set_option maxHeartbeats 400000 in
 -- FIXME: Get rid of raised heartbeats
 -- Public because it is in the blueprint
