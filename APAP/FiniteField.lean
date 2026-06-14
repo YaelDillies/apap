@@ -289,40 +289,6 @@ lemma norm_expect_off_closure_le_two_mul_linfty_add_smooth_tail [DecidableEq G]
         rwa [hg]
       exact add_le_add hfg hLg
 
-lemma norm_expect_off_closure_le_of_two_mul_linfty_add_smooth_tail_le
-    [DecidableEq G] [MeasurableSpace G] [DiscreteMeasurableSpace G] {q : ℕ}
-    [Module (ZMod q) G] (T : Finset G) (k : ℕ) (Δ : Set (AddChar G ℂ))
-    [DecidablePred (· ∈ AddSubgroup.closure Δ)]
-    (V : Submodule (ZMod q) G) [Finite V]
-    (hV : V = AddSubgroup.toZModSubmodule q (⨅ γ ∈ Δ, γ.toAddMonoidHom.ker))
-    (f : G → ℂ) {η δ ε : ℝ}
-    (hη : ‖μ T ∗ᵈ^ k ∗ᵈ f - f‖_[∞] ≤ η)
-    (hsmooth :
-      ‖𝔼 ψ : AddChar G ℂ,
-          if ψ ∈ AddSubgroup.closure Δ then 0 else -(dft (μ T) ψ ^ k * dft f ψ)‖ ≤ δ)
-    (hηδε : 2 * η + δ ≤ ε) :
-    ‖𝔼 ψ : AddChar G ℂ, if ψ ∈ AddSubgroup.closure Δ then 0 else -dft f ψ‖ ≤ ε :=
-  (norm_expect_off_closure_le_two_mul_linfty_add_smooth_tail T k Δ V hV f hη hsmooth).trans hηδε
-
-lemma norm_dft_mu_le_exp_neg_one_of_not_mem_largeSpec_closure
-    [MeasurableSpace G] [DiscreteMeasurableSpace G] (T : Finset G) (hT : T.Nonempty)
-    (ψ : AddChar G ℂ)
-    (hψ : ψ ∉ AddSubgroup.closure (largeSpec (μ T) (exp (-1)) : Set (AddChar G ℂ))) :
-    ‖dft (μ T) ψ‖ ≤ exp (-1) := by
-  have hψΔ : ψ ∉ largeSpec (μ T) (exp (-1)) := by
-    intro hmem
-    exact hψ (AddSubgroup.subset_closure (by simpa using hmem))
-  exact (not_le.1 <| by
-    simpa [mem_largeSpec, dL1Norm_mu hT] using hψΔ).le
-
-lemma norm_dft_mu_pow_le_exp_neg_nat_of_not_mem_largeSpec_closure
-    [MeasurableSpace G] [DiscreteMeasurableSpace G] (T : Finset G) (hT : T.Nonempty)
-    (k : ℕ) (ψ : AddChar G ℂ)
-    (hψ : ψ ∉ AddSubgroup.closure (largeSpec (μ T) (exp (-1)) : Set (AddChar G ℂ))) :
-    ‖dft (μ T) ψ ^ k‖ ≤ exp (-k) := by
-  grw [norm_pow, norm_dft_mu_le_exp_neg_one_of_not_mem_largeSpec_closure T hT ψ hψ,
-    ← exp_nat_mul, mul_neg, mul_one]
-
 lemma norm_smooth_tail_le_exp_neg_nat_mul_cL1Norm
     [MeasurableSpace G] [DiscreteMeasurableSpace G] (T : Finset G) (hT : T.Nonempty)
     (k : ℕ)
@@ -346,8 +312,9 @@ lemma norm_smooth_tail_le_exp_neg_nat_mul_cL1Norm
       · simp only [hψ, ↓reduceIte, norm_zero]
         positivity
       · simp only [hψ, ↓reduceIte, norm_neg]
-        grw [norm_mul, norm_pow, norm_dft_mu_le_exp_neg_one_of_not_mem_largeSpec_closure T hT ψ hψ,
-          ← exp_nat_mul, mul_neg, mul_one]
+        have : ‖dft (μ T) ψ‖ < exp (-1) := by
+          simpa [hT] using Set.notMem_subset AddSubgroup.subset_closure hψ
+        grw [norm_mul, norm_pow, this, ← exp_nat_mul, mul_neg, mul_one]
     _ = exp (-k) * ‖dft f‖ₙ_[1] := by rw [cL1Norm_eq_expect_norm, Finset.mul_expect]
 
 -- Public because it is in the blueprint
@@ -506,8 +473,8 @@ public lemma ap_in_ff [DecidableEq G] (hq : q.Prime) (hα₀ : 0 < α) (hα₂ :
         simpa [F, dddconv_indicator_one, ddconv_right_comm] using hcomplex
       rw [Complex.norm_real] at hcomplex'
       simpa [Real.norm_eq_abs] using hcomplex'
-    refine norm_expect_off_closure_le_of_two_mul_linfty_add_smooth_tail_le
-      (η := 3 * ε / 8) (δ := ε / 4) T k Δ V hVeq F hTεF ?_ (by nlinarith)
+    refine (norm_expect_off_closure_le_two_mul_linfty_add_smooth_tail T k Δ V hVeq F hTεF
+      (ε := 3 * ε / 8) (δ := ε / 4) ?_).trans (by nlinarith)
     calc
       ‖𝔼 ψ, if ψ ∈ AddSubgroup.closure Δ then 0 else -(dft (μ T) ψ ^ k * dft F ψ)‖
       _ ≤ .exp (-k) * ‖dft F‖ₙ_[1] := by
