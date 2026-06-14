@@ -118,31 +118,6 @@ lemma ceil_curlog_div_four_le_three_curlog (hx₀ : 0 < x) (hx₁ : x ≤ 2⁻¹
   have : log 2 ≤ log x⁻¹ := by grw [hx₁, inv_inv]
   nlinarith [log_two_gt_d9]
 
-lemma exp_neg_nat_ceil_curlog_div_four_mul_inv_alpha_le_quarter
-    {ε α : ℝ} (hε₀ : 0 < ε) (hα₀ : 0 < α) :
-    exp (-(⌈𝓛 (ε * α / 4)⌉₊ : ℝ)) * α⁻¹ ≤ ε / 4 := by
-  have hy₀ : 0 < ε * α / 4 := by positivity
-  have hceil : 𝓛 (ε * α / 4) ≤ (⌈𝓛 (ε * α / 4)⌉₊ : ℝ) := Nat.le_ceil _
-  have hexp :
-      exp (-(⌈𝓛 (ε * α / 4)⌉₊ : ℝ)) ≤ exp (-(𝓛 (ε * α / 4))) :=
-    exp_le_exp.2 (by linarith)
-  have hcurlog :
-      exp (-(𝓛 (ε * α / 4))) = exp (-1) * (ε * α / 4) := by
-    rw [neg_add, exp_add]
-    have hlog : exp (-log (ε * α / 4)⁻¹) = ε * α / 4 := by
-      rw [exp_neg, exp_log (inv_pos.2 hy₀), inv_inv]
-    rw [hlog]
-  calc
-    exp (-(⌈𝓛 (ε * α / 4)⌉₊ : ℝ)) * α⁻¹
-        ≤ exp (-(𝓛 (ε * α / 4))) * α⁻¹ := by gcongr
-    _ = exp (-1) * (ε * α / 4) * α⁻¹ := by rw [hcurlog]
-    _ ≤ 1 * (ε * α / 4) * α⁻¹ := by
-      gcongr
-      calc
-        exp (-1 : ℝ) ≤ exp 0 := exp_le_exp.2 (by norm_num)
-        _ = 1 := exp_zero
-    _ = ε / 4 := by field_simp [hα₀.ne']
-
 omit [Fintype G] in
 lemma expect_char_common_ker_eq_one_of_mem_closure {q : ℕ}
     [Module (ZMod q) G] (Δ : Set (AddChar G ℂ)) (V : Submodule (ZMod q) G)
@@ -555,7 +530,10 @@ public lemma ap_in_ff [DecidableEq G] (hq : q.Prime) (hα₀ : 0 < α) (hα₂ :
           _ ≤ √α⁻¹ := by grw [S.subset_univ, card_univ, ← nnratCast_dens, hαA₁]
           _ ≤ α⁻¹ := by rw [sqrt_inv]; gcongr; simpa
       _ ≤ ε / 4 := by
-        simpa [k] using exp_neg_nat_ceil_curlog_div_four_mul_inv_alpha_le_quarter hε₀ hα₀
+        grw [← Nat.le_ceil, neg_add, exp_add, log_inv, neg_neg, exp_log (by positivity),
+          exp_neg_one_lt_d9]
+        field_simp
+        norm_num
 
 lemma ap_in_ff' [DecidableEq G] (hq : q.Prime) (hα₀ : 0 < α) (hα₂ : α ≤ 2⁻¹)
     (hε₀ : 0 < ε) (hε₁ : ε ≤ 1) (hαA₁ : α ≤ A₁.dens) (hαA₂ : α ≤ A₂.dens) :
