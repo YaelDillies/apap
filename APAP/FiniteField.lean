@@ -375,15 +375,6 @@ lemma norm_smooth_tail_le_exp_neg_nat_mul_cL1Norm
           ← exp_nat_mul, mul_neg, mul_one]
     _ = exp (-k) * ‖dft f‖ₙ_[1] := by rw [cL1Norm_eq_expect_norm, Finset.mul_expect]
 
-lemma exp_chang_codim_budget {L : ℝ} (hL : 1 ≤ L) : ⌈32 * exp 1 ^ 4 * ⌈L⌉₊⌉₊ ≤ 2 ^ 12 * L := by
-  have hexp : exp 1 ^ 4 ≤ (55 : ℝ) := by grw [exp_one_lt_d9]; norm_num
-  have hceil : (⌈L⌉₊ : ℝ) ≤ L + 1 := (Nat.ceil_lt_add_one (by linarith)).le
-  calc
-    (⌈32 * exp 1 ^ 4 * ⌈L⌉₊⌉₊ : ℝ)
-        ≤ 32 * exp 1 ^ 4 * ⌈L⌉₊ + 1 := (Nat.ceil_lt_add_one <| by positivity).le
-    _ ≤ 32 * 55 * (L + 1) + 1 := by gcongr
-    _ ≤ 2 ^ 12 * L := by nlinarith
-
 -- Public because it is in the blueprint
 public lemma global_dichotomy [DecidableEq G] [MeasurableSpace G] [DiscreteMeasurableSpace G]
     (hA : A.Nonempty) (hγC : γ ≤ C.dens) (hγ : 0 < γ)
@@ -504,8 +495,11 @@ public lemma ap_in_ff [DecidableEq G] (hq : q.Prime) (hα₀ : 0 < α) (hα₂ :
         congr 1
         simp [hT, ← rpow_mul_natCast, dens, changConst, -exp_one_pow, rpow_neg_one, exp_neg]
         field_simp [exp_ne_zero]
-      _ ≤ 2 ^ 12 * 𝓛 T.dens :=
-        exp_chang_codim_budget <| one_le_curlog (by positivity) <| mod_cast T.dens_le_one
+      _ ≤ 2 ^ 12 * 𝓛 T.dens := by
+        have : 1 ≤ 𝓛 T.dens := one_le_curlog (by positivity) <| mod_cast T.dens_le_one
+        grw [(Nat.ceil_lt_add_one <| by positivity).le, (Nat.ceil_lt_add_one <| by linarith).le,
+          exp_one_lt_d9]
+        linarith
       _ ≤ 2 ^ 12 * (1 + 2 ^ 19 * 𝓛 α ^ 2 * 𝓛 (ε * α) ^ 2 * ε⁻¹ ^ 2) := by gcongr
       _ ≤ 2 ^ 12 * (2 ^ 19 * 𝓛 α ^ 2 * 𝓛 (ε * α) ^ 2 * ε⁻¹ ^ 2 +
             2 ^ 19 * 𝓛 α ^ 2 * 𝓛 (ε * α) ^ 2 * ε⁻¹ ^ 2) := by bound
