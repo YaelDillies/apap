@@ -214,7 +214,7 @@ lemma cLpNorm_two_mul_sum_pow [Fintype α] {ι : Type*} {n : ℕ} (hn : n ≠ 0)
     _ = 𝔼 a, (‖∑ i ∈ s, f i a‖ : ℂ) ^ (2 * n) := by
       norm_cast
       rw [← cLpNorm_pow_eq_expect_norm (by positivity)]
-      simp_rw [← sum_apply]
+      simp_rw [← Finset.sum_apply]
     _ = 𝔼 a, (∑ i ∈ s, conj (f i a)) ^ n * (∑ j ∈ s, f j a) ^ n := by
       simp_rw [pow_mul, ← Complex.conj_mul', mul_pow, map_sum]
     _ = _ := by simp_rw [sum_pow', sum_mul_sum, expect_sum_comm]

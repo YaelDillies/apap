@@ -15,7 +15,7 @@ import APAP.Prereqs.Convolution.Discrete.Basic
 import APAP.Prereqs.Convolution.Norm
 import APAP.Prereqs.Convolution.Order
 import APAP.Prereqs.LpNorm.Discrete.Basic
-import Mathlib.Data.Real.StarOrdered
+import Mathlib.Algebra.Order.Star.Real
 import Mathlib.MeasureTheory.Integral.Bochner.Basic
 import Mathlib.Tactic.Positivity
 
@@ -130,7 +130,7 @@ lemma drc (hp₂ : 2 ≤ p) (f : G → ℝ≥0) (hf : ∃ x, x ∈ B₁ - B₂ �
     simpa only [wLpNorm_pow_eq_sum_norm hp₀, norm_of_nonneg (hAdddconv _), NNReal.smul_def,
       NNReal.coe_dddconv, NNReal.coe_comp_mu, wInner_one_eq_sum, Pi.one_apply, inner_apply',
       ← coe_inter, conj_to_real, mul_one, sum_dddconv, sum_indicator_one, nsmul_eq_mul,
-      Nat.cast_mul] using lemma_0 p B₁ B₂ A 1
+      Nat.cast_mul, g, A₁, A₂] using! lemma_0 p B₁ B₂ A 1
   suffices ∑ s, ⟪𝟭_[A₁ s, ℝ] ○ᵈ 𝟭_[A₂ s], (↑) ∘ f⟫_[ℝ] * ‖𝟭_[A, ℝ] ○ᵈ 𝟭_[A]‖_[p, μ B₁ ○ᵈ μ B₂] ^ p
     < ∑ s, 𝟭_[({s | M ^ 2 ≤ g s} : Finset _)] s * g s *
         (2 * ∑ x, (μ B₁ ○ᵈ μ B₂) x * (𝟭_[A, ℝ] ○ᵈ 𝟭_[A]) x ^ p * f x) by

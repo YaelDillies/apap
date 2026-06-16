@@ -33,9 +33,9 @@ lemma cLpNorm_conv_le_cLpNorm_dconv (hn₀ : n ≠ 0) (hn : Even n) (f : G → �
     congr 1 with ψ
     congr 1 with φ
     simp only [Pi.smul_apply, smul_eq_mul, map_mul, map_pow, Complex.conj_ofReal, prod_mul_distrib,
-      mul_mul_mul_comm, ← mul_expect, map_prod, sub_apply, AddChar.coe_sum, Finset.prod_apply,
-      norm_mul, norm_prod, norm_pow, RCLike.norm_conj, Complex.ofReal_mul, Complex.ofReal_prod,
-      Complex.ofReal_pow]
+      mul_mul_mul_comm, ← mul_expect, map_prod, AddChar.sub_apply, AddChar.coe_sum,
+      Finset.prod_apply, norm_mul, norm_prod, norm_pow, RCLike.norm_conj, Complex.ofReal_mul,
+      Complex.ofReal_prod, Complex.ofReal_pow]
     congr 1
     calc
       𝔼 x, (∏ i, conj (ψ i x)) * ∏ i, φ i x = 𝔼 x, (∑ i, φ i - ∑ i, ψ i) x := by

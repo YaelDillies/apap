@@ -78,7 +78,7 @@ lemma cLpNorm_mul_le (p q : ℝ≥0∞) (_hr₀ : r ≠ 0) [hpqr : ENNReal.Holde
       ← ENNReal.toReal_mul]
   apply ENNReal.toReal_mono
   · exact ENNReal.mul_ne_top hm_p.eLpNorm_ne_top hm_q.eLpNorm_ne_top
-  · simpa using key
+  · simpa [Pi.mul_def] using key
 
 end Hoelder
 

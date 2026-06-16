@@ -1,7 +1,6 @@
 module
 
 public import APAP.Mathlib.Analysis.Complex.Circle
-public import APAP.Mathlib.Analysis.SpecialFunctions.Complex.Circle
 public import Mathlib.Topology.Algebra.PontryaginDual
 
 public section

@@ -145,13 +145,13 @@ variable [Field R] [CharZero R]
 
 @[simp] lemma balance_ddconv (f g : G → R) : balance (f ∗ᵈ g) = balance f ∗ᵈ balance g := by
   simpa [balance, ddconv_sub, sub_ddconv, expect_ddconv]
-    using (mul_smul_comm _ _ _).trans (smul_mul_assoc _ _ _).symm
+    using! (mul_smul_comm _ _ _).trans (smul_mul_assoc _ _ _).symm
 
 variable [StarRing R]
 
 @[simp] lemma balance_dddconv (f g : G → R) : balance (f ○ᵈ g) = balance f ○ᵈ balance g := by
   simpa [balance, dddconv_sub, sub_dddconv, expect_dddconv, map_expect]
-    using (mul_smul_comm _ _ _).trans (smul_mul_assoc _ _ _).symm
+    using! (mul_smul_comm _ _ _).trans (smul_mul_assoc _ _ _).symm
 
 end Field
 

@@ -94,7 +94,7 @@ variable [MeasurableAdd G] [ν.IsAddRightInvariant]
 
 @[simp] lemma translate_convolution (a : G) (f : G → E) (g : G → E') :
     τ a f ⋆[L, ν] g = τ a (f ⋆[L, ν] g) := by
-  ext b; simpa using integral_sub_right_eq_self (fun t ↦ L (f t) (g (b - a - t))) a
+  ext b; simpa [convolution] using integral_sub_right_eq_self (fun t ↦ L (f t) (g (b - a - t))) a
 
 end translate
 end RCLike

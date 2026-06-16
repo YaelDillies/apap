@@ -26,8 +26,8 @@ import APAP.Prereqs.LpNorm.Discrete.Basic
 import Mathlib.Algebra.Field.ZMod
 import Mathlib.Algebra.Group.Pointwise.Finset.Density
 import Mathlib.Algebra.Order.Floor.Semifield
+import Mathlib.Algebra.Order.Star.Real
 import Mathlib.Analysis.Complex.ExponentialBounds
-import Mathlib.Data.Real.StarOrdered
 import Mathlib.FieldTheory.Finiteness
 import Mathlib.MeasureTheory.Integral.Bochner.Basic
 
@@ -114,7 +114,7 @@ public lemma global_dichotomy [DecidableEq G] [MeasurableSpace G] [DiscreteMeasu
   have hγ₁ : γ ≤ 1 := hγC.trans (by norm_cast; exact dens_le_one)
   set p := 2 * ⌈𝓛 γ⌉₊
   have hp : 1 < p :=
-    Nat.succ_le_iff.1 (le_mul_of_one_le_right zero_le' <| Nat.ceil_pos.2 <| curlog_pos hγ.le hγ₁)
+    Nat.succ_le_iff.1 (le_mul_of_one_le_right zero_le <| Nat.ceil_pos.2 <| curlog_pos hγ.le hγ₁)
   have hp' : (p⁻¹ : ℝ≥0) < 1 := inv_lt_one_of_one_lt₀ <| mod_cast hp
   have hp'' : (p : ℝ≥0).HolderConjugate _ := .conjExponent <| mod_cast hp
   have : (p : ℝ≥0∞).HolderConjugate _ := hp''.coe_ennreal

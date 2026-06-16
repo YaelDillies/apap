@@ -109,7 +109,7 @@ private lemma unbalancing'' (p : ℕ) (hp : 5 ≤ p) (hp₁ : Odd p) (hε₀ : 0
   have hTP : T ⊆ P := by unfold P T; gcongr; positivity
   have : 2⁻¹ * ε ^ p ≤ ∑ i ∈ P, ↑(ν i) * (f ^ p) i := by
     rw [inv_mul_le_iff₀ (zero_lt_two' ℝ), sum_filter]
-    convert this using 3
+    convert! this using 3
     rw [Pi.posPart_apply, posPart_eq_ite]
     split_ifs <;> simp [pow_sub_one_mul hp₁.pos.ne']
   have hp' : 1 ≤ (2 * p : ℝ≥0) := by

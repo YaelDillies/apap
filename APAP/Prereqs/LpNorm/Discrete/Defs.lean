@@ -211,7 +211,7 @@ lemma dLpNorm_two_mul_sum_pow {ι : Type*} {n : ℕ} (hn : n ≠ 0) (s : Finset 
     _ = ∑ a, (‖∑ i ∈ s, f i a‖ : ℂ) ^ (2 * n) := by
       norm_cast
       rw [← dLpNorm_pow_eq_sum_norm (by positivity)]
-      simp_rw [← sum_apply]
+      simp_rw [← Finset.sum_apply]
     _ = ∑ a, (∑ i ∈ s, conj (f i a)) ^ n * (∑ j ∈ s, f j a) ^ n := by
       simp_rw [pow_mul, ← Complex.conj_mul', mul_pow, map_sum]
     _ = _ := by simp_rw [sum_pow', sum_mul_sum, sum_comm (s := univ)]

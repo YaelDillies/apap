@@ -12,9 +12,9 @@ import APAP.Prereqs.LpNorm.Discrete.Basic
 import APAP.Prereqs.MarcinkiewiczZygmund
 import Mathlib.Algebra.Group.Action.Pointwise.Finset
 import Mathlib.Algebra.Order.Chebyshev
+import Mathlib.Algebra.Order.Star.Real
 import Mathlib.Analysis.Complex.ExponentialBounds
 import Mathlib.Data.Finset.CastCard
-import Mathlib.Data.Real.StarOrdered
 import Mathlib.MeasureTheory.Integral.Bochner.Basic
 
 /-!
@@ -204,7 +204,7 @@ public lemma big_shifts (S : Finset G) (L : Finset (Fin k → G)) (hk : k ≠ 0)
     ∃ a : Fin k → G, a ∈ L ∧
       #L * #S ≤ #(A + S) ^ k * #{t | (a - fun _ ↦ t) ∈ L} := by
   rcases S.eq_empty_or_nonempty with (rfl | hS)
-  · simpa only [card_empty, mul_zero, zero_le', and_true] using hL'
+  · simpa [Finset.Nonempty, Set.Nonempty] using hL'
   have hS' : 0 < #S := by rwa [card_pos]
   have : #(L + S.piDiag _) ≤ #(A + S) ^ k := by
     refine (card_le_card (add_subset_add_right hL)).trans ?_
@@ -467,7 +467,7 @@ public theorem linfty_almost_periodicity (ε : ℝ) (hε₀ : 0 < ε) (hε₁ : 
     _ ≤ ‖F‖_[M] * ‖μ_[ℂ] (x +ᵥ -C)‖_[NNReal.conjExponent M] := MeasureTheory.dLpNorm_mul_le  _ _
     _ ≤ ε / exp 1 * #B ^ (M : ℝ)⁻¹ * ‖μ_[ℂ] (x +ᵥ -C)‖_[NNReal.conjExponent M] := by
         gcongr
-        simpa only [← ENNReal.coe_natCast, MeasureTheory.dLpNorm_indicator_one hM₀] using hT _ ht
+        simpa [← ENNReal.coe_natCast, MeasureTheory.dLpNorm_indicator_one hM₀, F] using hT _ ht
     _ = ε * ((#C / #B) ^ (-(M : ℝ)⁻¹) / exp 1) := by
         rw [← mul_comm_div, MeasureTheory.dLpNorm_mu hM.symm.lt.le hC.neg.vadd_finset,
           card_vadd_finset, card_neg, hM.symm.coe.inv_sub_one, div_rpow, mul_assoc]

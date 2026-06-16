@@ -71,9 +71,10 @@ lemma dft_smul {𝕝 : Type*} [CommSemiring 𝕝] [StarRing 𝕝] [Algebra 𝕝 
 
 /-- **Parseval-Plancherel identity** for the discrete Fourier transform. -/
 @[simp] lemma cL2Norm_dft [MeasurableSpace G] [DiscreteMeasurableSpace G] (f : G → ℂ) :
-    ‖dft f‖ₙ_[2] = ‖f‖_[2] :=
-  (sq_eq_sq₀ lpNorm_nonneg lpNorm_nonneg).1 <| Complex.ofReal_injective <| by
-    push_cast; simpa only [RCLike.wInner_cWeight_self, wInner_one_self] using wInner_cWeight_dft f f
+    ‖dft f‖ₙ_[2] = ‖f‖_[2] := by
+  refine (sq_eq_sq₀ lpNorm_nonneg lpNorm_nonneg).1 <| Complex.ofReal_injective ?_
+  push_cast
+  simpa [cLpNorm, dLpNorm, RCLike.wInner_cWeight_self, wInner_one_self] using wInner_cWeight_dft f f
 
 /-- **Fourier inversion** for the discrete Fourier transform. -/
 lemma dft_inversion (f : G → ℂ) (a : G) : 𝔼 ψ, dft f ψ * ψ a = f a := by

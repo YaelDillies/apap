@@ -6,7 +6,7 @@ public import Mathlib.Analysis.RCLike.Inner
 
 import APAP.Prereqs.LpNorm.Discrete.Basic
 import Mathlib.Algebra.Order.Star.Conjneg
-import Mathlib.Data.Real.StarOrdered
+import Mathlib.Algebra.Order.Star.Real
 import Mathlib.MeasureTheory.Integral.Bochner.Basic
 import Mathlib.Tactic.Positivity
 
@@ -95,7 +95,7 @@ lemma dLpNorm_ddconv_le {p : ℝ≥0} (hp : 1 ≤ p) (f g : G → 𝕜) :
   dsimp
   simp_rw [dLpNorm_rpow_eq_sum_norm hp₀.ne', ddconv_eq_sum_sub']
   have hpconj : (p : ℝ).HolderConjugate (1 - (p : ℝ)⁻¹)⁻¹ :=
-    ⟨by simp, mod_cast hp₀, by simpa using inv_lt_one_of_one_lt₀ hp⟩
+    ⟨by simp, mod_cast hp₀, by bound⟩
   have (x : G) : ‖∑ y, f y * g (x - y)‖ ^ (p : ℝ) ≤
       (∑ y, ‖f y‖ ^ (p : ℝ) * ‖g (x - y)‖) * (∑ y, ‖g (x - y)‖) ^ (p - 1 : ℝ) := by
     rw [← le_rpow_inv_iff_of_pos, mul_rpow, ← rpow_mul, sub_one_mul, mul_inv_cancel₀]

@@ -1,6 +1,5 @@
 module
 
-public import APAP.Mathlib.Algebra.BigOperators.Expect
 public import APAP.Prereqs.Convolution.Compact
 public import APAP.Prereqs.FourierTransform.Discrete
 
@@ -59,9 +58,10 @@ lemma cft_apply (f : G → ℂ) (ψ : AddChar G ℂ) : cft f ψ = ⟪ψ, f⟫ₙ
 
 /-- **Parseval-Plancherel identity** for the discrete Fourier transform. -/
 @[simp] lemma dL2Norm_cft [MeasurableSpace G] [DiscreteMeasurableSpace G] (f : G → ℂ) :
-    ‖cft f‖_[2] = ‖f‖ₙ_[2] :=
-  (sq_eq_sq₀ lpNorm_nonneg lpNorm_nonneg).1 <| Complex.ofReal_injective <| by
-    push_cast; simpa only [RCLike.wInner_cWeight_self, wInner_one_self] using wInner_one_cft f f
+    ‖cft f‖_[2] = ‖f‖ₙ_[2] := by
+  refine (sq_eq_sq₀ lpNorm_nonneg lpNorm_nonneg).1 <| Complex.ofReal_injective ?_
+  push_cast
+  simpa [cLpNorm, dLpNorm, RCLike.wInner_cWeight_self, wInner_one_self] using wInner_one_cft f f
 
 /-- **Fourier inversion** for the discrete Fourier transform. -/
 lemma cft_inversion (f : G → ℂ) (a : G) : ∑ ψ, cft f ψ * ψ a = f a := by
@@ -120,8 +120,8 @@ lemma cft_conjneg (f : G → ℂ) : cft (conjneg f) = conj (cft f) := funext <| 
   dft_injective <| by classical rw [dft_trivChar, dft_cft, Pi.one_comp]
 
 @[simp] lemma cft_indicator_one_zero (s : Finset G) : cft 𝟭_[(s : Set G)] 0 = s.dens := by
-  simp [cft_apply, wInner_cWeight_eq_expect, inner_apply, expect_indicator_one, map_one, dens,
-    NNRat.smul_def (K := ℂ), div_eq_inv_mul]
+  simp [cft_apply, wInner_cWeight_eq_expect, inner_apply, expect_indicator_one, ← Pi.one_def,
+    map_one, dens, div_eq_inv_mul]
 
 variable [DecidableEq G]
 

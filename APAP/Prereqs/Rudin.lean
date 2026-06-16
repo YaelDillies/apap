@@ -80,7 +80,7 @@ private lemma rudin_ineq_aux (hp : 2 ≤ p) (f : G → ℂ) (hf : AddDissociated
     have : 0 < √ p := by positivity
     simp_rw [Function.comp_def, Pi.smul_apply, Complex.smul_re, ← Pi.smul_def] at H
     simpa [cLpNorm_const_smul, sqrt_pos.2, ← mul_div_right_comm, mul_comm √_,
-      div_le_iff₀, mul_right_comm, abs_of_nonneg, *] using H
+      div_le_iff₀, mul_right_comm, abs_of_nonneg, Function.comp_def, *] using H
   have hp₀ : p ≠ 0 := by positivity
   have : (‖re ∘ f‖ₙ_[↑p] / p) ^ p ≤ (2 * exp 2⁻¹) ^ p := by
     calc
