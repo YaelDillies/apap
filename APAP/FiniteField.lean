@@ -226,24 +226,18 @@ public lemma ap_in_ff [DecidableEq G] (hq : q.Prime) (hα₀ : 0 < α) (hα₂ :
       _ ≤ #Δ' := by
         let : Fact q.Prime := ⟨hq⟩
         simpa [W] using AddChar.codim_iInf_ker_le_finsetCard (s := Δ')
-      _ ≤ ⌈changConst * exp 1 * ⌈𝓛 ↑(‖μ T‖_[1] ^ 2 / ‖μ T‖_[2] ^ 2 / card G)⌉₊ / 2⁻¹ ^ 2⌉₊ := by
+      _ ≤ ⌈changConst * exp 1 * ⌈𝓛 (‖μ T‖_[1] ^ 2 / ‖μ T‖_[2] ^ 2 / card G)⌉₊ / 2⁻¹ ^ 2⌉₊ := by
         gcongr
-      _ = ⌈2 ^ 7 * exp 1 ^ 2 * ⌈𝓛 T.dens⌉₊⌉₊ := by
-        simp [hT, ← rpow_mul_natCast, dens, changConst, -exp_one_pow, rpow_neg_one]; ring_nf
-      _ ≤ ⌈2 ^ 7 * 2 ^ 3 * (2 * 𝓛 T.dens)⌉₊ := by
-        gcongr
-        · calc
-            exp 1 ^ 2 ≤ 2.7182818286 ^ 2 := by gcongr; exact exp_one_lt_d9.le
-            _ ≤ 2 ^ 3 := by norm_num
-        · exact Nat.ceil_le_two_mul <| two_inv_lt_one.le.trans <|
-            one_le_curlog (by positivity) <| mod_cast T.dens_le_one
-      _ = ⌈2 ^ 11 * 𝓛 T.dens⌉₊ := by ring_nf
-      _ ≤ 2 * (2 ^ 11 * 𝓛 T.dens) := Nat.ceil_le_two_mul <|
-          calc
-            (2⁻¹ : ℝ) ≤ 2 ^ 11 * 1 := by norm_num
-            _ ≤ 2 ^ 11 * 𝓛 T.dens := by
-              gcongr; exact one_le_curlog (by positivity) <| mod_cast T.dens_le_one
-      _ = 2 ^ 12 * 𝓛 T.dens := by ring
+      _ = ⌈128 * exp 1 ^ 2 * ⌈𝓛 T.dens⌉₊⌉₊ := by
+        congr 1
+        simp [hT, ← rpow_mul_natCast, dens, changConst, -exp_one_pow, rpow_neg_one]
+        field_simp [exp_ne_zero]
+        ring_nf
+      _ ≤ 2 ^ 12 * 𝓛 T.dens := by
+        have : 1 ≤ 𝓛 T.dens := one_le_curlog (by positivity) <| mod_cast T.dens_le_one
+        grw [(Nat.ceil_lt_add_one <| by positivity).le, (Nat.ceil_lt_add_one <| by linarith).le,
+          exp_one_lt_d9]
+        linarith
       _ ≤ 2 ^ 12 * (1 + 2 ^ 19 * 𝓛 α ^ 2 * 𝓛 (ε * α) ^ 2 * ε⁻¹ ^ 2) := by gcongr
       _ ≤ 2 ^ 12 * (2 ^ 19 * 𝓛 α ^ 2 * 𝓛 (ε * α) ^ 2 * ε⁻¹ ^ 2 +
             2 ^ 19 * 𝓛 α ^ 2 * 𝓛 (ε * α) ^ 2 * ε⁻¹ ^ 2) := by bound
