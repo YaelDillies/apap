@@ -105,6 +105,13 @@ lemma curlog_rpow_le (hx₀ : 0 < x) (hy : 1 ≤ y) : 𝓛 (x ^ y) ≤ y * 𝓛 
 lemma curlog_pow_le {n : ℕ} (hx₀ : 0 < x) (hn : n ≠ 0) : 𝓛 (x ^ n) ≤ n * 𝓛 x := by
   rw [← rpow_natCast]; exact curlog_rpow_le hx₀ <| mod_cast Nat.one_le_iff_ne_zero.2 hn
 
+lemma ceil_curlog_div_four_le_three_curlog (hx₀ : 0 < x) (hx₁ : x ≤ 2⁻¹) :
+    ⌈𝓛 (x / 4)⌉₊ ≤ 3 * 𝓛 x := by
+  grw [Nat.ceil_lt_add_one <| by bound, inv_div, div_eq_mul_inv, show (4 : ℝ) = 2 * 2 by norm_num,
+    log_mul (by norm_num) (by positivity), log_mul (by norm_num) (by norm_num)]
+  have : log 2 ≤ log x⁻¹ := by grw [hx₁, inv_inv]
+  nlinarith [log_two_gt_d9]
+
 -- Public because it is in the blueprint
 public lemma global_dichotomy [DecidableEq G] [MeasurableSpace G] [DiscreteMeasurableSpace G]
     (hA : A.Nonempty) (hγC : γ ≤ C.dens) (hγ : 0 < γ)
@@ -176,14 +183,15 @@ public lemma ap_in_ff [DecidableEq G] (hq : q.Prime) (hα₀ : 0 < α) (hα₂ :
     positivity
   have hσA₁ : σ[A₁, univ] ≤ α⁻¹ := by grw [addConst_le_inv_dens, hαA₁, NNRat.cast_inv]
   let k : ℕ := ⌈𝓛 (ε * α / 4)⌉₊
-  have hk₀ : 0 < k := Nat.ceil_pos.2 <| curlog_pos (by positivity) <|
-    calc
-      ε * α / 4 ≤ ε * 1 / 4 := by gcongr
-      _ ≤ 1 := by linarith
-  obtain ⟨T, hTcard, hTε⟩ := AlmostPeriodicity.linfty_almost_periodicity_boosted ε hε₀ hε₁ k
-    (by positivity) (le_inv_of_le_inv₀ (by positivity) hα₂) hσA₁ univ_nonempty S A₂ hS hA₂
-  have hT : 0 < (#T : ℝ) := hTcard.trans_lt' (by positivity)
-  replace hT : T.Nonempty := by simpa using hT
+  have hk₀ : 0 < k := Nat.ceil_pos.2 <| curlog_pos (by positivity) <| by grw [hα₁]; linarith
+  obtain ⟨T, hTcard, hTε⟩ :=
+    AlmostPeriodicity.linfty_almost_periodicity_boosted (3 * ε / 8) (by positivity)
+      (by nlinarith [hε₁]) k (by positivity) (le_inv_of_le_inv₀ (by positivity) hα₂) hσA₁
+      univ_nonempty (-S) A₂ (by simpa) hA₂
+  simp only [card_neg, card_univ] at hTcard
+  have hT : T.Nonempty := by
+    have hTpos : 0 < (#T : ℝ) := hTcard.trans_lt' (by positivity)
+    simpa using hTpos
   let Δ := largeSpec (μ T) 2⁻¹
   let V : Submodule (ZMod q) G := AddSubgroup.toZModSubmodule _ <| ⨅ γ ∈ Δ, γ.toAddMonoidHom.ker
   let V' : Finset G := Set.toFinset V
@@ -198,26 +206,19 @@ public lemma ap_in_ff [DecidableEq G] (hq : q.Prime) (hα₀ : 0 < α) (hα₂ :
       obtain ⟨coeff, -, rfl⟩ := Finset.mem_addSpan.1 <| hfΔ' hγ
       rw [AddChar.sum_apply, Finset.prod_eq_one <| by simp_all]
     have := calc
-      log T.dens⁻¹ ≤ log (α⁻¹ ^ (-4096 * ⌈𝓛 (min 1 (#A₂ / #S))⌉ * k ^ 2 / ε ^ 2))⁻¹ := by
+      log T.dens⁻¹ ≤ log (α⁻¹ ^ (-4096 * ⌈𝓛 (min 1 (#A₂ / #S))⌉ * k ^ 2 / (3 * ε / 8) ^ 2))⁻¹ := by
         gcongr; rwa [nnratCast_dens, le_div_iff₀]; positivity
-      _ = 2 ^ 12 * log α⁻¹ * ⌈𝓛 (min 1 (#A₂ / #S))⌉ * k ^ 2 / ε ^ 2 := by
+      _ = 2 ^ 12 * log α⁻¹ * ⌈𝓛 (min 1 (#A₂ / #S))⌉ * k ^ 2 / (3 * ε / 8) ^ 2 := by
         rw [log_inv, log_rpow (by positivity)]; ring_nf
-      _ ≤ 2 ^ 12 * log α⁻¹ * ⌈𝓛 (min 1 A₂.dens)⌉ * k ^ 2 / ε ^ 2 := by
+      _ ≤ 2 ^ 12 * log α⁻¹ * ⌈𝓛 (min 1 A₂.dens)⌉ * k ^ 2 / (3 * ε / 8) ^ 2 := by
         rw [nnratCast_dens, ← card_univ]; gcongr; exact S.subset_univ
-      _ ≤ 2 ^ 12 * log α⁻¹ * ⌈𝓛 (min 1 α)⌉ * (k) ^ 2 / ε ^ 2 := by gcongr
-      _ = 2 ^ 12 * log α⁻¹ * ⌈𝓛 α⌉ * k ^ 2 / ε ^ 2 := by rw [min_eq_right hα₁]
-      _ ≤ 2 ^ 12 * 𝓛 α * (2 * 𝓛 α) * (2 ^ 3 * 𝓛 (ε * α)) ^ 2 / ε ^ 2 := by
+      _ ≤ 2 ^ 12 * log α⁻¹ * ⌈𝓛 (min 1 α)⌉ * k ^ 2 / (3 * ε / 8) ^ 2 := by gcongr
+      _ = 2 ^ 12 * log α⁻¹ * ⌈𝓛 α⌉ * k ^ 2 / (3 * ε / 8) ^ 2 := by rw [min_eq_right hα₁]
+      _ ≤ 2 ^ 12 * 𝓛 α * (2 * 𝓛 α) * (3 * 𝓛 (ε * α)) ^ 2 / (3 * ε / 8) ^ 2 := by
         gcongr
         · exact le_add_of_nonneg_left zero_le_one
         · exact Int.ceil_le_two_mul <| two_inv_lt_one.le.trans <| one_le_curlog hα₀.le hα₁
-        · calc
-            k ≤ 2 * 𝓛 (ε * α / 4) :=
-              Nat.ceil_le_two_mul <| two_inv_lt_one.le.trans <| one_le_curlog (by positivity) <| by
-                grw [hε₁, hα₂]; norm_num
-            _ ≤ 2 * (4 * 𝓛 (ε * α)) := by
-              gcongr
-              exact curlog_div_le (by positivity) (mul_le_one₀ hε₁ hα₀.le hα₁) (by norm_num)
-            _ = 2 ^ 3 * 𝓛 (ε * α) := by ring
+        · exact ceil_curlog_div_four_le_three_curlog (by positivity) <| by grw [hε₁, hα₂, one_mul]
       _ = 2 ^ 19 * 𝓛 α ^ 2 * 𝓛 (ε * α) ^ 2 * ε⁻¹ ^ 2 := by ring_nf
     calc
       (↑(finrank (ZMod q) G - V.finrank) : ℝ)
