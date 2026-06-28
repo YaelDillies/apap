@@ -1,9 +1,9 @@
 module
 
+public import APAP.Mathlib.Analysis.Fourier.FiniteAbelian.PontryaginDuality
 public import APAP.Prereqs.Convolution.Discrete.Defs
 public import APAP.Prereqs.LpNorm.Compact
 public import APAP.Prereqs.LpNorm.Discrete.Defs
-public import Mathlib.Analysis.Fourier.FiniteAbelian.PontryaginDuality
 public import Mathlib.MeasureTheory.Constructions.AddChar
 
 import AddCombi.Mathlib.Algebra.BigOperators.Ring.Finset
@@ -137,6 +137,27 @@ lemma dft_comp_neg_apply (f : G → ℂ) (ψ : AddChar G ℂ) :
 
 @[simp] lemma dft_indicator_one_zero (A : Finset G) : dft 𝟭_[(A : Set G)] 0 = #A := by
   simp [dft_apply, wInner_one_eq_sum]
+
+lemma expect_iInf_ker_eq_expect_ite {Δ : Set (AddChar G ℂ)}
+    [DecidablePred (· ∈ AddSubgroup.closure Δ)] {V : AddSubgroup G} [Fintype V]
+    (hV : V = ⨅ γ ∈ Δ, γ.toAddMonoidHom.ker) (f : G → ℂ) :
+    𝔼 x ∈ Set.toFinset V, f x = 𝔼 ψ, if ψ ∈ AddSubgroup.closure Δ then dft f ψ else 0 := by
+  rw [show (𝔼 x ∈ Set.toFinset V, f x) = 𝔼 x ∈ Set.toFinset V, 𝔼 ψ, dft f ψ * ψ x by
+    congr! with x
+    exact (dft_inversion f x).symm]
+  rw [expect_comm]
+  congr! with ψ
+  split_ifs with hψ
+  · rw [← mul_expect, AddChar.expect_iInf_ker_eq_one_of_mem_closure hV hψ, mul_one]
+  · rw [← mul_expect, AddChar.expect_iInf_ker_eq_zero_of_not_mem_closure hV hψ, mul_zero]
+
+lemma expect_iInf_ker_sub_map_zero_eq_expect_ite {Δ : Set (AddChar G ℂ)}
+    [DecidablePred (· ∈ AddSubgroup.closure Δ)] {V : AddSubgroup G} [Fintype V]
+    (hV : V = ⨅ γ ∈ Δ, γ.toAddMonoidHom.ker) (f : G → ℂ) :
+    𝔼 x ∈ Set.toFinset V, f x - f 0 = 𝔼 ψ, if ψ ∈ AddSubgroup.closure Δ then 0 else -dft f ψ := by
+  rw [expect_iInf_ker_eq_expect_ite hV f, ← expect_dft f, ← expect_sub_distrib]
+  congr! 1 with ψ
+  by_cases hψ : ψ ∈ AddSubgroup.closure Δ <;> simp [hψ]
 
 variable [DecidableEq G]
 
