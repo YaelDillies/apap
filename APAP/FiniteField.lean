@@ -119,23 +119,20 @@ lemma ceil_curlog_div_four_le_three_curlog (hx₀ : 0 < x) (hx₁ : x ≤ 2⁻¹
   nlinarith [log_two_gt_d9]
 
 omit [Fintype G] in
-lemma expect_char_common_ker_eq_one_of_mem_closure {q : ℕ}
-    [Module (ZMod q) G] (Δ : Set (AddChar G ℂ)) (V : Submodule (ZMod q) G)
-    [Fintype V] (hV : V = (⨅ γ ∈ Δ, γ.toAddMonoidHom.ker).toZModSubmodule q)
-    (ψ : AddChar G ℂ) (hψ : ψ ∈ AddSubgroup.closure Δ) :
+lemma expect_char_common_ker_eq_one_of_mem_closure (Δ : Set (AddChar G ℂ)) (V : AddSubgroup G)
+    [Fintype V] (hV : V = ⨅ γ ∈ Δ, γ.toAddMonoidHom.ker)
+    {ψ : AddChar G ℂ} (hψ : ψ ∈ AddSubgroup.closure Δ) :
     𝔼 x ∈ Set.toFinset V, ψ x = 1 := by
-  have hψV : ∀ x ∈ V, ψ x = 1 :=
-    fun x hx ↦ AddChar.map_eq_one_of_mem_closure hψ (by simpa [hV] using hx)
+  have hψV x (hx : x ∈ V) : ψ x = 1 :=
+    AddChar.map_eq_one_of_mem_closure hψ (by simpa [hV] using hx)
   calc
     𝔼 x ∈ Set.toFinset V, ψ x = 𝔼 _x ∈ Set.toFinset V, (1 : ℂ) :=
       Finset.expect_congr rfl fun x hx ↦ hψV x (by simpa using hx)
     _ = 1 := Finset.expect_const ⟨0, by simp⟩ _
 
 omit [Fintype G] in
-lemma expect_char_common_ker_eq_zero_of_not_mem_closure {q : ℕ}
-    [Finite G] [Module (ZMod q) G] (Δ : Set (AddChar G ℂ))
-    (V : Submodule (ZMod q) G) [Fintype V]
-    (hV : V = (⨅ γ ∈ Δ, γ.toAddMonoidHom.ker).toZModSubmodule q) (ψ : AddChar G ℂ)
+lemma expect_char_common_ker_eq_zero_of_not_mem_closure [Finite G] (Δ : Set (AddChar G ℂ))
+    (V : AddSubgroup G) [Fintype V] (hV : V = ⨅ γ ∈ Δ, γ.toAddMonoidHom.ker) {ψ : AddChar G ℂ}
     (hψ : ψ ∉ AddSubgroup.closure Δ) :
     𝔼 x ∈ Set.toFinset V, ψ x = 0 := by
   obtain ⟨x, hxΔ, hxψ⟩ : ∃ x, (∀ γ ∈ Δ, γ x = 1) ∧ ψ x ≠ 1 := by
@@ -149,7 +146,7 @@ lemma expect_char_common_ker_eq_zero_of_not_mem_closure {q : ℕ}
   calc
     𝔼 x ∈ Set.toFinset V, ψ x
       = (∑ x ∈ Set.toFinset V, ψ x) / #(Set.toFinset V) := by rw [Finset.expect_eq_sum_div_card]
-    _ = (∑ x : V, ψV x) / Fintype.card V := by
+    _ = (∑ x, ψV x) / Fintype.card V := by
       have hsum : ∑ x ∈ Set.toFinset (V : Set G), ψ x = ∑ x : V, ψ x :=
         Finset.sum_subtype (Set.toFinset (V : Set G)) (by intro x; simp) fun x ↦ ψ x
       have hcard : #(Set.toFinset (V : Set G)) = Fintype.card V := by simp
@@ -159,52 +156,34 @@ lemma expect_char_common_ker_eq_zero_of_not_mem_closure {q : ℕ}
       rw [AddChar.sum_eq_zero_iff_ne_zero.2 hψV]
       simp
 
-lemma expect_iInf_ker_eq_expect_closure_dft {q : ℕ}
-    [Module (ZMod q) G] (Δ : Set (AddChar G ℂ))
-    [DecidablePred (· ∈ AddSubgroup.closure Δ)]
-    (V : Submodule (ZMod q) G) [Fintype V]
-    (hV : V = (⨅ γ ∈ Δ, γ.toAddMonoidHom.ker).toZModSubmodule q)
-    (f : G → ℂ) :
+lemma expect_iInf_ker_eq_expect_closure_dft (Δ : Set (AddChar G ℂ))
+    [DecidablePred (· ∈ AddSubgroup.closure Δ)] (V : AddSubgroup G) [Fintype V]
+    (hV : V = ⨅ γ ∈ Δ, γ.toAddMonoidHom.ker) (f : G → ℂ) :
     𝔼 x ∈ Set.toFinset V, f x = 𝔼 ψ, if ψ ∈ AddSubgroup.closure Δ then dft f ψ else 0 := by
-  rw [show (𝔼 x ∈ Set.toFinset V, f x) =
-      𝔼 x ∈ Set.toFinset V, 𝔼 ψ : AddChar G ℂ, dft f ψ * ψ x by
+  rw [show (𝔼 x ∈ Set.toFinset V, f x) = 𝔼 x ∈ Set.toFinset V, 𝔼 ψ, dft f ψ * ψ x by
     congr! with x
     exact (dft_inversion f x).symm]
   rw [expect_comm]
   congr! with ψ
-  by_cases hψ : ψ ∈ AddSubgroup.closure Δ
-  · rw [if_pos hψ, ← Finset.mul_expect,
-      expect_char_common_ker_eq_one_of_mem_closure Δ V hV ψ hψ, mul_one]
-  · rw [if_neg hψ, ← Finset.mul_expect,
-      expect_char_common_ker_eq_zero_of_not_mem_closure Δ V hV ψ hψ, mul_zero]
+  split_ifs with hψ
+  · rw [← mul_expect, expect_char_common_ker_eq_one_of_mem_closure Δ V hV hψ, mul_one]
+  · rw [← mul_expect, expect_char_common_ker_eq_zero_of_not_mem_closure Δ V hV hψ, mul_zero]
 
-lemma expect_iInf_ker_sub_zero_eq_dft_off_closure {q : ℕ}
-    [Module (ZMod q) G] (Δ : Set (AddChar G ℂ))
-    [DecidablePred (· ∈ AddSubgroup.closure Δ)]
-    (V : Submodule (ZMod q) G) [Fintype V]
-    (hV : V = (⨅ γ ∈ Δ, γ.toAddMonoidHom.ker).toZModSubmodule q)
-    (f : G → ℂ) :
-    𝔼 x ∈ Set.toFinset V, f x - f 0 =
-      𝔼 ψ : AddChar G ℂ, if ψ ∈ AddSubgroup.closure Δ then 0 else -dft f ψ := by
-  rw [expect_iInf_ker_eq_expect_closure_dft Δ V hV f]
-  rw [← expect_dft f, ← Finset.expect_sub_distrib]
+lemma expect_iInf_ker_sub_zero_eq_dft_off_closure (Δ : Set (AddChar G ℂ))
+    [DecidablePred (· ∈ AddSubgroup.closure Δ)] (V : AddSubgroup G) [Fintype V]
+    (hV : V = ⨅ γ ∈ Δ, γ.toAddMonoidHom.ker) (f : G → ℂ) :
+    𝔼 x ∈ Set.toFinset V, f x - f 0 = 𝔼 ψ, if ψ ∈ AddSubgroup.closure Δ then 0 else -dft f ψ := by
+  rw [expect_iInf_ker_eq_expect_closure_dft Δ V hV f, ← expect_dft f, ← Finset.expect_sub_distrib]
   congr! 1 with ψ
   by_cases hψ : ψ ∈ AddSubgroup.closure Δ <;> simp [hψ]
 
 lemma norm_expect_off_closure_le_two_mul_linfty_add_smooth_tail [DecidableEq G]
-    [MeasurableSpace G] [DiscreteMeasurableSpace G] {q : ℕ} [Module (ZMod q) G]
-    (T : Finset G) (k : ℕ) (Δ : Set (AddChar G ℂ))
-    [DecidablePred (· ∈ AddSubgroup.closure Δ)]
-    (f : G → ℂ) {ε δ : ℝ}
-    (hε : ‖μ T ∗ᵈ^ k ∗ᵈ f - f‖_[∞] ≤ ε)
-    (hsmooth :
-      ‖𝔼 ψ : AddChar G ℂ,
-          if ψ ∈ AddSubgroup.closure Δ then 0
-          else -(dft (μ T) ψ ^ k * dft f ψ)‖ ≤ δ) :
-    ‖𝔼 ψ : AddChar G ℂ,
-        if ψ ∈ AddSubgroup.closure Δ then 0 else -dft f ψ‖ ≤
-      2 * ε + δ := by
-  set V := (⨅ γ ∈ Δ, γ.toAddMonoidHom.ker).toZModSubmodule q
+    [MeasurableSpace G] [DiscreteMeasurableSpace G]
+    (T : Finset G) (k : ℕ) (Δ : Set (AddChar G ℂ)) [DecidablePred (· ∈ AddSubgroup.closure Δ)]
+    (f : G → ℂ) {ε δ : ℝ} (hε : ‖μ T ∗ᵈ^ k ∗ᵈ f - f‖_[∞] ≤ ε)
+    (hsmooth : ‖𝔼 ψ, if ψ ∈ AddSubgroup.closure Δ then 0 else -(dft (μ T) ψ ^ k * dft f ψ)‖ ≤ δ) :
+    ‖𝔼 ψ, if ψ ∈ AddSubgroup.closure Δ then 0 else -dft f ψ‖ ≤ 2 * ε + δ := by
+  set V := ⨅ γ ∈ Δ, γ.toAddMonoidHom.ker
   have := Fintype.ofFinite V
   let g : G → ℂ := μ T ∗ᵈ^ k ∗ᵈ f
   let Lf : ℂ := 𝔼 x ∈ (V : Set G).toFinset, f x - f 0
@@ -383,9 +362,8 @@ public lemma ap_in_ff [DecidableEq G] (hq : q.Prime) (hα₀ : 0 < α) (hα₂ :
   have hTεF : ‖μ T ∗ᵈ^ k ∗ᵈ F - F‖_[∞] ≤ 3 * ε / 8 := by simpa [F] using hTε
   have hoff :
       𝔼 x ∈ V', F x - F 0 =
-        𝔼 ψ : AddChar G ℂ,
-          if ψ ∈ AddSubgroup.closure (Δ : Set (AddChar G ℂ)) then 0 else -dft F ψ := by
-    simpa [F, V'] using expect_iInf_ker_sub_zero_eq_dft_off_closure _ V rfl F
+        𝔼 ψ, if ψ ∈ AddSubgroup.closure (Δ : Set (AddChar G ℂ)) then 0 else -dft F ψ := by
+      simpa [F, V'] using expect_iInf_ker_sub_zero_eq_dft_off_closure _ V.toAddSubgroup rfl F
   suffices htail :
       ‖𝔼 ψ : AddChar G ℂ,
           if ψ ∈ AddSubgroup.closure Δ then 0 else -dft F ψ‖ ≤ ε by
@@ -396,7 +374,7 @@ public lemma ap_in_ff [DecidableEq G] (hq : q.Prime) (hα₀ : 0 < α) (hα₂ :
       simpa [F, dddconv_indicator_one, ddconv_right_comm] using hcomplex
     rw [Complex.norm_real] at hcomplex'
     simpa [Real.norm_eq_abs] using hcomplex'
-  refine (norm_expect_off_closure_le_two_mul_linfty_add_smooth_tail T k Δ F hTεF (q := q)
+  refine (norm_expect_off_closure_le_two_mul_linfty_add_smooth_tail T k Δ F hTεF
     (ε := 3 * ε / 8) (δ := ε / 4) ?_).trans (by nlinarith)
   calc
     ‖𝔼 ψ, if ψ ∈ AddSubgroup.closure Δ then 0 else -(dft (μ T) ψ ^ k * dft F ψ)‖
