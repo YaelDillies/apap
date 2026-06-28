@@ -193,35 +193,6 @@ lemma expect_iInf_ker_sub_zero_eq_dft_off_closure {q : ℕ}
   congr! 1 with ψ
   by_cases hψ : ψ ∈ AddSubgroup.closure Δ <;> simp [hψ]
 
-omit [Fintype G] in
-lemma norm_common_ker_sub_zero_sub_le_two_mul_dLinfty
-    [Finite G] [MeasurableSpace G] [DiscreteMeasurableSpace G] {q : ℕ} [Module (ZMod q) G]
-    (V : Submodule (ZMod q) G) [Fintype V] (f g : G → ℂ) :
-    ‖(Finset.expect (Set.toFinset (V : Set G)) (fun x ↦ f x) - f 0) -
-      (Finset.expect (Set.toFinset (V : Set G)) (fun x ↦ g x) - g 0)‖ ≤
-      2 * ‖f - g‖_[∞] := by
-  have hVne : (Set.toFinset (V : Set G)).Nonempty := ⟨0, by simp⟩
-  have hpoint (x : G) : ‖(f - g) x‖ ≤ ‖f - g‖_[∞] :=
-    norm_le_dLinftyNorm (f := f - g) (i := x)
-  have hbody (x : G) :
-      ‖(f x - f 0) - (g x - g 0)‖ ≤ 2 * ‖f - g‖_[∞] := by
-    calc
-      ‖(f x - f 0) - (g x - g 0)‖ = ‖(f - g) x - (f - g) 0‖ := by
-        congr 1
-        simp only [Pi.sub_apply]
-        abel
-      _ ≤ ‖(f - g) x‖ + ‖(f - g) 0‖ := norm_sub_le _ _
-      _ ≤ ‖f - g‖_[∞] + ‖f - g‖_[∞] := add_le_add (hpoint x) (hpoint 0)
-      _ = 2 * ‖f - g‖_[∞] := by ring
-  calc
-    ‖(Finset.expect (Set.toFinset (V : Set G)) (fun x ↦ f x) - f 0) -
-        (Finset.expect (Set.toFinset (V : Set G)) (fun x ↦ g x) - g 0)‖ =
-        ‖((Set.toFinset (V : Set G)).expect fun x ↦ (f x - f 0) - (g x - g 0))‖ := by
-      simp [Finset.expect_sub_distrib]
-    _ ≤ (Set.toFinset (V : Set G)).expect fun x ↦ ‖(f x - f 0) - (g x - g 0)‖ :=
-      RCLike.norm_expect_le (K := ℝ)
-    _ ≤ 2 * ‖f - g‖_[∞] := Finset.expect_le hVne fun x _ ↦ hbody x
-
 lemma norm_expect_off_closure_le_two_mul_linfty_add_smooth_tail [DecidableEq G]
     [MeasurableSpace G] [DiscreteMeasurableSpace G] {q : ℕ} [Module (ZMod q) G]
     (T : Finset G) (k : ℕ) (Δ : Set (AddChar G ℂ))
@@ -242,9 +213,11 @@ lemma norm_expect_off_closure_le_two_mul_linfty_add_smooth_tail [DecidableEq G]
   let Lg : ℂ := 𝔼 x ∈ (V : Set G).toFinset, g x - g 0
   have hε' : ‖f - g‖_[∞] ≤ ε := by
     simpa [g, dLpNorm_sub_comm] using hε
-  have hfg : ‖Lf - Lg‖ ≤ 2 * ε :=
-    (norm_common_ker_sub_zero_sub_le_two_mul_dLinfty V f g).trans
-      (mul_le_mul_of_nonneg_left hε' (by norm_num))
+  have hfg : ‖Lf - Lg‖ ≤ 2 * ε := by
+    grw [sub_sub_sub_comm, norm_sub_le, ← expect_sub_distrib, norm_expect_le (K := ℝ)]
+    simp_rw [← Pi.sub_apply]
+    grw [norm_le_dLinftyNorm (f := f - g), norm_le_dLinftyNorm (f := f - g), hε']
+    simp [two_mul]
   have hg :
       Finset.expect (Set.toFinset (V : Set G)) (fun x ↦ g x) - g 0 =
         𝔼 ψ : AddChar G ℂ,
