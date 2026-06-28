@@ -289,34 +289,6 @@ lemma norm_expect_off_closure_le_two_mul_linfty_add_smooth_tail [DecidableEq G]
         rwa [hg]
       exact add_le_add hfg hLg
 
-lemma norm_smooth_tail_le_exp_neg_nat_mul_cL1Norm
-    [MeasurableSpace G] [DiscreteMeasurableSpace G] (T : Finset G) (hT : T.Nonempty)
-    (k : ℕ)
-    [DecidablePred (· ∈ AddSubgroup.closure (largeSpec (μ T) (exp (-1)) : Set (AddChar G ℂ)))]
-    (f : G → ℂ) :
-    ‖𝔼 ψ,
-        if ψ ∈ AddSubgroup.closure (largeSpec (μ T) (exp (-1)) : Set (AddChar G ℂ)) then 0
-        else -(dft (μ T) ψ ^ k * dft f ψ)‖ ≤
-      exp (-k) * ‖dft f‖ₙ_[1] := by
-  calc
-    ‖𝔼 ψ,
-        if ψ ∈ AddSubgroup.closure (largeSpec (μ T) (exp (-1)) : Set (AddChar G ℂ)) then 0
-        else -(dft (μ T) ψ ^ k * dft f ψ)‖
-        ≤ 𝔼 ψ : AddChar G ℂ,
-          ‖if ψ ∈ AddSubgroup.closure (largeSpec (μ T) (exp (-1)) : Set (AddChar G ℂ)) then 0
-            else -(dft (μ T) ψ ^ k * dft f ψ)‖ :=
-      RCLike.norm_expect_le (K := ℝ)
-    _ ≤ 𝔼 ψ, exp (-k) * ‖dft f ψ‖ := by
-      refine Finset.expect_le_expect fun ψ _ ↦ ?_
-      by_cases hψ : ψ ∈ AddSubgroup.closure (largeSpec (μ T) (exp (-1)) : Set (AddChar G ℂ))
-      · simp only [hψ, ↓reduceIte, norm_zero]
-        positivity
-      · simp only [hψ, ↓reduceIte, norm_neg]
-        have : ‖dft (μ T) ψ‖ < exp (-1) := by
-          simpa [hT] using Set.notMem_subset AddSubgroup.subset_closure hψ
-        grw [norm_mul, norm_pow, this, ← exp_nat_mul, mul_neg, mul_one]
-    _ = exp (-k) * ‖dft f‖ₙ_[1] := by rw [cL1Norm_eq_expect_norm, Finset.mul_expect]
-
 -- Public because it is in the blueprint
 public lemma global_dichotomy [DecidableEq G] [MeasurableSpace G] [DiscreteMeasurableSpace G]
     (hA : A.Nonempty) (hγC : γ ≤ C.dens) (hγ : 0 < γ)
@@ -477,9 +449,17 @@ public lemma ap_in_ff [DecidableEq G] (hq : q.Prime) (hα₀ : 0 < α) (hα₂ :
       (ε := 3 * ε / 8) (δ := ε / 4) ?_).trans (by nlinarith)
     calc
       ‖𝔼 ψ, if ψ ∈ AddSubgroup.closure Δ then 0 else -(dft (μ T) ψ ^ k * dft F ψ)‖
-      _ ≤ .exp (-k) * ‖dft F‖ₙ_[1] := by
-        simpa [Δ] using norm_smooth_tail_le_exp_neg_nat_mul_cL1Norm T hT k F
-      _ ≤ .exp (-k) * α⁻¹ := by
+      _ ≤ 𝔼 ψ, exp (-k) * ‖dft F ψ‖ := by
+        grw [norm_expect_le (K := ℝ)]
+        gcongr with ψ
+        split_ifs with hψ
+        · rw [norm_zero]
+          positivity
+        · replace hψ : ‖dft (μ T) ψ‖ < exp (-1) := by
+            simpa [hT, Δ] using Set.notMem_subset AddSubgroup.subset_closure hψ
+          grw [norm_neg, norm_mul, norm_pow, hψ, ← exp_nat_mul, mul_neg_one]
+      _ = exp (-k) * ‖dft F‖ₙ_[1] := by rw [cL1Norm_eq_expect_norm, Finset.mul_expect]
+      _ ≤ exp (-k) * α⁻¹ := by
         gcongr
         calc
           ‖dft F‖ₙ_[1]
