@@ -1,4 +1,4 @@
-module  -- shake: keep-all
+module  -- shake: keep-all --deprecated_module: ignore
 
 public import APAP.FiniteField
 public import APAP.Integer
@@ -15,6 +15,7 @@ public import APAP.Mathlib.Analysis.Convolution
 public import APAP.Mathlib.Analysis.Fourier.FiniteAbelian.PontryaginDuality
 public import APAP.Mathlib.Analysis.Normed.Ring.Basic
 public import APAP.Mathlib.Analysis.RCLike.Basic
+public import APAP.Mathlib.Analysis.Real.Sqrt
 public import APAP.Mathlib.Data.Complex.Basic
 public import APAP.Mathlib.Data.NNReal.Defs
 public import APAP.Mathlib.Data.ZMod.Basic

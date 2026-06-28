@@ -1,16 +1,19 @@
 module
 
+public import Mathlib.Combinatorics.Additive.AP.Three.Defs
 public import APAP.Prereqs.Convolution.Discrete.Defs
 public import APAP.Prereqs.LpNorm.Weighted
 public import APAP.Prereqs.Mu
 public import Mathlib.Analysis.RCLike.Inner
 public import Mathlib.Analysis.SpecialFunctions.Log.Basic
-public import Mathlib.Combinatorics.Additive.AP.Three.Defs
 public import Mathlib.LinearAlgebra.Dimension.Finrank
 public import Mathlib.MeasureTheory.MeasurableSpace.Defs
 
 import AddCombi.Mathlib.Algebra.Order.GroupWithZero.Indicator
 import APAP.Mathlib.Analysis.Fourier.FiniteAbelian.PontryaginDuality
+import APAP.Mathlib.Analysis.Real.Sqrt
+import APAP.Mathlib.Data.Complex.Basic
+import APAP.Mathlib.LinearAlgebra.FiniteDimensional.Lemmas
 import APAP.Physics.AlmostPeriodicity
 import APAP.Physics.DRC
 import APAP.Physics.Unbalancing
@@ -21,8 +24,10 @@ import APAP.Prereqs.Convolution.Order
 import APAP.Prereqs.Convolution.ThreeAP
 import APAP.Prereqs.FourierTransform.Convolution
 import APAP.Prereqs.Inner.Function
+import APAP.Prereqs.Inner.Hoelder.Compact
 import APAP.Prereqs.Inner.Hoelder.Discrete
 import APAP.Prereqs.LpNorm.Discrete.Basic
+import APAP.Prereqs.Mu
 import Mathlib.Algebra.Field.ZMod
 import Mathlib.Algebra.Group.Pointwise.Finset.Density
 import Mathlib.Algebra.Order.Floor.Semifield
@@ -39,7 +44,8 @@ attribute [-simp] Real.log_inv
 
 open Fintype Function MeasureTheory Module RCLike Real
 open Finset hiding card
-open scoped ENNReal NNReal BigOperators Combinatorics.Additive Pointwise Indicator mu
+open scoped ENNReal NNReal BigOperators Combinatorics.Additive ComplexConjugate Pointwise
+  Indicator mu
 
 universe u
 variable {G : Type u} [AddCommGroup G] [Fintype G] {A C : Finset G} {x y γ ε : ℝ}
@@ -192,11 +198,11 @@ public lemma ap_in_ff [DecidableEq G] (hq : q.Prime) (hα₀ : 0 < α) (hα₂ :
   have hT : T.Nonempty := by
     have hTpos : 0 < (#T : ℝ) := hTcard.trans_lt' (by positivity)
     simpa using hTpos
-  let Δ := largeSpec (μ T) 2⁻¹
+  let Δ := largeSpec (μ T) (exp (-1))
   let V : Submodule (ZMod q) G := AddSubgroup.toZModSubmodule _ <| ⨅ γ ∈ Δ, γ.toAddMonoidHom.ker
   let V' : Finset G := Set.toFinset V
   refine ⟨V, inferInstance, ?_, ?_⟩
-  · obtain ⟨Δ', -, hΔ'card, hfΔ'⟩ : ∃ Δ' ⊆ Δ, _ := chang (mu_ne_zero.2 hT) (by norm_num)
+  · obtain ⟨Δ', -, hΔ'card, hfΔ'⟩ : ∃ Δ' ⊆ Δ, _ := chang (mu_ne_zero.2 hT) (by positivity)
     let W : Submodule (ZMod q) G := AddSubgroup.toZModSubmodule _ <| ⨅ γ ∈ Δ', γ.toAddMonoidHom.ker
     have mem_W {x} : x ∈ W ↔ ∀ γ ∈ Δ', γ x = 1 := by simp [W]
     have hWV : W ≤ V := by
@@ -226,13 +232,12 @@ public lemma ap_in_ff [DecidableEq G] (hq : q.Prime) (hα₀ : 0 < α) (hα₂ :
       _ ≤ #Δ' := by
         let : Fact q.Prime := ⟨hq⟩
         simpa [W] using AddChar.codim_iInf_ker_le_finsetCard (s := Δ')
-      _ ≤ ⌈changConst * exp 1 * ⌈𝓛 (‖μ T‖_[1] ^ 2 / ‖μ T‖_[2] ^ 2 / card G)⌉₊ / 2⁻¹ ^ 2⌉₊ := by
+      _ ≤ ⌈changConst * exp 1 * ⌈𝓛 (‖μ T‖_[1] ^ 2 / ‖μ T‖_[2] ^ 2 / card G)⌉₊ / exp (-1) ^ 2⌉₊ := by
         gcongr
-      _ = ⌈128 * exp 1 ^ 2 * ⌈𝓛 T.dens⌉₊⌉₊ := by
+      _ = ⌈32 * exp 1 ^ 4 * ⌈𝓛 T.dens⌉₊⌉₊ := by
         congr 1
-        simp [hT, ← rpow_mul_natCast, dens, changConst, -exp_one_pow, rpow_neg_one]
+        simp [hT, ← rpow_mul_natCast, dens, changConst, -exp_one_pow, rpow_neg_one, exp_neg]
         field_simp [exp_ne_zero]
-        ring_nf
       _ ≤ 2 ^ 12 * 𝓛 T.dens := by
         have : 1 ≤ 𝓛 T.dens := one_le_curlog (by positivity) <| mod_cast T.dens_le_one
         grw [(Nat.ceil_lt_add_one <| by positivity).le, (Nat.ceil_lt_add_one <| by linarith).le,
@@ -242,14 +247,79 @@ public lemma ap_in_ff [DecidableEq G] (hq : q.Prime) (hα₀ : 0 < α) (hα₂ :
       _ ≤ 2 ^ 12 * (2 ^ 19 * 𝓛 α ^ 2 * 𝓛 (ε * α) ^ 2 * ε⁻¹ ^ 2 +
             2 ^ 19 * 𝓛 α ^ 2 * 𝓛 (ε * α) ^ 2 * ε⁻¹ ^ 2) := by bound
       _ = 2 ^ 32 * 𝓛 α ^ 2 * 𝓛 (ε * α) ^ 2 * ε⁻¹ ^ 2 := by ring
-  · have : ∑ x ∈ S, (μ_[ℝ] V' ∗ᵈ μ A₁ ∗ᵈ μ A₂) x = 𝔼 x ∈ V', (μ A₁ ∗ᵈ μ A₂ ○ᵈ 𝟭_[S]) x := by
-      have : -V' = V' := by ext; simp [V']
-      rw [← mu_wInner_one, ← indicator_one_wInner_one, ddconv_rotate,
-        ← dddconv_wInner_one_eq_wInner_one_ddconv, wInner_one_dddconv_eq_ddconv_wInner_one,
-        ← ddconv_conjneg, conjneg_mu, this, ddconv_comm]
-    have : ∑ x ∈ S, (μ_[ℝ] A₁ ∗ᵈ μ A₂) x = (μ_[ℝ] A₁ ∗ᵈ μ A₂ ○ᵈ 𝟭_[S]) 0 := by
-      simp [dddconv_indicator_one_eq_sum]
-    sorry
+  have hVavg : ∑ x ∈ S, (μ_[ℝ] V' ∗ᵈ μ A₁ ∗ᵈ μ A₂) x = 𝔼 x ∈ V', (μ A₁ ∗ᵈ μ A₂ ○ᵈ 𝟭_[S]) x := by
+    have : -V' = V' := by ext; simp [V']
+    rw [← mu_wInner_one, ← indicator_one_wInner_one, ddconv_rotate,
+      ← dddconv_wInner_one_eq_wInner_one_ddconv, wInner_one_dddconv_eq_ddconv_wInner_one,
+      ← ddconv_conjneg, conjneg_mu, this, ddconv_comm]
+  have hzero : ∑ x ∈ S, (μ_[ℝ] A₁ ∗ᵈ μ A₂) x = (μ_[ℝ] A₁ ∗ᵈ μ A₂ ○ᵈ 𝟭_[S]) 0 := by
+    simp [dddconv_indicator_one_eq_sum]
+  rw [hVavg, hzero]
+  let F : G → ℂ := μ_[ℂ] A₁ ∗ᵈ 𝟭_[-S] ∗ᵈ μ A₂
+  have hTεF : ‖μ T ∗ᵈ^ k ∗ᵈ F - F‖_[∞] ≤ 3 * ε / 8 := by simpa [F] using hTε
+  have hoff :
+      𝔼 x ∈ V', F x - F 0 =
+        𝔼 ψ, if ψ ∈ AddSubgroup.closure (Δ : Set (AddChar G ℂ)) then 0 else -dft F ψ := by
+      simpa [F, V'] using expect_iInf_ker_sub_map_zero_eq_expect_ite (V := V.toAddSubgroup) rfl F
+  suffices htail : ‖𝔼 ψ, if ψ ∈ AddSubgroup.closure Δ then 0 else -dft F ψ‖ ≤ ε by
+    have hcomplex : ‖𝔼 x ∈ V', F x - F 0‖ ≤ ε := by rwa [hoff]
+    have hcomplex' :
+        ‖((𝔼 x ∈ V', (μ_[ℝ] A₁ ∗ᵈ μ A₂ ○ᵈ 𝟭_[S]) x -
+            (μ_[ℝ] A₁ ∗ᵈ μ A₂ ○ᵈ 𝟭_[S]) 0 : ℝ) : ℂ)‖ ≤ ε := by
+      simpa [F, dddconv_indicator_one, ddconv_right_comm] using hcomplex
+    rw [Complex.norm_real] at hcomplex'
+    simpa [Real.norm_eq_abs] using hcomplex'
+  suffices htail :
+     ‖𝔼 i, if i ∈ AddSubgroup.closure Δ then 0 else -(dft (μ T) i ^ k * dft F i)‖ ≤ ε / 4 by
+    calc
+      _ ≤ 2 * (3 * ε / 8) + ε / 4 := by
+        grw [← expect_iInf_ker_sub_map_zero_eq_expect_ite (V := V.toAddSubgroup) rfl,
+          norm_le_norm_sub_add _
+            (𝔼 x ∈ (V : Set G).toFinset, (μ T ∗ᵈ^ k ∗ᵈ F) x - (μ T ∗ᵈ^ k ∗ᵈ F) 0)]
+        gcongr
+        · simp only [AddSubgroup.coe_set_mk, Submodule.coe_toAddSubmonoid]
+          grw [sub_sub_sub_comm, norm_sub_le, ← expect_sub_distrib, norm_expect_le (K := ℝ)]
+          simp_rw [← Pi.sub_apply]
+          grw [norm_le_dLinftyNorm, norm_le_dLinftyNorm, dLpNorm_sub_comm, hTεF,
+            Finset.expect_const ⟨0, by simp⟩, two_mul]
+        · change ‖𝔼 _ ∈ Set.toFinset (V.toAddSubgroup : Set G), _ - _‖ ≤ _
+          rw [expect_iInf_ker_sub_map_zero_eq_expect_ite (by rfl)]
+          simpa
+      _ = ε := by ring
+  calc
+    ‖𝔼 ψ, if ψ ∈ AddSubgroup.closure Δ then 0 else -(dft (μ T) ψ ^ k * dft F ψ)‖
+    _ ≤ 𝔼 ψ, exp (-k) * ‖dft F ψ‖ := by
+      grw [norm_expect_le (K := ℝ)]
+      gcongr with ψ
+      split_ifs with hψ
+      · rw [norm_zero]
+        positivity
+      · replace hψ : ‖dft (μ T) ψ‖ < exp (-1) := by
+          simpa [hT, Δ] using Set.notMem_subset AddSubgroup.subset_closure hψ
+        grw [norm_neg, norm_mul, norm_pow, hψ, ← exp_nat_mul, mul_neg_one]
+    _ = exp (-k) * ‖dft F‖ₙ_[1] := by rw [cL1Norm_eq_expect_norm, Finset.mul_expect]
+    _ ≤ exp (-k) * α⁻¹ := by
+      gcongr
+      calc
+        ‖dft F‖ₙ_[1]
+        _ ≤ ‖dft (μ A₁ ∗ᵈ 𝟭_[-S, ℂ])‖ₙ_[1] := by
+          grw [dft_ddconv, cL1Norm_mul_le 1 ∞, cLinftyNorm_dft_le_dL1Norm, dL1Norm_mu hA₂,
+            mul_one]
+        _ ≤ √(#A₁ / #S)⁻¹ := by
+          -- TODO: `ring` should be doing most of this.
+          grw [dft_ddconv, cL1Norm_mul_le 2 2, cL2Norm_dft, dL2Norm_mu hA₁, cL2Norm_dft,
+            ← Finset.coe_neg, dL2Norm_indicator_one, card_neg, Real.sqrt_eq_rpow,
+            Real.sqrt_eq_rpow, inv_div, Real.div_rpow (by positivity) (by positivity),
+            div_eq_mul_inv (_ ^ _), ← Real.rpow_neg (by positivity)]
+          apply le_of_eq
+          ring_nf
+        _ ≤ √α⁻¹ := by grw [S.subset_univ, card_univ, ← nnratCast_dens, hαA₁]
+        _ ≤ α⁻¹ := by rw [sqrt_inv]; gcongr; simpa
+    _ ≤ ε / 4 := by
+      grw [← Nat.le_ceil, neg_add, exp_add, log_inv, neg_neg, exp_log (by positivity),
+        exp_neg_one_lt_d9]
+      field_simp
+      norm_num
 
 lemma ap_in_ff' [DecidableEq G] (hq : q.Prime) (hα₀ : 0 < α) (hα₂ : α ≤ 2⁻¹)
     (hε₀ : 0 < ε) (hε₁ : ε ≤ 1) (hαA₁ : α ≤ A₁.dens) (hαA₂ : α ≤ A₂.dens) :
