@@ -418,69 +418,68 @@ public lemma ap_in_ff [DecidableEq G] (hq : q.Prime) (hα₀ : 0 < α) (hα₂ :
       _ ≤ 2 ^ 12 * (2 ^ 19 * 𝓛 α ^ 2 * 𝓛 (ε * α) ^ 2 * ε⁻¹ ^ 2 +
             2 ^ 19 * 𝓛 α ^ 2 * 𝓛 (ε * α) ^ 2 * ε⁻¹ ^ 2) := by bound
       _ = 2 ^ 32 * 𝓛 α ^ 2 * 𝓛 (ε * α) ^ 2 * ε⁻¹ ^ 2 := by ring
-  · have hVavg :
-        ∑ x ∈ S, (μ_[ℝ] V' ∗ᵈ μ A₁ ∗ᵈ μ A₂) x = 𝔼 x ∈ V', (μ A₁ ∗ᵈ μ A₂ ○ᵈ 𝟭_[S]) x := by
-      have : -V' = V' := by ext; simp [V']
-      rw [← mu_wInner_one, ← indicator_one_wInner_one, ddconv_rotate,
-        ← dddconv_wInner_one_eq_wInner_one_ddconv, wInner_one_dddconv_eq_ddconv_wInner_one,
-        ← ddconv_conjneg, conjneg_mu, this, ddconv_comm]
-    have hzero : ∑ x ∈ S, (μ_[ℝ] A₁ ∗ᵈ μ A₂) x = (μ_[ℝ] A₁ ∗ᵈ μ A₂ ○ᵈ 𝟭_[S]) 0 := by
-      simp [dddconv_indicator_one_eq_sum]
-    rw [hVavg, hzero]
-    let F : G → ℂ := μ_[ℂ] A₁ ∗ᵈ 𝟭_[-S] ∗ᵈ μ A₂
-    have hTεF : ‖μ T ∗ᵈ^ k ∗ᵈ F - F‖_[∞] ≤ 3 * ε / 8 := by simpa [F] using hTε
-    have hVeq : V = (⨅ γ ∈ Δ, γ.toAddMonoidHom.ker).toZModSubmodule q := rfl
-    have hoff :
-        𝔼 x ∈ V', F x - F 0 =
-          𝔼 ψ : AddChar G ℂ,
-            if ψ ∈ AddSubgroup.closure (Δ : Set (AddChar G ℂ)) then 0 else -dft F ψ := by
-      simpa [F, V'] using expect_common_ker_sub_zero_eq_dft_off_closure _ V hVeq F
-    suffices htail :
-        ‖𝔼 ψ : AddChar G ℂ,
-            if ψ ∈ AddSubgroup.closure Δ then 0 else -dft F ψ‖ ≤ ε by
-      have hcomplex : ‖(𝔼 x ∈ V', F x) - F 0‖ ≤ ε := by rwa [hoff]
-      have hcomplex' :
-          ‖(((𝔼 x ∈ V', (μ_[ℝ] A₁ ∗ᵈ μ A₂ ○ᵈ 𝟭_[S]) x) -
-              (μ_[ℝ] A₁ ∗ᵈ μ A₂ ○ᵈ 𝟭_[S]) 0 : ℝ) : ℂ)‖ ≤ ε := by
-        simpa [F, dddconv_indicator_one, ddconv_right_comm] using hcomplex
-      rw [Complex.norm_real] at hcomplex'
-      simpa [Real.norm_eq_abs] using hcomplex'
-    refine (norm_expect_off_closure_le_two_mul_linfty_add_smooth_tail T k Δ V hVeq F hTεF
-      (ε := 3 * ε / 8) (δ := ε / 4) ?_).trans (by nlinarith)
-    calc
-      ‖𝔼 ψ, if ψ ∈ AddSubgroup.closure Δ then 0 else -(dft (μ T) ψ ^ k * dft F ψ)‖
-      _ ≤ 𝔼 ψ, exp (-k) * ‖dft F ψ‖ := by
-        grw [norm_expect_le (K := ℝ)]
-        gcongr with ψ
-        split_ifs with hψ
-        · rw [norm_zero]
-          positivity
-        · replace hψ : ‖dft (μ T) ψ‖ < exp (-1) := by
-            simpa [hT, Δ] using Set.notMem_subset AddSubgroup.subset_closure hψ
-          grw [norm_neg, norm_mul, norm_pow, hψ, ← exp_nat_mul, mul_neg_one]
-      _ = exp (-k) * ‖dft F‖ₙ_[1] := by rw [cL1Norm_eq_expect_norm, Finset.mul_expect]
-      _ ≤ exp (-k) * α⁻¹ := by
-        gcongr
-        calc
-          ‖dft F‖ₙ_[1]
-          _ ≤ ‖dft (μ A₁ ∗ᵈ 𝟭_[-S, ℂ])‖ₙ_[1] := by
-            grw [dft_ddconv, cL1Norm_mul_le 1 ∞, cLinftyNorm_dft_le_dL1Norm, dL1Norm_mu hA₂,
-              mul_one]
-          _ ≤ √(#A₁ / #S)⁻¹ := by
-            -- TODO: `ring` should be doing most of this.
-            grw [dft_ddconv, cL1Norm_mul_le 2 2, cL2Norm_dft, dL2Norm_mu hA₁, cL2Norm_dft,
-              ← Finset.coe_neg, dL2Norm_indicator_one, card_neg, Real.sqrt_eq_rpow,
-              Real.sqrt_eq_rpow, inv_div, Real.div_rpow (by positivity) (by positivity),
-              div_eq_mul_inv (_ ^ _), ← Real.rpow_neg (by positivity)]
-            apply le_of_eq
-            ring_nf
-          _ ≤ √α⁻¹ := by grw [S.subset_univ, card_univ, ← nnratCast_dens, hαA₁]
-          _ ≤ α⁻¹ := by rw [sqrt_inv]; gcongr; simpa
-      _ ≤ ε / 4 := by
-        grw [← Nat.le_ceil, neg_add, exp_add, log_inv, neg_neg, exp_log (by positivity),
-          exp_neg_one_lt_d9]
-        field_simp
-        norm_num
+  have hVavg : ∑ x ∈ S, (μ_[ℝ] V' ∗ᵈ μ A₁ ∗ᵈ μ A₂) x = 𝔼 x ∈ V', (μ A₁ ∗ᵈ μ A₂ ○ᵈ 𝟭_[S]) x := by
+    have : -V' = V' := by ext; simp [V']
+    rw [← mu_wInner_one, ← indicator_one_wInner_one, ddconv_rotate,
+      ← dddconv_wInner_one_eq_wInner_one_ddconv, wInner_one_dddconv_eq_ddconv_wInner_one,
+      ← ddconv_conjneg, conjneg_mu, this, ddconv_comm]
+  have hzero : ∑ x ∈ S, (μ_[ℝ] A₁ ∗ᵈ μ A₂) x = (μ_[ℝ] A₁ ∗ᵈ μ A₂ ○ᵈ 𝟭_[S]) 0 := by
+    simp [dddconv_indicator_one_eq_sum]
+  rw [hVavg, hzero]
+  let F : G → ℂ := μ_[ℂ] A₁ ∗ᵈ 𝟭_[-S] ∗ᵈ μ A₂
+  have hTεF : ‖μ T ∗ᵈ^ k ∗ᵈ F - F‖_[∞] ≤ 3 * ε / 8 := by simpa [F] using hTε
+  have hVeq : V = (⨅ γ ∈ Δ, γ.toAddMonoidHom.ker).toZModSubmodule q := rfl
+  have hoff :
+      𝔼 x ∈ V', F x - F 0 =
+        𝔼 ψ : AddChar G ℂ,
+          if ψ ∈ AddSubgroup.closure (Δ : Set (AddChar G ℂ)) then 0 else -dft F ψ := by
+    simpa [F, V'] using expect_common_ker_sub_zero_eq_dft_off_closure _ V hVeq F
+  suffices htail :
+      ‖𝔼 ψ : AddChar G ℂ,
+          if ψ ∈ AddSubgroup.closure Δ then 0 else -dft F ψ‖ ≤ ε by
+    have hcomplex : ‖(𝔼 x ∈ V', F x) - F 0‖ ≤ ε := by rwa [hoff]
+    have hcomplex' :
+        ‖(((𝔼 x ∈ V', (μ_[ℝ] A₁ ∗ᵈ μ A₂ ○ᵈ 𝟭_[S]) x) -
+            (μ_[ℝ] A₁ ∗ᵈ μ A₂ ○ᵈ 𝟭_[S]) 0 : ℝ) : ℂ)‖ ≤ ε := by
+      simpa [F, dddconv_indicator_one, ddconv_right_comm] using hcomplex
+    rw [Complex.norm_real] at hcomplex'
+    simpa [Real.norm_eq_abs] using hcomplex'
+  refine (norm_expect_off_closure_le_two_mul_linfty_add_smooth_tail T k Δ V hVeq F hTεF
+    (ε := 3 * ε / 8) (δ := ε / 4) ?_).trans (by nlinarith)
+  calc
+    ‖𝔼 ψ, if ψ ∈ AddSubgroup.closure Δ then 0 else -(dft (μ T) ψ ^ k * dft F ψ)‖
+    _ ≤ 𝔼 ψ, exp (-k) * ‖dft F ψ‖ := by
+      grw [norm_expect_le (K := ℝ)]
+      gcongr with ψ
+      split_ifs with hψ
+      · rw [norm_zero]
+        positivity
+      · replace hψ : ‖dft (μ T) ψ‖ < exp (-1) := by
+          simpa [hT, Δ] using Set.notMem_subset AddSubgroup.subset_closure hψ
+        grw [norm_neg, norm_mul, norm_pow, hψ, ← exp_nat_mul, mul_neg_one]
+    _ = exp (-k) * ‖dft F‖ₙ_[1] := by rw [cL1Norm_eq_expect_norm, Finset.mul_expect]
+    _ ≤ exp (-k) * α⁻¹ := by
+      gcongr
+      calc
+        ‖dft F‖ₙ_[1]
+        _ ≤ ‖dft (μ A₁ ∗ᵈ 𝟭_[-S, ℂ])‖ₙ_[1] := by
+          grw [dft_ddconv, cL1Norm_mul_le 1 ∞, cLinftyNorm_dft_le_dL1Norm, dL1Norm_mu hA₂,
+            mul_one]
+        _ ≤ √(#A₁ / #S)⁻¹ := by
+          -- TODO: `ring` should be doing most of this.
+          grw [dft_ddconv, cL1Norm_mul_le 2 2, cL2Norm_dft, dL2Norm_mu hA₁, cL2Norm_dft,
+            ← Finset.coe_neg, dL2Norm_indicator_one, card_neg, Real.sqrt_eq_rpow,
+            Real.sqrt_eq_rpow, inv_div, Real.div_rpow (by positivity) (by positivity),
+            div_eq_mul_inv (_ ^ _), ← Real.rpow_neg (by positivity)]
+          apply le_of_eq
+          ring_nf
+        _ ≤ √α⁻¹ := by grw [S.subset_univ, card_univ, ← nnratCast_dens, hαA₁]
+        _ ≤ α⁻¹ := by rw [sqrt_inv]; gcongr; simpa
+    _ ≤ ε / 4 := by
+      grw [← Nat.le_ceil, neg_add, exp_add, log_inv, neg_neg, exp_log (by positivity),
+        exp_neg_one_lt_d9]
+      field_simp
+      norm_num
 
 lemma ap_in_ff' [DecidableEq G] (hq : q.Prime) (hα₀ : 0 < α) (hα₂ : α ≤ 2⁻¹)
     (hε₀ : 0 < ε) (hε₁ : ε ≤ 1) (hαA₁ : α ≤ A₁.dens) (hαA₂ : α ≤ A₂.dens) :
