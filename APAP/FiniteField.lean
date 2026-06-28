@@ -187,9 +187,7 @@ lemma expect_iInf_ker_sub_zero_eq_dft_off_closure {q : ℕ}
     𝔼 x ∈ Set.toFinset V, f x - f 0 =
       𝔼 ψ : AddChar G ℂ, if ψ ∈ AddSubgroup.closure Δ then 0 else -dft f ψ := by
   rw [expect_iInf_ker_eq_expect_closure_dft Δ V hV f]
-  have hzero : f 0 = 𝔼 ψ : AddChar G ℂ, dft f ψ := by
-    simpa using (dft_inversion f (0 : G)).symm
-  rw [hzero, ← Finset.expect_sub_distrib]
+  rw [← expect_dft f, ← Finset.expect_sub_distrib]
   congr! 1 with ψ
   by_cases hψ : ψ ∈ AddSubgroup.closure Δ <;> simp [hψ]
 

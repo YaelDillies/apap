@@ -83,6 +83,9 @@ lemma dft_inversion (f : G → ℂ) (a : G) : 𝔼 ψ, dft f ψ * ψ a = f a := 
     ← expect_mul, ← AddChar.inv_apply_eq_conj, inv_mul_eq_div, ← map_sub_eq_div,
     AddChar.expect_apply_eq_ite, sub_eq_zero, boole_mul, Fintype.sum_ite_eq]
 
+@[simp] lemma expect_dft (f : G → ℂ) : 𝔼 ψ : AddChar G ℂ, dft f ψ = f 0 := by
+  simpa using dft_inversion f 0
+
 /-- **Fourier inversion** for the discrete Fourier transform. -/
 lemma dft_inversion' (f : G → ℂ) : 𝔼 ψ, dft f ψ • ⇑ψ = f := by ext; simpa using dft_inversion f _
 
