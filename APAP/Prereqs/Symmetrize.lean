@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2026 APAP contributors. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: APAP contributors
+-/
 module
 
 public import Mathlib.Probability.IdentDistrib
@@ -6,6 +11,13 @@ import Mathlib.Analysis.Convex.Integral
 import Mathlib.Probability.IdentDistribIndep
 import Mathlib.Probability.Independence.Integration
 import Mathlib.Tactic.Positivity.Finset
+
+/-!
+# Symmetrization of random variables
+
+This file defines the symmetrize operation on a random variable and proves
+basic L^p bounds and inequalities related to symmetrization.
+-/
 
 open Finset Fintype Function Nat MeasureTheory ProbabilityTheory Real
 open scoped NNReal ENNReal
@@ -16,32 +28,31 @@ variable {ι Ω E : Type*} {A : Finset ι} {m : ℕ} [MeasurableSpace Ω] {μ : 
   [IsFiniteMeasure μ] [MeasurableSpace E] [NormedAddCommGroup E] [InnerProductSpace ℝ E]
   {X : ι → Ω → E}
 
-def symmetrize [DecidableEq ι] (A : Finset ι) (X : ι → Ω → E) (i : ι) : Ω × Ω → E :=
-  if i ∈ A then (X i ∘ Prod.fst - X i ∘ Prod.snd) else 0
+/-- Symmetrization of a random variable `X` on `Ω × Ω`. -/
+def symmetrize (X : Ω → E) : Ω × Ω → E :=
+  X ∘ Prod.fst - X ∘ Prod.snd
 
 omit [InnerProductSpace ℝ E] [MeasurableSpace E] in
-lemma memLp_symmetrize [DecidableEq ι] [IsProbabilityMeasure μ]
-    (h_lp : ∀ i ∈ A, MemLp (X i) (2 * m) μ) (i : ι)
-    (hi : i ∈ A) : MemLp (symmetrize A X i) (2 * m) (μ.prod μ) := by
-  simp only [symmetrize, if_pos hi]
-  exact ((h_lp i hi).comp_measurePreserving measurePreserving_fst).sub
-    ((h_lp i hi).comp_measurePreserving measurePreserving_snd)
+lemma memLp_symmetrize [IsProbabilityMeasure μ] {Y : Ω → E} (h_lp : MemLp Y (2 * m) μ) :
+    MemLp (symmetrize Y) (2 * m) (μ.prod μ) := by
+  simp only [symmetrize]
+  exact (h_lp.comp_measurePreserving measurePreserving_fst).sub
+    (h_lp.comp_measurePreserving measurePreserving_snd)
 
 omit [MeasurableSpace Ω] [IsFiniteMeasure μ] [MeasurableSpace E] [InnerProductSpace ℝ E] in
-lemma symmetrize_le_norm_pow [DecidableEq ι] (ω : Ω × Ω) :
-    (∑ i ∈ A, ‖symmetrize A X i ω‖ ^ 2) ^ m ≤
+lemma symmetrize_le_norm_pow (ω : Ω × Ω) :
+    (∑ i ∈ A, ‖symmetrize (X i) ω‖ ^ 2) ^ m ≤
       2 ^ (2 * m - 1) * ((∑ i ∈ A, ‖X i ω.1‖ ^ 2) ^ m + (∑ i ∈ A, ‖X i ω.2‖ ^ 2) ^ m) := by
-  have h_le i (hi : i ∈ A) : ‖symmetrize A X i ω‖ ^ 2 ≤ 2 * (‖X i ω.1‖ ^ 2 + ‖X i ω.2‖ ^ 2) := by
+  have h_le i (hi : i ∈ A) : ‖symmetrize (X i) ω‖ ^ 2 ≤ 2 * (‖X i ω.1‖ ^ 2 + ‖X i ω.2‖ ^ 2) := by
     calc
-      ‖symmetrize A X i ω‖ ^ 2
-        ≤ (‖X i ω.1‖ + ‖X i ω.2‖) ^ 2 := by
+      ‖symmetrize (X i) ω‖ ^ 2
+        = ‖X i ω.1 - X i ω.2‖ ^ 2 := rfl
+      _ ≤ (‖X i ω.1‖ + ‖X i ω.2‖) ^ 2 := by
           gcongr
-          dsimp [symmetrize]
-          rw [if_pos hi]
           exact norm_sub_le _ _
       _ ≤ 2 * (‖X i ω.1‖ ^ 2 + ‖X i ω.2‖ ^ 2) := add_sq_le
   calc
-    (∑ i ∈ A, ‖symmetrize A X i ω‖ ^ 2) ^ m
+    (∑ i ∈ A, ‖symmetrize (X i) ω‖ ^ 2) ^ m
     _ ≤ (2 * ((∑ i ∈ A, ‖X i ω.1‖ ^ 2) + ∑ i ∈ A, ‖X i ω.2‖ ^ 2)) ^ m := by
         gcongr
         rw [← sum_add_distrib, mul_sum]
@@ -81,12 +92,12 @@ lemma norm_pow_le_integral_norm_sub_pow [IsProbabilityMeasure μ] [SecondCountab
         h_int_g.norm h_int_g_pow
 
 omit [IsFiniteMeasure μ] in
-lemma symmetrize_inequality [DecidableEq ι] [SecondCountableTopology E] [BorelSpace E]
+lemma symmetrize_inequality [SecondCountableTopology E] [BorelSpace E]
     [CompleteSpace E]
     (h_indep : iIndepFun X μ) (h_int : ∀ i, ∫ ω, X i ω ∂μ = 0)
     (h_lp : ∀ i ∈ A, MemLp (X i) (2 * m) μ) (hm : m ≠ 0) :
     ∫ ω, ‖∑ i ∈ A, X i ω‖ ^ (2 * m) ∂μ ≤
-      ∫ ω, ‖∑ i ∈ A, symmetrize A X i ω‖ ^ (2 * m) ∂μ.prod μ := by
+      ∫ ω, ‖∑ i ∈ A, symmetrize (X i) ω‖ ^ (2 * m) ∂μ.prod μ := by
   have : IsProbabilityMeasure μ := h_indep.isProbabilityMeasure
   have h_eq : (2 * (m : ℝ≥0∞)) = ↑(2 * m) := by simp
   have h_mem_lp_s : MemLp (fun ω ↦ ∑ i ∈ A, X i ω) ↑(2 * m) μ :=
@@ -105,9 +116,8 @@ lemma symmetrize_inequality [DecidableEq ι] [SecondCountableTopology E] [BorelS
     rw [integral_finsetSum _ h_int_X]
     simp [h_int]
   have sum_symmetrize (ω : Ω × Ω) :
-      ∑ i ∈ A, symmetrize A X i ω = (∑ i ∈ A, X i ω.1) - ∑ i ∈ A, X i ω.2 := by
-    rw [← sum_sub_distrib]
-    exact sum_congr rfl fun i hi ↦ by simp [symmetrize, hi]
+      ∑ i ∈ A, symmetrize (X i) ω = (∑ i ∈ A, X i ω.1) - ∑ i ∈ A, X i ω.2 := by
+    simp [symmetrize, sum_sub_distrib]
   simp_rw [sum_symmetrize]
   calc
     ∫ ω, ‖∑ i ∈ A, X i ω‖ ^ (2 * m) ∂μ

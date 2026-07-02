@@ -8,12 +8,12 @@ module
 public import Mathlib.Data.Nat.Choose.Multinomial
 public import Mathlib.Probability.IdentDistrib
 
+import APAP.Prereqs.Symmetrize
 import Mathlib.Analysis.Convex.Integral
 import Mathlib.Analysis.Convex.Mul
 import Mathlib.Probability.IdentDistribIndep
 import Mathlib.Probability.Independence.Integration
 import Mathlib.Tactic.Positivity.Finset
-import APAP.Prereqs.Symmetrize
 
 /-!
 # The Marcinkiewicz-Zygmund inequality
@@ -529,7 +529,7 @@ noncomputable def marcinkiewiczZygmundConst (p : ℝ≥0) : ℝ :=
   4 ^ (p / 2 : ℝ) * marcinkiewiczZygmundSymmConst p
 
 omit [IsFiniteMeasure μ] [InnerProductSpace ℝ E] [MeasurableSpace E] in
-lemma integrable_norm_pow_sum (hm : m ≠ 0) (h_lp : ∀ i ∈ A, MemLp (X i) (2 * m) μ) :
+private lemma integrable_norm_pow_sum (hm : m ≠ 0) (h_lp : ∀ i ∈ A, MemLp (X i) (2 * m) μ) :
     Integrable (fun ω ↦ (∑ i ∈ A, ‖X i ω‖ ^ 2) ^ m) μ := by
   have h_mem : MemLp (fun ω ↦ ∑ i ∈ A, ‖X i ω‖ ^ 2) m μ := by
     refine memLp_finsetSum A fun i hi ↦ ?_
@@ -556,53 +556,68 @@ theorem marcinkiewicz_zygmund [SecondCountableTopology E] [BorelSpace E] [Comple
   have : IsProbabilityMeasure μ := h_indep.isProbabilityMeasure
   have : DecidableEq ι := Classical.decEq _
   refine (symmetrize_inequality h_indep h_int h_lp hm).trans ?_
-  have h_ae_meas (i : ι) : AEMeasurable (symmetrize A X i) (μ.prod μ) := by
-    by_cases hi : i ∈ A
-    · simp only [symmetrize, if_pos hi]
-      exact ((h_lp i hi).aestronglyMeasurable.aemeasurable.comp_quasiMeasurePreserving
-          measurePreserving_fst.quasiMeasurePreserving).sub
-        ((h_lp i hi).aestronglyMeasurable.aemeasurable.comp_quasiMeasurePreserving
-          measurePreserving_snd.quasiMeasurePreserving)
-    · simp only [symmetrize, if_neg hi]
-      exact measurable_zero.aemeasurable
+  let Z i := symmetrize (if i ∈ A then X i else 0)
+  have h_ae_meas (i : ι) : AEMeasurable (Z i) (μ.prod μ) := by
+    simp only [symmetrize, Z]
+    have h_meas_ite : AEMeasurable (if i ∈ A then X i else 0) μ := by
+      split_ifs with hi
+      · exact (h_lp i hi).aestronglyMeasurable.aemeasurable
+      · exact aemeasurable_const
+    exact (h_meas_ite.comp_quasiMeasurePreserving
+      measurePreserving_fst.quasiMeasurePreserving).sub
+      (h_meas_ite.comp_quasiMeasurePreserving
+      measurePreserving_snd.quasiMeasurePreserving)
   have h_ident_neg (i : ι) :
-      IdentDistrib (symmetrize A X i) (-symmetrize A X i) (μ.prod μ) (μ.prod μ) := by
+      IdentDistrib (Z i) (-Z i) (μ.prod μ) (μ.prod μ) := by
     refine ⟨h_ae_meas i, (h_ae_meas i).neg, ?_⟩
-    have h_swap : -symmetrize A X i = symmetrize A X i ∘ Prod.swap := by
-      funext ω
-      by_cases hi : i ∈ A <;> simp [symmetrize, hi]
-    have h_swap_meas : AEMeasurable (symmetrize A X i) (Measure.map Prod.swap (μ.prod μ)) := by
+    have h_swap : -Z i = Z i ∘ Prod.swap := by
+      ext ω
+      simp [symmetrize, Z]
+    have h_swap_meas : AEMeasurable (Z i) (Measure.map Prod.swap (μ.prod μ)) := by
       rw [Measure.prod_swap]
-      simp_all
+      exact h_ae_meas i
     calc
-      Measure.map (symmetrize A X i) (μ.prod μ)
-      _ = Measure.map (symmetrize A X i) (Measure.map Prod.swap (μ.prod μ)) := by
+      Measure.map (Z i) (μ.prod μ)
+      _ = Measure.map (Z i) (Measure.map Prod.swap (μ.prod μ)) := by
           rw [Measure.prod_swap]
-      _ = Measure.map (symmetrize A X i ∘ Prod.swap) (μ.prod μ) :=
+      _ = Measure.map (Z i ∘ Prod.swap) (μ.prod μ) :=
           AEMeasurable.map_map_of_aemeasurable h_swap_meas measurable_swap.aemeasurable
-      _ = Measure.map (-symmetrize A X i) (μ.prod μ) := by simp_all
-  have h_indep_symm : iIndepFun (symmetrize A X) (μ.prod μ) := by
+      _ = Measure.map (-Z i) (μ.prod μ) := by simp_all
+  have h_indep_symm : iIndepFun Z (μ.prod μ) := by
     have h_ite_mem : iIndepFun (fun i ↦ if i ∈ A then X i else 0) μ :=
       iIndepFun.ite_mem h_indep
     have h_ae_meas i : AEMeasurable (if i ∈ A then X i else (0 : Ω → E)) μ := by
       split_ifs with hi
       · exact (h_lp i hi).aestronglyMeasurable.aemeasurable
       · exact aemeasurable_const
-    have h_x_eq : _root_.symmetrize A X = fun i ↦ (if i ∈ A then X i else 0) ∘ Prod.fst -
+    have h_x_eq : Z = fun i ↦ (if i ∈ A then X i else 0) ∘ Prod.fst -
         (if i ∈ A then X i else 0) ∘ Prod.snd := by
       ext i ω
-      split_ifs with hi <;> simp [_root_.symmetrize, hi]
+      simp [symmetrize, Z]
     rw [h_x_eq]
     exact iIndepFun.sub_prod h_ite_mem h_ae_meas
+  have h_sum_eq (ω : Ω × Ω) :
+      ∑ i ∈ A, symmetrize (X i) ω = ∑ i ∈ A, Z i ω :=
+    sum_congr rfl fun i hi ↦ by simp [Z, hi]
+  have h_sum_eq' (ω : Ω × Ω) :
+      (∑ i ∈ A, ‖Z i ω‖ ^ 2) ^ m =
+        (∑ i ∈ A, ‖symmetrize (X i) ω‖ ^ 2) ^ m := by
+    congr 1
+    exact sum_congr rfl fun i hi ↦ by simp [Z, hi]
+  simp_rw [h_sum_eq]
   refine (marcinkiewicz_zygmund_symmetric h_indep_symm
-    h_ident_neg (fun i hi ↦ memLp_symmetrize h_lp i hi)).trans ?_
+    h_ident_neg (fun i hi ↦ ?_)).trans ?_
+  · have : (if i ∈ A then X i else 0) = X i := if_pos hi
+    rw [show Z i = symmetrize (if i ∈ A then X i else 0) by rfl, this]
+    exact memLp_symmetrize (h_lp i hi)
+  simp_rw [h_sum_eq']
   have h_symm₀ : 0 ≤ marcinkiewiczZygmundSymmConst (2 * m) := by
     unfold marcinkiewiczZygmundSymmConst
     positivity
-  have h_int_s_pow : Integrable (fun ω ↦ (∑ i ∈ A, ‖symmetrize A X i ω‖ ^ 2) ^ m) (μ.prod μ) := by
-    have h_mem : MemLp (fun ω ↦ ∑ i ∈ A, ‖symmetrize A X i ω‖ ^ 2) m (μ.prod μ) := by
+  have h_int_s_pow : Integrable (fun ω ↦ (∑ i ∈ A, ‖symmetrize (X i) ω‖ ^ 2) ^ m) (μ.prod μ) := by
+    have h_mem : MemLp (fun ω ↦ ∑ i ∈ A, ‖symmetrize (X i) ω‖ ^ 2) m (μ.prod μ) := by
       refine memLp_finsetSum A fun i hi ↦ ?_
-      have := (memLp_symmetrize h_lp i hi).norm_rpow_div 2
+      have := (memLp_symmetrize (h_lp i hi)).norm_rpow_div 2
       rw [ENNReal.toReal_ofNat, mul_comm (2 : ℝ≥0∞),
         ENNReal.mul_div_cancel_right (by norm_num) (by norm_num)] at this
       simp_all
