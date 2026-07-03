@@ -224,17 +224,20 @@ open Lean Meta Qq Function MeasureTheory
 alias ⟨_, dLpNorm_pos_of_ne_zero⟩ := dLpNorm_pos
 
 /-- The `positivity` extension which identifies expressions of the form `‖f‖_[p]`. -/
-@[positivity ‖_‖_[_]] meta def evalDLpNorm : PositivityExt where eval {u} R _z _p e := do
+@[positivity ‖_‖_[_]] meta def evalDLpNorm : PositivityExt where eval {u} R _z _p e :=
+  match _p with
+  | none => pure .none
+  | some _ => do
   match u, R, e with
   | 0, ~q(ℝ), ~q(@dLpNorm $α $E $instαmeas $instEnorm $p $f) =>
     assumeInstancesCommute
     try {
-      let some pp := (← core q(inferInstance) q(inferInstance) p).toNonzero _ _ | failure
+      let some pp := (← core q(inferInstance) (some q(inferInstance)) p).toNonzero | failure
       try
         let _pE ← synthInstanceQ q(PartialOrder $E)
         let _ ← synthInstanceQ q(Finite $α)
         let _ ← synthInstanceQ q(DiscreteMeasurableSpace $α)
-        let some pf := (← core q(inferInstance) q(inferInstance) f).toNonzero _ _ | failure
+        let some pf := (← core q(inferInstance) (some q(inferInstance)) f).toNonzero | failure
         return .positive q(@dLpNorm_pos_of_ne_zero $α _ _ _ _ _ _ _ $pp $pf)
       catch _ =>
         assumeInstancesCommute

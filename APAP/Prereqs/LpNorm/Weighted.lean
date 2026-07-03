@@ -181,7 +181,10 @@ namespace Mathlib.Meta.Positivity
 open Lean Meta Qq Function MeasureTheory
 
 /-- The `positivity` extension which identifies expressions of the form `‖f‖_[p, w]`. -/
-@[positivity ‖_‖_[_, _]] meta def evalWLpNorm : PositivityExt where eval {u} R _z _p e := do
+@[positivity ‖_‖_[_, _]] meta def evalWLpNorm : PositivityExt where eval {u} R _z _p e :=
+  match _p with
+  | none => pure .none
+  | some _ => do
   match u, R, e with
   | 0, ~q(ℝ), ~q(@wLpNorm $α $E $instαmeas $instEnorm $p $w $f) =>
     assumeInstancesCommute

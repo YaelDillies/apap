@@ -55,8 +55,10 @@ namespace Mathlib.Meta.Positivity
 open Lean.Meta Qq
 
 /-- Extension for the `positivity` tactic: `changConst` is positive. -/
-@[positivity changConst] meta def evalChangConst : PositivityExt where eval _ _ _ := do
-  return .positive (q(changConst_pos) : Lean.Expr)
+@[positivity changConst] meta def evalChangConst : PositivityExt where eval _ pα? _ :=
+  match pα? with
+  | none => pure .none
+  | some _ => pure (.positive (q(changConst_pos) : Lean.Expr))
 
 example : 0 < changConst := by positivity
 

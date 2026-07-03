@@ -111,16 +111,20 @@ such that `positivity` successfully recognises both `f` and `g`. -/
 @[positivity _ ∗ᵈ _] meta def evalConv : PositivityExt where eval {u G} zG pG e := do
   let .app (.app (_f : Q($G → $G → $G)) (a : Q($G))) (b : Q($G)) ← withReducible (whnf e)
     | throwError "not ∗"
-  let ra ← core zG pG a; let rb ← core zG pG b
-  match ra, rb with
-  | .positive pa, .positive pb => return .positive q(dummy_pos_of_pos_pos $pa $pb)
-  | .positive pa, .nonnegative pb => return .nonnegative q(dummy_nng_of_pos_nng $pa $pb)
-  | .nonnegative pa, .positive pb => return .nonnegative q(dummy_nng_of_nng_pos $pa $pb)
-  | .nonnegative pa, .nonnegative pb => return .nonnegative q(dummy_nng_of_nng_nng $pa $pb)
-  | .positive pa, .nonzero pb => return .nonzero q(dummy_nzr_of_pos_nzr $pa $pb)
-  | .nonzero pa, .positive pb => return .nonzero q(dummy_nzr_of_nzr_pos $pa $pb)
-  | .nonzero pa, .nonzero pb => return .nonzero q(dummy_nzr_of_nzr_nzr $pa $pb)
-  | _, _ => pure .none
+  id <| match pG with
+  | none => pure .none
+  | some pα => do
+    let ra ← core zG (some pα) a
+    let rb ← core zG (some pα) b
+    match ra, rb with
+    | .positive pa, .positive pb => return .positive q(dummy_pos_of_pos_pos $pa $pb)
+    | .positive pa, .nonnegative pb => return .nonnegative q(dummy_nng_of_pos_nng $pa $pb)
+    | .nonnegative pa, .positive pb => return .nonnegative q(dummy_nng_of_nng_pos $pa $pb)
+    | .nonnegative pa, .nonnegative pb => return .nonnegative q(dummy_nng_of_nng_nng $pa $pb)
+    | .positive pa, .nonzero pb => return .nonzero q(dummy_nzr_of_pos_nzr $pa $pb)
+    | .nonzero pa, .positive pb => return .nonzero q(dummy_nzr_of_nzr_pos $pa $pb)
+    | .nonzero pa, .nonzero pb => return .nonzero q(dummy_nzr_of_nzr_nzr $pa $pb)
+    | _, _ => pure .none
 
 -- TODO: Make it sound again :(
 set_option linter.unusedVariables false in
@@ -129,16 +133,20 @@ such that `positivity` successfully recognises both `f` and `g`. -/
 @[positivity _ ○ᵈ _] meta def evalDConv : PositivityExt where eval {u G} zG pG e := do
   let .app (.app (_f : Q($G → $G → $G)) (a : Q($G))) (b : Q($G)) ← withReducible (whnf e)
     | throwError "not ∗"
-  let ra ← core zG pG a; let rb ← core zG pG b
-  match ra, rb with
-  | .positive pa, .positive pb => return .positive q(dummy_pos_of_pos_pos $pa $pb)
-  | .positive pa, .nonnegative pb => return .nonnegative q(dummy_nng_of_pos_nng $pa $pb)
-  | .nonnegative pa, .positive pb => return .nonnegative q(dummy_nng_of_nng_pos $pa $pb)
-  | .nonnegative pa, .nonnegative pb => return .nonnegative q(dummy_nng_of_nng_nng $pa $pb)
-  | .positive pa, .nonzero pb => return .nonzero q(dummy_nzr_of_pos_nzr $pa $pb)
-  | .nonzero pa, .positive pb => return .nonzero q(dummy_nzr_of_nzr_pos $pa $pb)
-  | .nonzero pa, .nonzero pb => return .nonzero q(dummy_nzr_of_nzr_nzr $pa $pb)
-  | _, _ => pure .none
+  id <| match pG with
+  | none => pure .none
+  | some pα => do
+    let ra ← core zG (some pα) a
+    let rb ← core zG (some pα) b
+    match ra, rb with
+    | .positive pa, .positive pb => return .positive q(dummy_pos_of_pos_pos $pa $pb)
+    | .positive pa, .nonnegative pb => return .nonnegative q(dummy_nng_of_pos_nng $pa $pb)
+    | .nonnegative pa, .positive pb => return .nonnegative q(dummy_nng_of_nng_pos $pa $pb)
+    | .nonnegative pa, .nonnegative pb => return .nonnegative q(dummy_nng_of_nng_nng $pa $pb)
+    | .positive pa, .nonzero pb => return .nonzero q(dummy_nzr_of_pos_nzr $pa $pb)
+    | .nonzero pa, .positive pb => return .nonzero q(dummy_nzr_of_nzr_pos $pa $pb)
+    | .nonzero pa, .nonzero pb => return .nonzero q(dummy_nzr_of_nzr_nzr $pa $pb)
+    | _, _ => pure .none
 
 -- TODO: Make it sound again :(
 set_option linter.unusedVariables false in
@@ -147,11 +155,15 @@ such that `positivity` successfully recognises both `f` and `g`. -/
 @[positivity _ ∗ᵈ^ _] meta def evalIterConv : PositivityExt where eval {u G} zG pG e := do
   let .app (.app (_f : Q($G → $G → $G)) (a : Q($G))) (b : Q($G)) ← withReducible (whnf e)
     | throwError "not ∗"
-  match ← core zG pG a with
-  | .positive pa => return .positive q(dummy_pos_of_pos $pa)
-  | .nonnegative pa => return .nonnegative q(dummy_nng_of_nng $pa)
-  | .nonzero pa => return .nonzero q(dummy_nzr_of_nzr $pa)
-  | _ => return .none
+  id <| match pG with
+  | none => pure .none
+  | some pα => do
+    let ra ← core zG (some pα) a
+    match ra with
+    | .positive pa => return .positive q(dummy_pos_of_pos $pa)
+    | .nonnegative pa => return .nonnegative q(dummy_nng_of_nng $pa)
+    | .nonzero pa => return .nonzero q(dummy_nzr_of_nzr $pa)
+    | _ => return .none
 
 variable [CommSemiring R] [PartialOrder R] [IsStrictOrderedRing R] [StarRing R] [StarOrderedRing R]
   {f g : G → R}
