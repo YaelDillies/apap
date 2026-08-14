@@ -47,7 +47,7 @@ private lemma eq_one_of_forall_pow_mem_rightHalfArc {z : Circle}
 instance [CompactSpace M] : DiscreteTopology (PontryaginDual M) := by
   refine discreteTopology_of_isOpen_singleton_one ?_
   have hopen : IsOpen {ψ : PontryaginDual M | Set.MapsTo ψ .univ rightHalfArc} :=
-    isOpen_induced (ContinuousMap.isOpen_setOf_mapsTo isCompact_univ isOpen_rightHalfArc)
+    isOpen_induced (ContinuousMap.isOpen_setOfPred_mapsTo isCompact_univ isOpen_rightHalfArc)
   convert hopen
   ext ψ
   refine ⟨?_, fun hψ ↦ ?_⟩
