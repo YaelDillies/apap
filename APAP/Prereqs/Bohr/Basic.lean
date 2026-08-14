@@ -211,25 +211,16 @@ noncomputable instance [Finite G] : InfSet (BohrSet G) where
     mem_frequencies := by simp
   }
 
--- Fixed in https://github.com/leanprover-community/mathlib4/pull/37478.
-set_option backward.isDefEq.respectTransparency false in
-noncomputable def minimalAxioms [Finite G] :
-    CompletelyDistribLattice.MinimalAxioms (BohrSet G) :=
-  ewidth_injective.completelyDistribLatticeMinimalAxioms .of BohrSet.ewidth
-    .rfl .rfl (fun _ _ ↦ rfl) (fun _ _ ↦ rfl)
-    (fun B => by
-      ext ψ
-      simp only [iSup_apply]
-      rfl)
-    (fun B => by
-      ext ψ
-      simp only [iInf_apply]
-      rfl)
+noncomputable instance [Finite G] : CompleteLattice (BohrSet G) :=
+  ewidth_injective.completeLattice BohrSet.ewidth .rfl .rfl (fun _ _ ↦ rfl) (fun _ _ ↦ rfl)
+    (fun B ↦ by ext ψ; simp only [iSup_apply]; rfl)
+    (fun B ↦ by ext ψ; simp only [iInf_apply]; rfl)
     rfl
     rfl
 
-noncomputable instance [Finite G] : CompletelyDistribLattice (BohrSet G) :=
-  .ofMinimalAxioms BohrSet.minimalAxioms
+noncomputable instance [Finite G] : CompletelyDistribLattice (BohrSet G) := by
+  refine .ofMinimalAxioms <| ewidth_injective.completelyDistribLatticeMinimalAxioms .of ewidth ?_ ?_
+    <;> · intros; ext; simp only [iSup_apply, iInf_apply]; rfl
 
 /-! ### Width, frequencies, rank -/
 
