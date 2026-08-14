@@ -37,7 +37,7 @@ lemma big_shifts_step1 (L : Finset (Fin k → α)) (hk : k ≠ 0) :
   intro l hl
   have := Fin.pos_iff_nonempty.1 (pos_iff_ne_zero.2 hk)
   rw [sum_const_nat, mul_one, Finset.card_piDiag]
-  exact fun s hs ↦ if_pos (Finset.add_mem_add hl hs)
+  exact fun s hs ↦ ite_eq_left (Finset.add_mem_add hl hs)
 
 end Add
 
@@ -162,7 +162,7 @@ lemma big_shifts_step2 (L : Finset (Fin k → G)) (hk : k ≠ 0) :
     ∑ x ∈ L, ∑ y ∈ S.piDiag (Fin k), (if x + y ∈ L + S.piDiag (Fin k) then f x y else 0) =
       ∑ x ∈ L, ∑ y ∈ S.piDiag (Fin k), f x y := by
     refine fun f ↦ sum_congr rfl fun x hx ↦ ?_
-    exact sum_congr rfl fun y hy ↦ if_pos <| add_mem_add hx hy
+    exact sum_congr rfl fun y hy ↦ ite_eq_left <| add_mem_add hx hy
   rw [this]
   have (x y : Fin k → G) :
       ∑ s₁ ∈ S.piDiag (Fin k), ∑ s₂ ∈ S.piDiag (Fin k), ite (y + s₂ = x + s₁) (1 : ℝ) 0 =

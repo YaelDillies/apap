@@ -73,7 +73,7 @@ omit [Fintype G] in
   obtain _ | p := p
   · simp only [ENNReal.none_eq_top, dLinftyNorm_eq_iSup_norm, trivChar_apply, apply_ite,
       norm_one, norm_zero]
-    exact IsLUB.ciSup_eq ⟨by aesop (add simp mem_upperBounds), fun x hx ↦ hx ⟨0, if_pos rfl⟩⟩
+    exact IsLUB.ciSup_eq ⟨by aesop (add simp mem_upperBounds), fun x hx ↦ hx ⟨0, ite_eq_left rfl⟩⟩
   · simp at hp
     simp [dLpNorm_eq_sum_norm hp, apply_ite, hp]
 

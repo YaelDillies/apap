@@ -35,7 +35,7 @@ lemma ThreeAPFree.wInner_one_mu_ddconv_mu_mu_two_smul_mu (hG : Odd (card G))
     simpa using hab
   · simpa using fun _ ↦ Or.inl
   · rintro a ha
-    simp only [mu_apply, ha, if_true, mul_one, mem_image, mul_ite, mul_zero]
-    rw [if_pos ⟨_, ha, two_smul _ _⟩, card_image_of_injective, pow_three', mul_inv, mul_inv]
+    simp only [mu_apply, ha, ite_true, mul_one, mem_image, mul_ite, mul_zero]
+    rw [ite_eq_left ⟨_, ha, two_smul _ _⟩, card_image_of_injective, pow_three', mul_inv, mul_inv]
     rw [← Nat.card_eq_fintype_card] at hG
     exact hG.coprime_two_right.nsmul_right_bijective.injective
