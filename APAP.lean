@@ -52,3 +52,4 @@ public import APAP.Prereqs.MarcinkiewiczZygmund
 public import APAP.Prereqs.Mu
 public import APAP.Prereqs.NewMarcinkiewiczZygmund
 public import APAP.Prereqs.Rudin
+public import APAP.Prereqs.Symmetrize
