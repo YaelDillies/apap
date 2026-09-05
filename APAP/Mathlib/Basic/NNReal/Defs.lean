@@ -1,7 +1,7 @@
 module
 
 public import AddCombi.Mathlib.Algebra.GroupWithZero.Indicator
-public import Mathlib.Data.NNReal.Defs
+public import Mathlib.Basic.NNReal.Defs
 
 public section
 

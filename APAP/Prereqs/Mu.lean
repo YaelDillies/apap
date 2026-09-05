@@ -5,7 +5,7 @@ public import Mathlib.Algebra.Group.Pointwise.Finset.Scalar
 public import Mathlib.Algebra.Group.Translate
 public import Mathlib.Algebra.Star.Conjneg
 public import Mathlib.Analysis.RCLike.Basic
-public import Mathlib.Data.Complex.Basic
+public import Mathlib.Basic.Complex.Basic
 
 import AddCombi.Mathlib.Algebra.GroupWithZero.Indicator
 import AddCombi.Mathlib.Algebra.Star.Pi
