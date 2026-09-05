@@ -11,7 +11,7 @@ public import Mathlib.MeasureTheory.MeasurableSpace.Defs
 
 import AddCombi.Mathlib.Algebra.Order.GroupWithZero.Indicator
 import APAP.Mathlib.Analysis.Fourier.FiniteAbelian.PontryaginDuality
-import APAP.Mathlib.Data.Complex.Basic
+import APAP.Mathlib.Basic.Complex.Basic
 import APAP.Mathlib.LinearAlgebra.FiniteDimensional.Lemmas
 import APAP.Physics.AlmostPeriodicity
 import APAP.Physics.DRC

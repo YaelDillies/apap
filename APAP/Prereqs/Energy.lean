@@ -3,7 +3,7 @@ module
 public import APAP.Prereqs.FourierTransform.Discrete
 
 import APAP.Mathlib.Algebra.Star.SelfAdjoint
-import APAP.Mathlib.Data.Complex.Basic
+import APAP.Mathlib.Basic.Complex.Basic
 import APAP.Prereqs.Convolution.Discrete.Basic
 import Mathlib.MeasureTheory.Integral.Bochner.Basic
 

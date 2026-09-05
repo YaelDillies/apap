@@ -1,7 +1,7 @@
 module
 
 public import AddCombi.Mathlib.Algebra.GroupWithZero.Indicator
-public import Mathlib.Data.Complex.Basic
+public import Mathlib.Basic.Complex.Basic
 
 public section
 

@@ -248,9 +248,8 @@ lemma sifting (B₁ B₂ : Finset G) (hε : 0 < ε) (hε₁ : ε ≤ 1) (hδ : 0
       · exact subset_univ _
     _ = ‖μ_[ℝ] B₁‖_[1] * ‖μ_[ℝ] B₂‖_[1] * ((1 - ε) ^ p * ‖𝟭_[A, ℝ] ○ᵈ 𝟭_[A]‖_[p, μ B₁ ○ᵈ μ B₂] ^ p)
         := ?_
-    _ ≤ _ :=
-      mul_le_of_le_one_left (mul_nonneg (hp.pow_nonneg _) <| hp.pow_nonneg _) <|
-        mul_le_one₀ dL1Norm_mu_le_one (by positivity) dL1Norm_mu_le_one
+    _ ≤ (1 - ε) ^ p * ‖𝟭_[↑A, ℝ] ○ᵈ 𝟭_[↑A, ℝ]‖_[↑p, μ B₁ ○ᵈ μ B₂] ^ p := by
+      grw [dL1Norm_mu_le_one, dL1Norm_mu_le_one, one_mul, one_mul] <;> positivity
     _ ≤ _ := mul_le_mul_of_nonneg_right ?_ <| hp.pow_nonneg _
   · have : 0 ≤ μ_[ℝ] B₁ ○ᵈ μ B₂ := dddconv_nonneg mu_nonneg mu_nonneg
     simp_rw [← dL1Norm_dddconv mu_nonneg mu_nonneg, dL1Norm_eq_sum_norm,

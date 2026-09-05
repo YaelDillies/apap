@@ -38,7 +38,8 @@ lemma rudin_exp_ineq (f : G → ℂ) (hf : AddDissociated <| support <| cft f) :
     exp (f a).re ≤ ∏ ψ, (cosh ‖cft f ψ‖ + (c ψ * sinh ‖cft f ψ‖ * ψ a).re) :=
     calc
       _ = ∏ ψ, exp ((cft f ψ * ψ a).re) := by simp_rw [← exp_sum, ← Complex.re_sum, cft_inversion]
-      _ ≤ _ := prod_le_prod (fun _ _ ↦ by positivity) fun _ _ ↦ this _
+      _ ≤ ∏ ψ, (cosh ‖cft f ψ * ψ a‖ +
+          (cft f ψ * ψ a / ‖cft f ψ * ψ a‖).re * sinh ‖cft f ψ * ψ a‖) := by gcongr; exact this _
       _ = ∏ ψ, (cosh ‖cft f ψ‖ + (c ψ * (cft f ψ * ψ a)
             / (c ψ * ↑‖cft f ψ‖)).re * sinh ‖cft f ψ‖) := by
           simp_rw [norm_mul, AddChar.norm_apply, mul_one, mul_div_mul_left _ _ (hc₀ _)]
@@ -53,8 +54,7 @@ lemma rudin_exp_ineq (f : G → ℂ) (hf : AddDissociated <| support <| cft f) :
         expect_le_expect fun _ _ ↦ this _
     _ = ∏ ψ, cosh ‖cft f ψ‖ :=
         AddDissociated.randomisation _ _ <| by simpa [-Complex.ofReal_sinh, hc₀]
-    _ ≤ ∏ ψ, exp (‖cft f ψ‖ ^ 2 / 2) :=
-        prod_le_prod (fun _ _ ↦ by positivity) fun _ _ ↦ cosh_le_exp_half_sq _
+    _ ≤ ∏ ψ, exp (‖cft f ψ‖ ^ 2 / 2) := by gcongr; exact cosh_le_exp_half_sq _
     _ = _ := by simp_rw [← exp_sum, ← sum_div, ← dL2Norm_cft, dL2Norm_sq_eq_sum_norm]
 
 /-- **Rudin's inequality**, exponential form with absolute values. -/
