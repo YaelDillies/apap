@@ -1,0 +1,18 @@
+name = "APAPComparator"
+
+defaultTargets = ["Challenge", "Solution"]
+
+packagesDir = "../.lake/packages"
+
+[leanOptions]
+relaxedAutoImplicit = false
+
+[[require]]
+name = "APAP"
+path = ".."
+
+[[lean_lib]]
+name = "Challenge"
+
+[[lean_lib]]
+name = "Solution"
