@@ -63,9 +63,9 @@ theorem marcinkiewicz_zygmund_symmetric (iIndepFun_X : iIndepFun X μ)
     have aux : (∑ _k : Fin m, (2 * (m : ℝ≥0∞))⁻¹)⁻¹ = 2 := by
       rw [ENNReal.mul_inv (a := 2) (.inl <| by norm_num) (.inl <| by norm_num)]
       simp [hm, mul_comm, ← mul_assoc, ENNReal.mul_inv_cancel]
-    refine .mul' (p := 2) (q := 2) ?_ ?_ <;>
+    refine .fun_mul (p := 2) (q := 2) ?_ ?_ <;>
     · rw [← aux]
-      exact .prod' fun k _ ↦ (memLp_X _ <| by simp_all).norm
+      exact MemLp.fun_prod fun k _ ↦ (memLp_X _ <| by simp_all).norm
   have integrable_prod_inner_X I (hI : I ∈ A ×ˢ A ^^ m) :
     Integrable (fun ω ↦ ∏ k, inner ℝ (X (I k).1 ω) (X (I k).2 ω)) μ := sorry
   -- Call a family of indices `i₁, ..., iₙ, j₁, ..., jₙ` *even* if each `i ∈ A` appears an even

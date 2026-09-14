@@ -6,6 +6,8 @@ public import Mathlib.MeasureTheory.Function.LpSeminorm.Defs
 
 import AddCombi.Mathlib.Algebra.Notation.Indicator
 import APAP.Mathlib.Analysis.RCLike.Basic
+import APAP.Mathlib.MeasureTheory.Function.LpSeminorm.Basic
+import APAP.Mathlib.MeasureTheory.Function.LpSeminorm.CompareExp
 import Mathlib.MeasureTheory.Function.LpSeminorm.LpNorm
 import Mathlib.MeasureTheory.Integral.Bochner.SumMeasure
 import Mathlib.Tactic.DepRewrite
@@ -198,9 +200,8 @@ lemma cLpNorm_exponent_top_eq_essSup (f : α → E) : ‖f‖ₙ_[∞] = ⨆ i, 
 @[gcongr] lemma cLpNorm_mono_right (hpq : p ≤ q) : ‖f‖ₙ_[p] ≤ ‖f‖ₙ_[q] := by
   cases isEmpty_or_nonempty α
   · simp [cLpNorm]
-  rw [cLpNorm, cLpNorm, ← toReal_eLpNorm .of_discrete, ← toReal_eLpNorm .of_discrete]
-  exact ENNReal.toReal_mono (MemLp.of_discrete (p := q)).eLpNorm_ne_top
-    (eLpNorm_le_eLpNorm_of_exponent_le hpq .of_discrete)
+  grw [cLpNorm, cLpNorm, ← toReal_eLpNorm, ← toReal_eLpNorm, hpq]
+  exact MemLp.of_discrete.eLpNorm_ne_top
 
 lemma cLpNorm_mono_real {g : α → ℝ} (h : ∀ x, ‖f x‖ ≤ g x) : ‖f‖ₙ_[p] ≤ ‖g‖ₙ_[p] :=
   lpNorm_mono_real .of_discrete h
@@ -327,10 +328,7 @@ variable {α : Type*} {mα : MeasurableSpace α}
 
 @[simp]
 lemma RCLike.cLpNorm_coe_comp [RCLike 𝕜] (p) (f : α → ℝ) : ‖((↑) : ℝ → 𝕜) ∘ f‖ₙ_[p] = ‖f‖ₙ_[p] := by
-  simp only [cLpNorm, lpNorm, comp_def]
-  rw! (castMode := .all)
-    [RCLike.isUniformEmbedding_ofReal.isEmbedding.aestronglyMeasurable_comp_iff]
-  simp [eLpNorm, eLpNorm', eLpNormEssSup]
+  simp only [cLpNorm, lpNorm, comp_def, eLpNorm_rclikeOfReal_comp]
 
 @[simp] lemma Complex.cLpNorm_coe_comp (p) (f : α → ℝ) : ‖((↑) : ℝ → ℂ) ∘ f‖ₙ_[p] = ‖f‖ₙ_[p] :=
   RCLike.cLpNorm_coe_comp ..

@@ -3,6 +3,7 @@ module
 public import APAP.Prereqs.LpNorm.Discrete.Defs
 public import Mathlib.Algebra.Group.Translate
 
+import APAP.Mathlib.MeasureTheory.Function.LpSeminorm.CompareExp
 import Mathlib.MeasureTheory.Function.LpSeminorm.LpNorm
 import Mathlib.Tactic.Positivity
 
@@ -38,11 +39,8 @@ notation "‖" f "‖_[" p ", " w "]" => wLpNorm p w f
 lemma wLpNorm_sub_comm (w : α → ℝ≥0) (f g : α → E) : ‖f - g‖_[p, w] = ‖g - f‖_[p, w] := by
   simp [wLpNorm, lpNorm_sub_comm]
 
-set_option backward.isDefEq.respectTransparency false in
 @[simp] lemma wLpNorm_one_eq_dLpNorm (p : ℝ≥0∞) (f : α → E) : ‖f‖_[p, 1] = ‖f‖_[p] := by
   simp only [wLpNorm, lpNorm, Pi.one_apply, one_smul, dLpNorm, Measure.count]
-  congr!
-  simp
 
 @[simp] lemma wLpNorm_fun_one_eq_dLpNorm (p : ℝ≥0∞) (f : α → E) : ‖f‖_[p, fun _ ↦ 1] = ‖f‖_[p] :=
   wLpNorm_one_eq_dLpNorm ..
@@ -108,19 +106,13 @@ lemma wL1Norm_eq_sum_norm (w : α → ℝ≥0) (f : α → E) : ‖f‖_[1, w] =
 
 /-- Monotonicity of weighted `L^p` norms in the exponent, for probability weights. -/
 @[gcongr]
-lemma wLpNorm_mono_right
-    (hw : ∑ i, (w i : ℝ≥0∞) = 1) (hpq : p ≤ q) (f : α → E) :
+lemma wLpNorm_mono_right (hw : ∑ i, (w i : ℝ≥0∞) = 1) (hpq : p ≤ q) (f : α → E) :
     ‖f‖_[p, w] ≤ ‖f‖_[q, w] := by
   have : IsProbabilityMeasure (Measure.sum fun i ↦ (w i : ℝ≥0) • Measure.dirac (i : α)) := by
     rw [isProbabilityMeasure_iff, Measure.sum_apply _ MeasurableSet.univ]
     simp [hw, ← Measure.coe_nnreal_smul]
-  rw [wLpNorm, wLpNorm,
-      ← toReal_eLpNorm (μ := Measure.sum fun i ↦ (w i : ℝ≥0) • Measure.dirac i)
-        (MemLp.of_discrete (p := p)).aestronglyMeasurable,
-      ← toReal_eLpNorm (μ := Measure.sum fun i ↦ (w i : ℝ≥0) • Measure.dirac i)
-        (MemLp.of_discrete (p := q)).aestronglyMeasurable]
-  exact ENNReal.toReal_mono (MemLp.of_discrete (p := q)).eLpNorm_ne_top
-    (eLpNorm_le_eLpNorm_of_exponent_le hpq (MemLp.of_discrete (p := p)).aestronglyMeasurable)
+  grw [wLpNorm, wLpNorm, ← toReal_eLpNorm, ← toReal_eLpNorm, hpq]
+  exact MemLp.of_discrete.eLpNorm_ne_top
 
 omit [Fintype α]
 

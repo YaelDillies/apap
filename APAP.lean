@@ -20,6 +20,7 @@ public import APAP.Mathlib.Basic.NNReal.Defs
 public import APAP.Mathlib.Data.ZMod.Basic
 public import APAP.Mathlib.LinearAlgebra.Dimension.Finrank
 public import APAP.Mathlib.LinearAlgebra.FiniteDimensional.Lemmas
+public import APAP.Mathlib.MeasureTheory.Function.LpSeminorm.Basic
 public import APAP.Mathlib.MeasureTheory.Function.LpSeminorm.CompareExp
 public import APAP.Mathlib.Topology.Algebra.PontryaginDual
 public import APAP.Physics.AlmostPeriodicity
