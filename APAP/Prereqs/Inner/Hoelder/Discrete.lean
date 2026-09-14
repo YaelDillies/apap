@@ -104,9 +104,10 @@ lemma dLpNorm_mul_le (p q : ℝ≥0∞) [p.HolderTriple q r] : ‖f * g‖_[r] �
   cases nonempty_fintype α
   change lpNorm (f * g) r .count ≤ lpNorm f p .count * lpNorm g q .count
   have hfg : AEStronglyMeasurable (f * g) .count := .of_discrete
-  grw [← toReal_eLpNorm .of_discrete, ← toReal_eLpNorm .of_discrete, ← toReal_eLpNorm .of_discrete,
+  grw [← toReal_eLpNorm, ← toReal_eLpNorm, ← toReal_eLpNorm,
     ← ENNReal.toReal_mul, ← eLpNorm_mul_le_mul_eLpNorm (r := r) .of_discrete .of_discrete]
-  exact (ENNReal.mul_lt_top eLpNorm_lt_top_of_finite eLpNorm_lt_top_of_finite).ne
+  exact (ENNReal.mul_lt_top (eLpNorm_lt_top_of_finite .of_discrete)
+    (eLpNorm_lt_top_of_finite .of_discrete)).ne
 
 /-- **Hölder's inequality**, finitary case. -/
 lemma dLpNorm_prod_le {ι : Type*} {s : Finset ι} (hs : s.Nonempty) {p : ι → ℝ≥0} (hp : ∀ i, p i ≠ 0)

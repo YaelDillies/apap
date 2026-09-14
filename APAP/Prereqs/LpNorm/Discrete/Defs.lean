@@ -3,6 +3,7 @@ module
 public import Mathlib.MeasureTheory.Function.LpSeminorm.Defs
 
 import APAP.Mathlib.Analysis.RCLike.Basic
+import APAP.Mathlib.MeasureTheory.Function.LpSeminorm.Basic
 import Mathlib.MeasureTheory.Function.LpSeminorm.LpNorm
 import Mathlib.MeasureTheory.Integral.Bochner.SumMeasure
 import Mathlib.Tactic.DepRewrite
@@ -328,10 +329,7 @@ variable {α : Type*} {mα : MeasurableSpace α}
 
 @[simp]
 lemma RCLike.dLpNorm_coe_comp [RCLike 𝕜] (p) (f : α → ℝ) : ‖((↑) : ℝ → 𝕜) ∘ f‖_[p] = ‖f‖_[p] := by
-  simp only [dLpNorm, lpNorm, comp_def]
-  rw! (castMode := .all)
-    [RCLike.isUniformEmbedding_ofReal.isEmbedding.aestronglyMeasurable_comp_iff]
-  simp [eLpNorm, eLpNorm', eLpNormEssSup]
+  simp only [dLpNorm, lpNorm, comp_def, eLpNorm_rclikeOfReal_comp]
 
 @[simp] lemma Complex.dLpNorm_coe_comp (p) (f : α → ℝ) : ‖((↑) : ℝ → ℂ) ∘ f‖_[p] = ‖f‖_[p] :=
   RCLike.dLpNorm_coe_comp ..
