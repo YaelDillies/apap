@@ -7,5 +7,6 @@ open Finset Real
 
 public section
 
-theorem int {A : Finset ℕ} {N : ℕ} (hAN : A ⊆ range N) (hA : ThreeAPFree (α := ℕ) A) :
-    ∃ c > 0, #A ≤ N / exp (c * log N ^ (12⁻¹ : ℝ)) := sorry
+theorem int :
+    ∃ c > 0, ∃ C > 0, ∀ ⦃A : Finset ℕ⦄ ⦃N : ℕ⦄, A ⊆ range N → ThreeAPFree (α := ℕ) A →
+      #A ≤ N / exp (c * log N ^ (12⁻¹ : ℝ)) := sorry
