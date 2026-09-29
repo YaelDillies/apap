@@ -3,6 +3,8 @@ module
 public import Mathlib.Algebra.Group.Translate
 public import Mathlib.Analysis.Convolution
 
+import Mathlib.MeasureTheory.Group.Integral
+
 /-!
 # TODO
 
