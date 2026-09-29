@@ -6,6 +6,7 @@ import APAP.Mathlib.Algebra.Star.SelfAdjoint
 import APAP.Mathlib.Basic.Complex.Basic
 import APAP.Prereqs.Convolution.Discrete.Basic
 import Mathlib.MeasureTheory.Integral.Bochner.Basic
+import Mathlib.Tactic.Positivity.Finset
 
 @[expose] public noncomputable section
 

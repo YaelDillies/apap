@@ -5,6 +5,7 @@ public import APAP.Prereqs.LpNorm.Discrete.Basic
 
 import APAP.Prereqs.FourierTransform.Compact
 import Mathlib.MeasureTheory.Integral.Bochner.Basic
+import Mathlib.Tactic.Positivity.Finset
 
 public section
 

@@ -8,6 +8,7 @@ import AddCombi.Mathlib.Algebra.Notation.Indicator
 import APAP.Mathlib.Analysis.RCLike.Basic
 import APAP.Mathlib.MeasureTheory.Function.LpSeminorm.Basic
 import APAP.Mathlib.MeasureTheory.Function.LpSeminorm.CompareExp
+import Mathlib.Data.Fintype.Order
 import Mathlib.MeasureTheory.Function.LpSeminorm.LpNorm
 import Mathlib.MeasureTheory.Integral.Bochner.SumMeasure
 import Mathlib.Tactic.DepRewrite

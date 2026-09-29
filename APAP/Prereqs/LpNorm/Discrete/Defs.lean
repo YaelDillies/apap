@@ -4,6 +4,7 @@ public import Mathlib.MeasureTheory.Function.LpSeminorm.Defs
 
 import APAP.Mathlib.Analysis.RCLike.Basic
 import APAP.Mathlib.MeasureTheory.Function.LpSeminorm.Basic
+import Mathlib.Data.Fintype.Order
 import Mathlib.MeasureTheory.Function.LpSeminorm.LpNorm
 import Mathlib.MeasureTheory.Integral.Bochner.SumMeasure
 import Mathlib.Tactic.DepRewrite
