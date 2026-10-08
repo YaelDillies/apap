@@ -69,7 +69,7 @@ lemma cLpNorm_mul_le (p q : ℝ≥0∞) (_hr₀ : r ≠ 0) [hpqr : ENNReal.Holde
     .of_forall fun x ↦ by rw [one_mul]; exact nnnorm_mul_le _ _
   have key : eLpNorm (fun x ↦ f x * g x) r μ
       ≤ ((1 : NNReal) : ℝ≥0∞) * eLpNorm f p μ * eLpNorm g q μ :=
-    eLpNorm_le_eLpNorm_mul_eLpNorm_of_nnnorm _ 1 continuous_mul
+    eLpNorm_le_eLpNorm_mul_eLpNorm _ 1 continuous_mul
       hm_p.aestronglyMeasurable hm_q.aestronglyMeasurable hbd
   change lpNorm _ _ μ ≤ lpNorm _ _ μ * lpNorm _ _ μ
   rw [← toReal_eLpNorm, ← toReal_eLpNorm, ← toReal_eLpNorm, ← ENNReal.toReal_mul]
