@@ -216,7 +216,7 @@ lemma unbalancing' (p : ℕ) (hp : p ≠ 0) (ε : ℝ) (hε₀ : 0 < ε) (hε₁
       _ ≤ 2 * (120 * ε⁻¹ * log (3 * ε⁻¹) * p) := Nat.ceil_le_two_mul <|
         calc
           (2⁻¹ : ℝ) ≤ 120 * 1 * 1 * 1 := by norm_num
-          _ ≤ 120 * ε⁻¹ * log (3 * ε⁻¹) * p := by
+          _ ≤ 120 * ε⁻¹ * log (3 / ε) * p := by
             gcongr
             · exact (one_le_inv₀ hε₀).2 hε₁
             · rw [← log_exp 1]
