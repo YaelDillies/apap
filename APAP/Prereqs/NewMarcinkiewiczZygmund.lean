@@ -87,7 +87,7 @@ theorem marcinkiewicz_zygmund_symmetric (iIndepFun_X : iIndepFun X μ)
       -- Assume that `I = (i₁, ..., iₙ, j₁, ..., jₙ)` is an odd family.
       -- Say `i` appears an odd number of times in it.
       rintro I hI hI' i hi
-      contrapose! hI'
+      contrapose hI'
       replace hI' : Odd (#{k | (I k).1 = i} + #{k | (I k).2 = i}) := by simpa using hI'
       -- Let `Y` be the family of random variables `X` where `X i` has been replaced by `-X i`.
       let Y : ι → Ω → E := update X i (-X i)

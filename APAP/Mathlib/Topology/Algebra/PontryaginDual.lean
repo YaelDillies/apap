@@ -14,7 +14,7 @@ attribute [reducible] PontryaginDual
 namespace PontryaginDual
 variable {M : Type*} [Monoid M] [TopologicalSpace M]
 
-private def rightHalfArc : Set Circle := .exp '' .Ioo (-(π / 2)) (π / 2)
+private noncomputable def rightHalfArc : Set Circle := .exp '' .Ioo (-(π / 2)) (π / 2)
 
 private lemma isOpen_rightHalfArc : IsOpen rightHalfArc := by
   simpa [rightHalfArc] using isLocalHomeomorph_circleExp.isOpenMap _ isOpen_Ioo
@@ -48,8 +48,7 @@ instance [CompactSpace M] : DiscreteTopology (PontryaginDual M) := by
   refine discreteTopology_of_isOpen_singleton_one ?_
   have hopen : IsOpen {ψ : PontryaginDual M | Set.MapsTo ψ .univ rightHalfArc} :=
     isOpen_induced (ContinuousMap.isOpen_setOfPred_mapsTo isCompact_univ isOpen_rightHalfArc)
-  convert hopen
-  ext ψ
+  convert hopen with ψ
   refine ⟨?_, fun hψ ↦ ?_⟩
   · rintro rfl _ _
     exact ⟨0, by simp [pi_pos]⟩
