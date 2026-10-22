@@ -116,7 +116,7 @@ lemma dft_conjneg_apply (f : G → ℂ) (ψ : AddChar G ℂ) : dft (conjneg f) �
   simp only [dft_apply, wInner_one_eq_sum, inner_apply, conjneg_apply, map_sum, map_mul,
     RCLike.conj_conj]
   refine Fintype.sum_equiv (Equiv.neg G) _ _ fun i ↦ ?_
-  simp only [Equiv.neg_apply, ← inv_apply_eq_conj, ← inv_apply', inv_apply]
+  simp [← inv_apply_eq_conj, ← inv_apply']
 
 @[simp]
 lemma dft_conjneg (f : G → ℂ) : dft (conjneg f) = conj (dft f) := funext <| dft_conjneg_apply _
@@ -133,7 +133,7 @@ lemma dft_comp_neg_apply (f : G → ℂ) (ψ : AddChar G ℂ) :
   ext; simp [trivChar_apply, dft_apply, wInner_one_eq_sum]
 
 @[simp] lemma dft_one : dft (1 : G → ℂ) = card G • trivChar :=
-  dft_injective <| by classical rw [dft_smul, dft_trivChar, dft_dft, Pi.one_comp, nsmul_eq_mul]
+  dft_injective <| by rw [dft_smul, dft_trivChar, dft_dft, Pi.one_comp, nsmul_eq_mul]
 
 @[simp] lemma dft_indicator_one_zero (A : Finset G) : dft 𝟭_[(A : Set G)] 0 = #A := by
   simp [dft_apply, wInner_one_eq_sum]
