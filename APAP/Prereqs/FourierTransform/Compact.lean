@@ -105,7 +105,7 @@ lemma cft_conjneg_apply (f : G → ℂ) (ψ : AddChar G ℂ) : cft (conjneg f) �
   simp only [cft_apply, wInner_cWeight_eq_expect, inner_apply, conjneg_apply, map_expect, map_mul,
     RCLike.conj_conj]
   refine Fintype.expect_equiv (Equiv.neg _) _ _ fun i ↦ ?_
-  simp only [Equiv.neg_apply, ← inv_apply_eq_conj, ← inv_apply', inv_apply]
+  simp [← inv_apply_eq_conj, ← inv_apply']
 
 @[simp]
 lemma cft_conjneg (f : G → ℂ) : cft (conjneg f) = conj (cft f) := funext <| cft_conjneg_apply _
@@ -117,7 +117,7 @@ lemma cft_conjneg (f : G → ℂ) : cft (conjneg f) = conj (cft f) := funext <| 
   ext; simp [cft_apply, wInner_cWeight_eq_expect, NNRat.smul_def]
 
 @[simp] lemma cft_one : cft (1 : G → ℂ) = trivChar :=
-  dft_injective <| by classical rw [dft_trivChar, dft_cft, Pi.one_comp]
+  dft_injective <| by rw [dft_trivChar, dft_cft, Pi.one_comp]
 
 @[simp] lemma cft_indicator_one_zero (s : Finset G) : cft 𝟭_[(s : Set G)] 0 = s.dens := by
   simp [cft_apply, wInner_cWeight_eq_expect, inner_apply, expect_indicator_one, ← Pi.one_def,
