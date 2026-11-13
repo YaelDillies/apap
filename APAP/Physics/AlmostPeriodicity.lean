@@ -5,11 +5,11 @@ public import APAP.Prereqs.LpNorm.Discrete.Defs
 public import APAP.Prereqs.Mu
 public import Mathlib.Combinatorics.Additive.DoublingConst
 
+import AddCombi.Concentration.MarcinkiewiczZygmund
 import APAP.Prereqs.Convolution.Discrete.Basic
 import APAP.Prereqs.Convolution.Norm
 import APAP.Prereqs.Inner.Hoelder.Discrete
 import APAP.Prereqs.LpNorm.Discrete.Basic
-import APAP.Prereqs.MarcinkiewiczZygmund
 import Mathlib.Algebra.Group.Action.Pointwise.Finset
 import Mathlib.Algebra.Order.Chebyshev
 import Mathlib.Algebra.Order.Star.Real
@@ -141,15 +141,18 @@ lemma lemma28_part_one (hm : 1 ≤ m) (x : G) :
       (8 * m) ^ m * k ^ (m - 1) *
         ∑ a ∈ A ^^ k, ∑ i, ‖f (x - a i) - (mu A ∗ᵈ f) x‖ ^ (2 * m) := by
   let f' : G → ℂ := fun a ↦ f (x - a) - (mu A ∗ᵈ f) x
-  refine (RCLike.marcinkiewicz_zygmund (by linarith only [hm]) f' ?_).trans_eq' ?_
-  · intro i
-    rw [Fintype.sum_piFinset_apply, sum_sub_distrib]
-    simp only [sum_const]
-    rw [← Pi.smul_apply (card A), ← smul_ddconv, card_smul_mu, ddconv_eq_sum_sub']
-    simp only [boole_mul, Set.indicator_apply, mem_coe]
-    rw [← sum_filter, filter_mem_eq_inter, univ_inter, sub_self, smul_zero]
-  congr with a : 1
-  simp only [sum_sub_distrib, Pi.smul_apply, sum_const, card_fin, f']
+  calc
+    _ = ∑ a ∈ A ^^ k, ‖∑ i, f' (a i)‖ ^ (2 * m) := by
+      congr with a : 1
+      simp only [sum_sub_distrib, Pi.smul_apply, sum_const, card_fin, f']
+    _ ≤ (4 * m) ^ m * k ^ (m - 1) * ∑ a ∈ A ^^ k, ∑ i, ‖f' (a i)‖ ^ (2 * m) :=
+      marcinkiewicz_zygmund_piFinset (by lia) f' ?_
+    _ ≤ _ := by gcongr; norm_num
+  rw [sum_sub_distrib]
+  simp only [sum_const]
+  rw [← Pi.smul_apply (card A), ← smul_ddconv, card_smul_mu, ddconv_eq_sum_sub']
+  simp only [boole_mul, Set.indicator_apply, mem_coe]
+  rw [← sum_filter, filter_mem_eq_inter, univ_inter, sub_self]
 
 lemma big_shifts_step2 (L : Finset (Fin k → G)) (hk : k ≠ 0) :
     (∑ x ∈ L + S.piDiag (Fin k), ∑ l ∈ L, ∑ s ∈ S.piDiag (Fin k), ite (l + s = x) (1 : ℝ) 0) ^ 2

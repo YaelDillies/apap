@@ -49,7 +49,5 @@ public import APAP.Prereqs.LpNorm.Compact
 public import APAP.Prereqs.LpNorm.Discrete.Basic
 public import APAP.Prereqs.LpNorm.Discrete.Defs
 public import APAP.Prereqs.LpNorm.Weighted
-public import APAP.Prereqs.MarcinkiewiczZygmund
 public import APAP.Prereqs.Mu
-public import APAP.Prereqs.NewMarcinkiewiczZygmund
 public import APAP.Prereqs.Rudin
