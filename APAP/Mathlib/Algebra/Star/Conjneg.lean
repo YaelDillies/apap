@@ -5,7 +5,7 @@ public import Mathlib.Algebra.Star.Conjneg
 
 public section
 
-open scoped ComplexConjugate Indicator
+open scoped ComplexConjugate Indicator Pointwise
 
 variable {G R : Type*}
 
