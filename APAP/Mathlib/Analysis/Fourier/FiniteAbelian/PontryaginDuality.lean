@@ -82,8 +82,8 @@ noncomputable def toZModLinearMap [NeZero q] : G →ₗ[ZMod q] ZMod q :=
 @[simp]
 lemma toZModLinearMap_eq_zero [Fact <| 1 < q] : toZModLinearMap q γ x = 0 ↔ γ x = 1 := by
   simp +contextual only [toZModLinearMap_apply, EmbeddingLike.map_eq_zero_iff, DFunLike.ext_iff,
-    toAddMonoidHomAddChar_apply_apply, map_zmod_smul, zero_apply, iff_iff_implies_and_implies,
-    one_pow, implies_true, and_true]
+    toAddMonoidHomAddChar_apply_apply, map_zmod_smul, AddChar.zero_apply,
+    iff_iff_implies_and_implies, one_pow, implies_true, and_true]
   rintro h
   simpa [ZMod.val_one] using h 1
 

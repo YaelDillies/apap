@@ -146,8 +146,7 @@ public lemma global_dichotomy [DecidableEq G] [MeasurableSpace G] [DiscreteMeasu
       ← mul_sub, abs_mul, abs_of_nonneg, mul_div_cancel_left₀] <;> positivity
   · rw [dLpNorm_mu hp''.symm.lt.le hC, hp''.symm.coe.inv_sub_one, NNReal.coe_natCast, ← mul_rpow]
     any_goals positivity
-    rw [nnratCast_dens, le_div_iff₀, mul_comm] at hγC
-    any_goals positivity
+    rw [nnratCast_dens, le_div_iff₀ (by positivity), mul_comm] at hγC
     refine rpow_le_rpow_of_nonpos ?_ hγC (neg_nonpos.2 ?_) <;> positivity
   · rw [mul_comm, mu_univ_eq_const, wLpNorm_const_right, mul_right_comm, rpow_neg, ← inv_rpow]
     any_goals positivity

@@ -66,7 +66,7 @@ lemma cLpNorm_mul_le (p q : ℝ≥0∞) (_hr₀ : r ≠ 0) [hpqr : ENNReal.Holde
   have hm_p : MemLp f p μ := MemLp.of_discrete
   have hm_q : MemLp g q μ := MemLp.of_discrete
   have hbd : ∀ᵐ x ∂μ, ‖f x * g x‖₊ ≤ (1 : NNReal) * ‖f x‖₊ * ‖g x‖₊ :=
-    .of_forall fun x ↦ by rw [one_mul]; exact nnnorm_mul_le _ _
+    .of_forall fun x ↦ by rw [one_mul]; exact nnNorm_mul_le _ _
   have key : eLpNorm (fun x ↦ f x * g x) r μ
       ≤ ((1 : NNReal) : ℝ≥0∞) * eLpNorm f p μ * eLpNorm g q μ :=
     eLpNorm_le_eLpNorm_mul_eLpNorm _ 1 continuous_mul

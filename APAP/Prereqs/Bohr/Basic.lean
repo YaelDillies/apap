@@ -123,7 +123,7 @@ lemma mem_chordSet_iff_norm_width :
 -- TODO: This lemma needs `Finite G` because we are using `AddChar G ℂ` rather than `AddChar G ℂˣ`
 -- as the dual group.
 @[simp] lemma neg_mem [Finite G] : -x ∈ B.chordSet ↔ x ∈ B.chordSet :=
-  forall_congr' fun ψ ↦ by rw [Iff.comm, ← RCLike.nnnorm_conj, map_sub, map_one, map_neg_eq_conj]
+  forall_congr' fun ψ ↦ by rw [Iff.comm, ← RCLike.nnNorm_conj, map_sub, map_one, map_neg_eq_conj]
 
 /-! ### Lattice structure -/
 
@@ -294,7 +294,7 @@ end smul
 lemma eq_zero_of_ewidth_eq_zero {B : BohrSet G} [Finite G] (h : B.ewidth = 0) :
     B.chordSet = {0} := by
   rw [Set.eq_singleton_iff_unique_mem]
-  simp only [mem_chordSet_iff_nnnorm_width, map_zero_eq_one, sub_self, nnnorm_zero, zero_le,
+  simp only [mem_chordSet_iff_nnnorm_width, map_zero_eq_one, sub_self, nnNorm_zero, zero_le,
     implies_true, true_and]
   intro x hx
   by_contra!
@@ -303,7 +303,7 @@ lemma eq_zero_of_ewidth_eq_zero {B : BohrSet G} [Finite G] (h : B.ewidth = 0) :
   apply hψ
   have hψ' : ψ ∈ B.frequencies := by simp [B.mem_frequencies, h]
   specialize hx hψ'
-  rwa [B.width_def, h, Pi.zero_apply, ENNReal.toNNReal_zero, nonpos_iff_eq_zero, nnnorm_eq_zero,
+  rwa [B.width_def, h, Pi.zero_apply, ENNReal.toNNReal_zero, nonpos_iff_eq_zero, nnNorm_eq_zero,
     sub_eq_zero, eq_comm] at hx
 
 @[simp] lemma AddChar.nnnorm_apply {α G : Type*}
@@ -315,7 +315,7 @@ lemma eq_top_of_two_le_width {B : BohrSet G} [Finite G] (h : ∀ ψ, 2 ≤ B.wid
     B.chordSet = Set.univ := by
   simp only [Set.eq_univ_iff_forall, mem_chordSet_iff_nnnorm_width]
   intro i ψ _
-  calc ‖1 - ψ i‖₊ ≤ ‖(1 : ℂ)‖₊ + ‖ψ i‖₊ := nnnorm_sub_le _ _
+  calc ‖1 - ψ i‖₊ ≤ ‖(1 : ℂ)‖₊ + ‖ψ i‖₊ := nnNorm_sub_le _ _
     _ = 2 := by norm_num
     _ ≤ B.width ψ := h _
 

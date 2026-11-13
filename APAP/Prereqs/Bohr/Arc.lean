@@ -41,7 +41,7 @@ lemma mem_arcSet_iff_norm_width :
 lemma arcSet_subset_chordSet [Finite G] :
     B.arcSet ⊆ B.chordSet := fun x hx ψ => by
   refine (hx ψ).trans' ?_
-  rw [ENNReal.coe_le_coe, ←NNReal.coe_le_coe, coe_nnnorm, coe_nnnorm,
+  rw [ENNReal.coe_le_coe, ←NNReal.coe_le_coe, coe_nnNorm, coe_nnNorm,
     Real.norm_of_nonneg (angle_nonneg _ _), angle_comm]
   exact Complex.norm_sub_le_angle (by simp) (by simp)
 
@@ -53,7 +53,7 @@ lemma chordSet_subset_smul_arcSet [Finite G] :
   case isTrue h =>
     have := hx ψ
     simp only [←coe_width h, ENNReal.coe_le_coe, ←ENNReal.coe_mul, ←NNReal.coe_le_coe,
-      coe_nnnorm, NNReal.coe_mul] at this ⊢
+      coe_nnNorm, NNReal.coe_mul] at this ⊢
     rw [coe_nnabs, abs_of_nonneg pi_div_two_pos.le, Real.norm_of_nonneg (angle_nonneg _ _),
       angle_comm]
     refine (Complex.angle_le_mul_norm_sub (by simp) (by simp)).trans ?_
