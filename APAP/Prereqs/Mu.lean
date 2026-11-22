@@ -61,7 +61,7 @@ lemma mu_apply_ne_zero : μ_[K] s a ≠ 0 ↔ a ∈ s := mu_apply_eq_zero.not_le
 @[simp] lemma mu_eq_zero : μ_[K] s = 0 ↔ s = ∅ := by
   simp [funext_iff, eq_empty_iff_forall_notMem]
 
-lemma mu_ne_zero : μ_[K] s ≠ 0 ↔ s.Nonempty := mu_eq_zero.not.trans nonempty_iff_ne_empty.symm
+lemma mu_ne_zero : μ_[K] s ≠ 0 ↔ s.Nonempty := by simp
 
 variable (K)
 

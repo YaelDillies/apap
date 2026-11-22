@@ -294,7 +294,7 @@ public lemma ap_in_ff [DecidableEq G] (hq : q.Prime) (hα₀ : 0 < α) (hα₂ :
         positivity
       · replace hψ : ‖dft (μ T) ψ‖ < exp (-1) := by
           simpa [hT, Δ] using Set.notMem_subset AddSubgroup.subset_closure hψ
-        grw [norm_neg, norm_mul, norm_pow, hψ, ← exp_nat_mul, mul_neg_one]
+        grw [norm_neg, norm_mul, norm_pow, hψ, ← exp_natCast_mul, mul_neg_one]
     _ = exp (-k) * ‖dft F‖ₙ_[1] := by rw [cL1Norm_eq_expect_norm, Finset.mul_expect]
     _ ≤ exp (-k) * α⁻¹ := by
       gcongr
@@ -563,7 +563,7 @@ public theorem ff (hq₃ : 3 ≤ q) (hq : q.Prime) (hA₀ : A.Nonempty) (hA : Th
       simpa [Module.card_eq_pow_finrank (K := ZMod q) (V := V), ZMod.card] using hq'.pow) hα₀ this
     rw [dLinftyNorm_eq_iSup_norm, ← Finset.sup'_univ_eq_ciSup, Finset.le_sup'_iff] at hv'
     obtain ⟨x, -, hx⟩ := hv'
-    let B' : Finset V' := (-x +ᵥ B).preimage (↑) Set.injOn_subtype_val
+    let B' : Finset V' := (-x +ᵥ B).preimage (↑) Set.injOn_subtypeVal
     have hβ := calc
       ((1 + 64⁻¹ : ℝ) * B.dens : ℝ) = (1 + 2⁻¹ / 32) * B.dens := by ring
       _ ≤ ‖(𝟭_[(B : Set V), ℝ] ∗ᵈ μ (V' : Set V).toFinset) x‖ := hx
@@ -581,7 +581,7 @@ public theorem ff (hq₃ : 3 ≤ q) (hq : q.Prime) (hA₀ : A.Nonempty) (hA : Th
         _ ≤ finrank (ZMod q) V' + 2 ^ 128 * 𝓛 α ^ 4 * 𝓛 α ^ 4 / 2⁻¹ ^ 12 +
             2 ^ 140 * i * 𝓛 α ^ 8 := by have := hα₀.trans_le hαβ; gcongr
         _ = _ := by push_cast; ring
-    · exact .of_image .subtypeVal Set.injOn_subtype_val (Set.subset_univ _)
+    · exact .of_image .subtypeVal Set.injOn_subtypeVal (Set.subset_univ _)
         (hB.vadd_set (a := -x) |>.mono <| by simp [B'])
     · calc
         α ≤ B.dens := hαβ

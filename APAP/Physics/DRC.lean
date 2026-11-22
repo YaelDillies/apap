@@ -212,8 +212,7 @@ lemma sifting (B₁ B₂ : Finset G) (hε : 0 < ε) (hε₁ : ε ≤ 1) (hδ : 0
   have aux (c : Finset G) (r)
     (h : (4 : ℝ)⁻¹ * ‖𝟭_[A, ℝ] ○ᵈ 𝟭_[A]‖_[p, μ B₁ ○ᵈ μ B₂] ^ (2 * p) / #A ^ (2 * p) ≤ #c / r) :
     c.Nonempty := by
-    simp_rw [nonempty_iff_ne_empty]
-    rintro rfl
+    by_contra! rfl
     simp [pow_mul', inv_mul_le_iff₀ (zero_lt_four' ℝ), div_nonpos_iff,
       (pow_pos (dLpNorm_ddconv_pos hp₀.ne' hB hA) 2).not_ge, hp₀.ne', hA.ne_empty] at h
   have hA₁ : A₁.Nonempty := aux _ _ hcard₁
