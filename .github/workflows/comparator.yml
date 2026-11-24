@@ -1,0 +1,186 @@
+name: Comparator CI (a trustworthy judge for Lean proofs)
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    paths:
+      - 'comparator/**'
+      - 'APAP/**'
+      - 'APAP.lean'
+      - 'lean-toolchain'
+      - 'verify.sh'
+      - '.github/workflows/comparator.yml'
+  workflow_dispatch:
+
+jobs:
+  comparator:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Install system dependencies (for act / minimal environments)
+        run: |
+          if ! command -v curl &>/dev/null || ! command -v git &>/dev/null || ! command -v zstd &>/dev/null; then
+            echo "Installing dependencies..."
+            SUDO=""
+            if command -v sudo &>/dev/null; then SUDO="sudo"; fi
+            # Ensure apt is not interactive
+            export DEBIAN_FRONTEND=noninteractive
+            $SUDO apt-get update -y && $SUDO apt-get install -y curl git zstd ca-certificates build-essential
+          fi
+
+      - name: Load version pins from comparator/versions.env
+        run: |
+          grep -v '^#' comparator/versions.env | grep -v '^$' \
+            | while IFS='=' read -r k v; do echo "$k=$v" >> "$GITHUB_ENV"; done
+
+      - name: Free up disk space
+        run: |
+          df -h /
+          SUDO=""
+          if command -v sudo &>/dev/null; then SUDO="sudo"; fi
+          $SUDO rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc \
+            /usr/local/.ghcup /opt/hostedtoolcache/CodeQL || true
+          $SUDO apt-get clean || true
+          df -h /
+
+      - name: Install elan and pre-install Lean toolchain
+        run: |
+          curl -fsSL -o /tmp/elan.tar.gz \
+            "https://github.com/leanprover/elan/releases/download/${ELAN_VERSION}/elan-x86_64-unknown-linux-gnu.tar.gz"
+          echo "${ELAN_SHA256}  /tmp/elan.tar.gz" | sha256sum -c
+          tar -xzf /tmp/elan.tar.gz -C /tmp
+          /tmp/elan-init -y --no-modify-path
+          echo "$HOME/.elan/bin" >> $GITHUB_PATH
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          # Install toolchain explicitly so elan doesn't fetch it unverified at build time.
+          TOOLCHAIN_DIR="$HOME/.elan/toolchains/leanprover--lean4---${LEAN_VERSION}"
+          curl -fsSL -o /tmp/lean.tar.zst \
+            "https://releases.lean-lang.org/lean4/${LEAN_VERSION}/lean-${LEAN_VERSION#v}-linux.tar.zst"
+          echo "${LEAN_SHA256}  /tmp/lean.tar.zst" | sha256sum -c
+          mkdir -p "$TOOLCHAIN_DIR"
+          tar --zstd -xf /tmp/lean.tar.zst -C "$TOOLCHAIN_DIR" --strip-components=1
+
+      - name: Cache .lake
+        if: ${{ !env.ACT }}
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: .lake
+          key: lake-${{ hashFiles('lean-toolchain', 'lakefile.toml', 'lake-manifest.json') }}-${{ github.run_id }}
+          restore-keys: |
+            lake-${{ hashFiles('lean-toolchain', 'lakefile.toml', 'lake-manifest.json') }}-
+            lake-
+
+      - name: Build library (warms oleans for comparator)
+        run: |
+          lake exe cache get
+          lake build
+
+      - name: Install landrun
+        run: |
+          mkdir -p "$HOME/.local/bin"
+          curl -fsSL -o "$HOME/.local/bin/landrun" \
+            "https://github.com/Zouuup/landrun/releases/download/${LANDRUN_VERSION}/landrun-linux-amd64"
+          echo "${LANDRUN_SHA256}  $HOME/.local/bin/landrun" | sha256sum -c
+          chmod +x "$HOME/.local/bin/landrun"
+          landrun --version
+
+      - name: Cache lean4export build
+        if: ${{ !env.ACT }}
+        id: cache-lean4export
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: ~/lean4export
+          key: lean4export-${{ env.LEAN4EXPORT_REF }}-${{ hashFiles('lean-toolchain') }}
+
+      - name: Build lean4export
+        if: steps.cache-lean4export.outputs.cache-hit != 'true'
+        run: |
+          git clone -q --no-checkout https://github.com/leanprover/lean4export ~/lean4export
+          git -C ~/lean4export fetch -q --depth 1 origin "$LEAN4EXPORT_REF"
+          git -C ~/lean4export checkout -q FETCH_HEAD
+          cp lean-toolchain ~/lean4export/lean-toolchain
+          (cd ~/lean4export && lake build)
+
+      - name: Cache comparator build
+        if: ${{ !env.ACT }}
+        id: cache-comparator
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: ~/comparator
+          key: comparator-${{ env.COMPARATOR_REF }}
+
+      - name: Build comparator
+        if: steps.cache-comparator.outputs.cache-hit != 'true'
+        run: |
+          git clone -q --no-checkout https://github.com/leanprover/comparator ~/comparator
+          git -C ~/comparator fetch -q --depth 1 origin "$COMPARATOR_REF"
+          git -C ~/comparator checkout -q FETCH_HEAD
+          (cd ~/comparator && lake build)
+
+      - name: Cache nanoda build
+        if: ${{ !env.ACT }}
+        id: cache-nanoda
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: ~/nanoda_lib/target/release/nanoda_bin
+          key: nanoda-${{ env.NANODA_REF }}
+
+      - name: Build nanoda (independent Rust kernel)
+        if: steps.cache-nanoda.outputs.cache-hit != 'true'
+        run: |
+          curl -fsSL -o /tmp/rust.tar.gz \
+            "https://static.rust-lang.org/dist/rust-${RUST_VERSION}-x86_64-unknown-linux-gnu.tar.gz"
+          echo "${RUST_SHA256}  /tmp/rust.tar.gz" | sha256sum -c
+          tar -xzf /tmp/rust.tar.gz -C /tmp
+          /tmp/rust-${RUST_VERSION}-x86_64-unknown-linux-gnu/install.sh --prefix="$HOME/.local" --without=rust-docs
+          git clone -q --no-checkout https://github.com/ammkrn/nanoda_lib ~/nanoda_lib
+          git -C ~/nanoda_lib fetch -q --depth 1 origin "$NANODA_REF"
+          git -C ~/nanoda_lib checkout -q FETCH_HEAD
+          (cd ~/nanoda_lib && "$HOME/.local/bin/cargo" build --release)
+
+      - name: Create landrun wrapper
+        run: |
+          mkdir -p "$HOME/.local/bin"
+          printf '%s\n' \
+            '#!/usr/bin/env bash' \
+            'args=()' \
+            'while [[ $# -gt 0 ]]; do' \
+            '  if [[ "$1" == "--ro" && "$2" == "/" ]]; then' \
+            '    args+=("--rox" "/")' \
+            '    shift 2' \
+            '  else' \
+            '    args+=("$1")' \
+            '    shift' \
+            '  fi' \
+            'done' \
+            'exec LANDRUN_PLACEHOLDER "${args[@]}"' \
+            > "$HOME/.local/bin/landrun-wrapper"
+          sed -i "s|LANDRUN_PLACEHOLDER|$HOME/.local/bin/landrun|g" "$HOME/.local/bin/landrun-wrapper"
+          chmod +x "$HOME/.local/bin/landrun-wrapper"
+
+      - name: Link tools onto PATH
+        run: |
+          ln -sf ~/lean4export/.lake/build/bin/lean4export "$HOME/.local/bin/lean4export"
+          ln -sf ~/comparator/.lake/build/bin/comparator "$HOME/.local/bin/comparator"
+          ln -sf ~/nanoda_lib/target/release/nanoda_bin "$HOME/.local/bin/nanoda_bin"
+          command -v landrun lean4export comparator nanoda_bin
+
+      - name: Build comparator workspace (Challenge + Solution)
+        run: |
+          cd comparator
+          lake exe cache get
+          lake build Challenge Solution
+
+      - name: Run comparator (1 theorem, kernel + axiom-closure re-check)
+        run: |
+          cd comparator
+          COMPARATOR_LANDRUN="$HOME/.local/bin/landrun-wrapper" \
+            COMPARATOR_NANODA="$HOME/nanoda_lib/target/release/nanoda_bin" \
+            lake env comparator config.json
